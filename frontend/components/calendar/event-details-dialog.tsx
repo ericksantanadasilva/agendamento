@@ -1,0 +1,134 @@
+"use client";
+
+import * as React from "react";
+import { CalendarAppointment } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
+import { X, Clock, Calendar, User, MapPin, FileText } from "lucide-react";
+
+export interface EventDetailsDialogProps {
+  appointment: CalendarAppointment | null;
+  resourceName?: string;
+  onClose: () => void;
+}
+
+export function EventDetailsDialog({
+  appointment,
+  resourceName,
+  onClose,
+}: EventDetailsDialogProps) {
+  if (!appointment) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150">
+      <div
+        className="w-full max-w-md bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dialog-title"
+      >
+        {/* Cabeçalho do Dialog */}
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+          <div className="space-y-0.5">
+            <span className="font-mono text-[10px] uppercase text-muted-foreground tracking-wider">
+              Detalhes da Reserva
+            </span>
+            <h3 id="dialog-title" className="text-sm font-semibold text-foreground truncate">
+              {appointment.clientName}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            aria-label="Fechar modal"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Conteúdo com Informações Estruturadas */}
+        <div className="p-5 space-y-4 text-xs">
+          {/* Serviço e Status */}
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-border/50">
+            <div>
+              <p className="text-muted-foreground text-[11px]">Serviço</p>
+              <p className="font-medium text-foreground text-sm mt-0.5">
+                {appointment.serviceName}
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] px-2 py-0.5 rounded bg-muted border border-border text-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                {appointment.status}
+              </span>
+            </div>
+          </div>
+
+          {/* Horário & Duração */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-2.5 rounded bg-muted/40 border border-border/60">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+                <Clock className="w-3 h-3" />
+                Horário
+              </span>
+              <p className="font-mono font-medium text-foreground mt-1">
+                {appointment.startTime} → {appointment.endTime}
+              </p>
+              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                Duração: {appointment.durationMinutes} min
+              </p>
+            </div>
+
+            <div className="p-2.5 rounded bg-muted/40 border border-border/60">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+                <MapPin className="w-3 h-3" />
+                Local / Recurso
+              </span>
+              <p className="font-medium text-foreground mt-1 truncate">
+                {resourceName || "Estúdio Geral"}
+              </p>
+              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                {appointment.resourceId}
+              </p>
+            </div>
+          </div>
+
+          {/* Técnico / Responsável */}
+          {appointment.technicianName && (
+            <div className="flex items-center gap-2 p-2.5 rounded bg-muted/20 border border-border/40">
+              <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <div>
+                <span className="text-[10px] text-muted-foreground block">
+                  Profissional Designado
+                </span>
+                <span className="font-medium text-foreground">
+                  {appointment.technicianName}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Observações Técnicas */}
+          {appointment.notes && (
+            <div className="space-y-1 pt-1">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+                <FileText className="w-3 h-3" />
+                Observações
+              </span>
+              <p className="text-[11px] text-muted-foreground/90 bg-muted/30 p-2.5 rounded border border-border/40 leading-relaxed">
+                {appointment.notes}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Rodapé de Ações */}
+        <div className="flex items-center justify-end gap-2.5 p-3.5 border-t border-border bg-muted/20">
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            Fechar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

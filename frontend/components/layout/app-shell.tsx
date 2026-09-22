@@ -1,0 +1,46 @@
+"use client";
+
+import * as React from "react";
+import { Sidebar } from "./sidebar";
+import { FloatingBottomNav } from "./floating-bottom-nav";
+
+export interface AppShellProps {
+  children: React.ReactNode;
+}
+
+export function AppShell({ children }: AppShellProps) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  // Carrega a preferência salva no carregamento
+  React.useEffect(() => {
+    const saved = localStorage.getItem("sidebar_collapsed");
+    if (saved !== null) {
+      setIsCollapsed(saved === "true");
+    }
+  }, []);
+
+  const handleToggle = React.useCallback(() => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("sidebar_collapsed", String(next));
+      return next;
+    });
+  }, []);
+
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Sidebar Desktop Fixa (sem scroll junto com a página) */}
+      <Sidebar isCollapsed={isCollapsed} onToggle={handleToggle} />
+
+      {/* Main Content Area (rolagem independente) */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <main className="flex-1 max-w-[1440px] w-full mx-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex flex-col">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile Floating Bottom Nav */}
+      <FloatingBottomNav />
+    </div>
+  );
+}
