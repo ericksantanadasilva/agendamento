@@ -1,13 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { minutesToPixels } from "./utils";
+import {
+  minutesToPixels,
+  DEFAULT_START_HOUR,
+  DEFAULT_END_HOUR,
+} from "./utils";
 
 export interface CurrentTimeIndicatorProps {
   showLabel?: boolean;
+  startHour?: number;
+  endHour?: number;
 }
 
-export function CurrentTimeIndicator({ showLabel = true }: CurrentTimeIndicatorProps) {
+export function CurrentTimeIndicator({
+  showLabel = true,
+  startHour = DEFAULT_START_HOUR,
+  endHour = DEFAULT_END_HOUR,
+}: CurrentTimeIndicatorProps) {
   const [currentMinutes, setCurrentMinutes] = React.useState<number>(() => {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
@@ -32,7 +42,12 @@ export function CurrentTimeIndicator({ showLabel = true }: CurrentTimeIndicatorP
     return () => clearInterval(interval);
   }, []);
 
-  const topPosition = minutesToPixels(currentMinutes);
+  // Se o horário atual estiver fora do expediente exibido, não desenha
+  if (currentMinutes < startHour * 60 || currentMinutes > endHour * 60) {
+    return null;
+  }
+
+  const topPosition = minutesToPixels(currentMinutes, startHour);
 
   return (
     <div
@@ -40,20 +55,20 @@ export function CurrentTimeIndicator({ showLabel = true }: CurrentTimeIndicatorP
       style={{ top: `${topPosition}px` }}
       aria-label={`Horário atual: ${currentTimeLabel}`}
     >
-      {/* Marcador lateral na borda da coluna */}
+      {/* Marcador lateral discreto */}
       {showLabel ? (
-        <div className="flex items-center absolute -left-1 sm:-left-1.5 -translate-y-1/2">
-          <span className="w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary/20 shrink-0" />
-          <span className="ml-1.5 px-1.5 py-0.5 rounded bg-primary text-primary-foreground font-mono text-[10px] font-semibold leading-none shadow-xs select-none">
+        <div className="flex items-center absolute -left-1 sm:-left-2 -translate-y-1/2 bg-[#0d0d0d] px-1 py-0.5 rounded-xs border border-primary/30">
+          <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+          <span className="ml-1 text-primary/90 font-mono text-[9px] font-medium tracking-tight select-none leading-none">
             {currentTimeLabel}
           </span>
         </div>
       ) : (
-        <span className="w-2 h-2 rounded-full bg-primary absolute -left-1 -translate-y-1/2" />
+        <span className="w-1 h-1 rounded-full bg-primary absolute -left-0.5 -translate-y-1/2" />
       )}
 
-      {/* Linha horizontal fina através de toda a largura do dia */}
-      <div className="w-full h-[1.5px] bg-primary/70" />
+      {/* Linha horizontal fina de sinal visual discreto (1px, opacidade moderada) */}
+      <div className="w-full h-[1px] bg-primary/45" />
     </div>
   );
 }

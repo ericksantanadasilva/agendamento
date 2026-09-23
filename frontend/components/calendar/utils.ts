@@ -1,6 +1,16 @@
 export const HOUR_HEIGHT = 64; // pixels por hora (aprox 1.066px por minuto)
+export const HEADER_HEIGHT = 56; // pixels da barra de cabeçalho dos estúdios (h-14)
+export const DEFAULT_START_HOUR = 0;
+export const DEFAULT_END_HOUR = 24;
 export const TOTAL_HOURS = 24;
-export const TOTAL_DAY_HEIGHT = HOUR_HEIGHT * TOTAL_HOURS; // 1536px
+export const TOTAL_DAY_HEIGHT = HOUR_HEIGHT * TOTAL_HOURS; // 1536px (default 24h)
+
+/**
+ * Retorna a altura total do calendário com base na janela operacional configurada
+ */
+export function getCalendarHeight(startHour = DEFAULT_START_HOUR, endHour = DEFAULT_END_HOUR): number {
+  return Math.max(endHour - startHour, 1) * HOUR_HEIGHT;
+}
 
 /**
  * Converte "HH:mm" para minutos decorridos desde 00:00
@@ -11,17 +21,18 @@ export function timeToMinutes(timeStr: string): number {
 }
 
 /**
- * Converte minutos para posição Y em pixels
+ * Converte minutos para posição Y em pixels, considerando o offset do horário inicial
  */
-export function minutesToPixels(minutes: number): number {
-  return (minutes / 60) * HOUR_HEIGHT;
+export function minutesToPixels(minutes: number, startHour = DEFAULT_START_HOUR): number {
+  const adjustedMinutes = minutes - startHour * 60;
+  return (adjustedMinutes / 60) * HOUR_HEIGHT;
 }
 
 /**
- * Retorna a posição vertical (top) em pixels para um horário "HH:mm"
+ * Retorna a posição vertical (top) em pixels para um horário "HH:mm", considerando o início operacional
  */
-export function timeToPixels(timeStr: string): number {
-  return minutesToPixels(timeToMinutes(timeStr));
+export function timeToPixels(timeStr: string, startHour = DEFAULT_START_HOUR): number {
+  return minutesToPixels(timeToMinutes(timeStr), startHour);
 }
 
 /**
@@ -32,13 +43,20 @@ export function durationToPixels(durationMinutes: number): number {
 }
 
 /**
- * Gera lista com as 24 horas do dia
+ * Gera lista com as horas operacionais do dia
  */
-export function getDayHours(): { hour: number; label: string }[] {
-  return Array.from({ length: 24 }, (_, i) => ({
-    hour: i,
-    label: `${String(i).padStart(2, "0")}:00`,
-  }));
+export function getDayHours(
+  startHour = DEFAULT_START_HOUR,
+  endHour = DEFAULT_END_HOUR,
+): { hour: number; label: string }[] {
+  const count = Math.max(endHour - startHour, 1);
+  return Array.from({ length: count }, (_, i) => {
+    const actualHour = startHour + i;
+    return {
+      hour: actualHour,
+      label: `${String(actualHour).padStart(2, "0")}:00`,
+    };
+  });
 }
 
 /**

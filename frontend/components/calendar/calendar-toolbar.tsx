@@ -31,13 +31,13 @@ export function CalendarToolbar({
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1 text-xs select-none">
       {/* Controles de Navegação Temporal (< Hoje >) */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center rounded-[var(--radius)] border border-border bg-card p-0.5">
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={onPreviousDay}
             title="Dia anterior"
-            className="p-1.5 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="p-1 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -46,10 +46,10 @@ export function CalendarToolbar({
             type="button"
             onClick={onToday}
             className={cn(
-              "px-2.5 py-1 text-xs font-medium rounded-[var(--radius)] transition-colors cursor-pointer",
+              "px-2.5 py-1 text-xs rounded-[var(--radius)] transition-colors cursor-pointer border",
               isCurrentDayToday
-                ? "bg-muted text-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+                ? "bg-muted/90 text-foreground font-medium border-border/80"
+                : "bg-transparent text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/40",
             )}
           >
             Hoje
@@ -59,15 +59,15 @@ export function CalendarToolbar({
             type="button"
             onClick={onNextDay}
             title="Próximo dia"
-            className="p-1.5 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="p-1 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
         {/* Indicador de Data Reduzida / Rótulo de Apoio */}
-        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground font-mono text-[11px] px-2">
-          <CalendarIcon className="w-3.5 h-3.5 text-primary shrink-0" />
+        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground/70 font-mono text-[11px]">
+          <CalendarIcon className="w-3.5 h-3.5 text-primary/80 shrink-0" />
           <span>
             {new Intl.DateTimeFormat("pt-BR", {
               day: "2-digit",
@@ -78,16 +78,16 @@ export function CalendarToolbar({
         </div>
       </div>
 
-      {/* Seletor de Modo de Visualização (Dia [ativo], Semana, Mês) */}
-      <div className="flex items-center self-start sm:self-auto rounded-[var(--radius)] border border-border bg-card p-0.5">
+      {/* Seletor de Modo de Visualização (Integrado, sem molduras pesadas) */}
+      <div className="flex items-center gap-1 self-start sm:self-auto">
         <button
           type="button"
           onClick={() => onViewModeChange?.("day")}
           className={cn(
-            "px-3 py-1 text-xs font-medium rounded-[var(--radius)] transition-colors cursor-pointer",
+            "px-2.5 py-1 text-xs rounded-[var(--radius)] transition-colors cursor-pointer",
             viewMode === "day"
-              ? "bg-muted text-foreground font-semibold border-b border-primary"
-              : "text-muted-foreground hover:text-foreground",
+              ? "bg-muted text-foreground font-medium"
+              : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/30",
           )}
         >
           Dia
@@ -97,7 +97,7 @@ export function CalendarToolbar({
           type="button"
           disabled
           title="Modo Semana (planejado para próximas fases)"
-          className="px-3 py-1 text-xs font-medium rounded-[var(--radius)] text-muted-foreground/40 cursor-not-allowed"
+          className="px-2.5 py-1 text-xs text-muted-foreground/30 cursor-not-allowed"
         >
           Semana
         </button>
@@ -106,7 +106,7 @@ export function CalendarToolbar({
           type="button"
           disabled
           title="Modo Mês (planejado para próximas fases)"
-          className="px-3 py-1 text-xs font-medium rounded-[var(--radius)] text-muted-foreground/40 cursor-not-allowed"
+          className="px-2.5 py-1 text-xs text-muted-foreground/30 cursor-not-allowed"
         >
           Mês
         </button>

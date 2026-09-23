@@ -1,45 +1,58 @@
 "use client";
 
 import * as React from "react";
-import { getDayHours, HOUR_HEIGHT, TOTAL_DAY_HEIGHT } from "./utils";
+import {
+  getDayHours,
+  HOUR_HEIGHT,
+  DEFAULT_START_HOUR,
+  DEFAULT_END_HOUR,
+  getCalendarHeight,
+} from "./utils";
 import { cn } from "@/lib/utils";
 
-export function TimeColumn() {
-  const hours = React.useMemo(() => getDayHours(), []);
+export interface TimeColumnProps {
+  startHour?: number;
+  endHour?: number;
+  className?: string;
+}
+
+export function TimeColumn({
+  startHour = DEFAULT_START_HOUR,
+  endHour = DEFAULT_END_HOUR,
+  className,
+}: TimeColumnProps) {
+  const hours = React.useMemo(
+    () => getDayHours(startHour, endHour),
+    [startHour, endHour],
+  );
+  const columnHeight = getCalendarHeight(startHour, endHour);
 
   return (
-    <div className="sticky left-0 z-30 bg-card border-r border-border w-12 sm:w-16 shrink-0 select-none flex flex-col">
-      {/* Cabeçalho de alinhamento com a barra de estúdios */}
-      <div className="sticky top-0 z-40 bg-card border-b border-border h-14 flex items-center justify-center">
-        <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground/70">
-          GMT-3
-        </span>
-      </div>
+    <div
+      className={cn(
+        "sticky left-0 z-20 bg-card border-r border-border/30 w-12 sm:w-16 shrink-0 select-none flex flex-col relative",
+        className,
+      )}
+      style={{ height: `${columnHeight}px` }}
+    >
+      {hours.map(({ hour, label }, index) => {
+        const top = index * HOUR_HEIGHT;
 
-      {/* Grade de 24 Horas com Horários */}
-      <div
-        className="relative w-full"
-        style={{ height: `${TOTAL_DAY_HEIGHT}px` }}
-      >
-        {hours.map(({ hour, label }) => {
-          const top = hour * HOUR_HEIGHT;
-
-          return (
-            <div
-              key={hour}
-              style={{ top: `${top}px` }}
-              className={cn(
-                "absolute inset-x-0 flex items-start justify-end pr-2 sm:pr-3 pointer-events-none",
-                hour === 0 ? "pt-1.5" : "-translate-y-2",
-              )}
-            >
-              <span className="font-mono text-[10px] sm:text-[11px] text-muted-foreground/80 tracking-tight leading-none">
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+        return (
+          <div
+            key={hour}
+            style={{ top: `${top}px` }}
+            className={cn(
+              "absolute inset-x-0 flex items-start justify-end pr-2.5 sm:pr-3 pointer-events-none",
+              index === 0 ? "pt-1" : "-translate-y-2",
+            )}
+          >
+            <span className="font-mono text-[10px] text-muted-foreground/50 tracking-tight leading-none">
+              {label}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

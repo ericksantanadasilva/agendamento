@@ -1,9 +1,40 @@
 "use client";
 
 import * as React from "react";
-import { CalendarAppointment } from "@/types/calendar";
+import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { X, Clock, Calendar, User, MapPin, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const STATUS_CONFIG: Record<
+  AppointmentStatus,
+  { label: string; dotClass: string }
+> = {
+  CONFIRMED: {
+    label: "Confirmado",
+    dotClass: "bg-primary",
+  },
+  IN_PROGRESS: {
+    label: "Em andamento",
+    dotClass: "bg-info",
+  },
+  SCHEDULED: {
+    label: "Agendado",
+    dotClass: "bg-warning",
+  },
+  COMPLETED: {
+    label: "Concluído",
+    dotClass: "bg-muted-foreground/50",
+  },
+  CANCELLED: {
+    label: "Cancelado",
+    dotClass: "bg-destructive",
+  },
+  BLOCKED: {
+    label: "Bloqueado",
+    dotClass: "bg-muted-foreground/70",
+  },
+};
 
 export interface EventDetailsDialogProps {
   appointment: CalendarAppointment | null;
@@ -17,6 +48,11 @@ export function EventDetailsDialog({
   onClose,
 }: EventDetailsDialogProps) {
   if (!appointment) return null;
+
+  const statusInfo = STATUS_CONFIG[appointment.status] || {
+    label: appointment.status,
+    dotClass: "bg-muted-foreground",
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150">
@@ -57,9 +93,9 @@ export function EventDetailsDialog({
               </p>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] px-2 py-0.5 rounded bg-muted border border-border text-foreground">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                {appointment.status}
+              <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-muted/60 border border-border/60 text-foreground">
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusInfo.dotClass)} />
+                <span className="font-medium">{statusInfo.label}</span>
               </span>
             </div>
           </div>

@@ -19,29 +19,29 @@ export function CalendarHeader({
   }, [selectedDate]);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-border/70 select-none">
-      <div className="space-y-1">
-        <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b border-border/50 select-none">
+      <div className="space-y-0.5">
+        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60 block">
           Gestão Operacional de Recursos
         </span>
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+        <div className="flex items-baseline gap-2.5 flex-wrap">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Calendário
           </h1>
-          <span className="text-sm sm:text-base font-medium text-muted-foreground tracking-tight">
+          <span className="text-xs sm:text-sm font-normal text-muted-foreground/75 tracking-normal">
             · {formattedDate}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <Button
           variant="primary"
           size="md"
           onClick={onNewAppointment}
-          className="font-semibold shadow-xs"
+          className="font-medium shadow-xs text-xs px-3.5 h-8 sm:h-9"
         >
-          <Plus className="w-4 h-4 mr-0.5" />
+          <Plus className="w-3.5 h-3.5 mr-1" />
           <span>Novo agendamento</span>
         </Button>
       </div>
