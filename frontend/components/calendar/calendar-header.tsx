@@ -21,7 +21,7 @@ export function CalendarHeader({
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b border-border/50 select-none">
       <div className="space-y-0.5">
-        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60 block">
+        <span className="text-3xs font-mono uppercase tracking-widest text-muted-foreground/60 block">
           Gestão Operacional de Recursos
         </span>
         <div className="flex items-baseline gap-2.5 flex-wrap">

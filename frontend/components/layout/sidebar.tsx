@@ -48,7 +48,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-6 h-6 rounded-[var(--radius)] bg-muted border border-border flex items-center justify-center text-foreground font-mono font-bold text-[11px] shrink-0 relative">
+          <div className="w-6 h-6 rounded-[var(--radius)] bg-muted border border-border flex items-center justify-center text-foreground font-mono font-bold text-2xs shrink-0 relative">
             <span className="text-foreground">AG</span>
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
           </div>
@@ -117,7 +117,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
               {/* Tooltip flutuante discreto no modo colapsado */}
               {isCollapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-muted border border-border text-[11px] font-medium text-foreground rounded shadow-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-muted border border-border text-2xs font-medium text-foreground rounded shadow-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                   {item.label}
                 </span>
               )}
@@ -143,7 +143,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <p className="text-xs font-medium text-foreground truncate">
                 Operador
               </p>
-              <p className="text-[10px] text-muted-foreground truncate font-mono">
+              <p className="text-3xs text-muted-foreground truncate font-mono">
                 operacao@agendamento
               </p>
             </div>

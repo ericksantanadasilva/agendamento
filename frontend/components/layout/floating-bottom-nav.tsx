@@ -48,7 +48,7 @@ export function FloatingBottomNav() {
               key={item.label}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center w-11 h-9 rounded-full text-[10px] font-medium transition-colors",
+                "flex flex-col items-center justify-center w-11 h-9 rounded-full text-3xs font-medium transition-colors",
                 isActive
                   ? "text-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground",

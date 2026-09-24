@@ -51,24 +51,24 @@ export function CurrentTimeIndicator({
 
   return (
     <div
-      className="absolute left-0 right-0 z-20 pointer-events-none flex items-center transition-all duration-300 ease-linear"
+      className="absolute left-0 right-0 pointer-events-none flex items-center transition-all duration-300 ease-linear"
       style={{ top: `${topPosition}px` }}
       aria-label={`Horário atual: ${currentTimeLabel}`}
     >
-      {/* Marcador lateral discreto */}
+      {/* Marcador lateral com horário atual em vermelho (sempre no topo do eixo temporal) */}
       {showLabel ? (
-        <div className="flex items-center absolute -left-1 sm:-left-2 -translate-y-1/2 bg-[#0d0d0d] px-1 py-0.5 rounded-xs border border-primary/30">
-          <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-          <span className="ml-1 text-primary/90 font-mono text-[9px] font-medium tracking-tight select-none leading-none">
+        <div className="flex items-center absolute -left-1 sm:-left-2 -translate-y-1/2 bg-background px-1 py-0.5 rounded-xs border border-destructive/40 z-30">
+          <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+          <span className="ml-1 text-destructive font-mono text-4xs font-medium tracking-tight select-none leading-none">
             {currentTimeLabel}
           </span>
         </div>
       ) : (
-        <span className="w-1 h-1 rounded-full bg-primary absolute -left-0.5 -translate-y-1/2" />
+        <span className="w-1.5 h-1.5 rounded-full bg-destructive absolute -left-0.5 -translate-y-1/2 z-30" />
       )}
 
-      {/* Linha horizontal fina de sinal visual discreto (1px, opacidade moderada) */}
-      <div className="w-full h-[1px] bg-primary/45" />
+      {/* Linha horizontal vermelha suave e plana, sem glow/neon (z-[1] < z-10 dos eventos) */}
+      <div className="w-full h-[1px] bg-destructive/60 z-[1]" />
     </div>
   );
 }

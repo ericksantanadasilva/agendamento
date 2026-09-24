@@ -41,7 +41,7 @@ export function ResourceColumn({
   return (
     <div
       className={cn(
-        "flex-1 min-w-[220px] sm:min-w-[260px] lg:min-w-[280px] relative select-none",
+        "flex-1 min-w-56 sm:min-w-64 lg:min-w-72 relative select-none",
         !isLast && "border-r border-border/20",
         className,
       )}

@@ -38,10 +38,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p className="text-[11px] text-destructive mt-1 font-medium">{error}</p>
+          <p className="text-2xs text-destructive mt-1 font-medium">{error}</p>
         )}
         {!error && helperText && (
-          <p className="text-[11px] text-muted-foreground mt-1">{helperText}</p>
+          <p className="text-2xs text-muted-foreground mt-1">{helperText}</p>
         )}
       </div>
     );

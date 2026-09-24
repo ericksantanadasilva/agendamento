@@ -47,7 +47,7 @@ export function TimeColumn({
               index === 0 ? "pt-1" : "-translate-y-2",
             )}
           >
-            <span className="font-mono text-[10px] text-muted-foreground/50 tracking-tight leading-none">
+            <span className="font-mono text-3xs text-muted-foreground/50 tracking-tight leading-none">
               {label}
             </span>
           </div>

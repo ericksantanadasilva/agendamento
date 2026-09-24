@@ -6,7 +6,7 @@ export const MOCK_RESOURCES: StudioResource[] = [
     name: "Estúdio 01",
     subtitle: "Gravação Acústica",
     capacity: 6,
-    type: "Acústico",
+    // type: "Acústico",
   },
   {
     id: "studio-2",
@@ -27,6 +27,19 @@ export const MOCK_RESOURCES: StudioResource[] = [
 export const MOCK_APPOINTMENTS: CalendarAppointment[] = [
   // Madrugada / Manhã cedo
   {
+    id: "apt-0",
+    resourceId: "studio-2",
+    clientName: "Podcast Papo Tech",
+    serviceName: "Gravação Ep. #48 - AI & Futuro",
+    technicianName: "Lucas S.",
+    date: "2026-09-22",
+    startTime: "00:30",
+    endTime: "02:00",
+    durationMinutes: 90,
+    status: "COMPLETED",
+    notes: "Painel sobre modelos fundacionais e agentes autônomos.",
+  },
+  {
     id: "apt-1",
     resourceId: "studio-1",
     clientName: "Banda Aurora",
@@ -36,8 +49,21 @@ export const MOCK_APPOINTMENTS: CalendarAppointment[] = [
     startTime: "02:00",
     endTime: "04:30",
     durationMinutes: 150,
-    status: "COMPLETED",
+    status: "IN_PROGRESS",
     notes: "Microfonação completa de bateria e gravação multicanal.",
+  },
+  {
+    id: "apt-1b",
+    resourceId: "studio-3",
+    clientName: "Marina Silva Trio",
+    serviceName: "Mix & Masterização Dolby Atmos",
+    technicianName: "Felipe A.",
+    date: "2026-09-22",
+    startTime: "04:00",
+    endTime: "06:30",
+    durationMinutes: 150,
+    status: "CONFIRMED",
+    notes: "Finalização para streaming espacial.",
   },
   {
     id: "apt-2",

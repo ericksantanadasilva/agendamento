@@ -59,7 +59,7 @@ export default function CalendarPage() {
           <button
             type="button"
             onClick={() => setNewAppointmentNotice(false)}
-            className="text-[10px] text-muted-foreground hover:text-foreground underline cursor-pointer"
+            className="text-3xs text-muted-foreground hover:text-foreground underline cursor-pointer"
           >
             Fechar
           </button>

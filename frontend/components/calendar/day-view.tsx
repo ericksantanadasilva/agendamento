@@ -107,35 +107,25 @@ export function DayView({
           <div className="sticky top-0 z-30 flex bg-card border-b border-border/50">
             {/* Célula GMT-3 (Sticky Top + Sticky Left na interseção) */}
             <div className="sticky left-0 z-40 bg-card w-12 sm:w-16 shrink-0 border-r border-border/30 h-14 flex items-center justify-center">
-              <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground/50">
+              <span className="font-mono text-4xs uppercase tracking-wider text-muted-foreground/50">
                 GMT-3
               </span>
             </div>
 
             {/* Barra Contínua dos Estúdios (sem divisórias verticais duras) */}
             <div className="flex flex-1">
-              {visibleResources.map((resource, index) => (
+              {visibleResources.map((resource) => (
                 <div
                   key={resource.id}
-                  className="flex-1 min-w-[220px] sm:min-w-[260px] lg:min-w-[280px] px-4 py-2.5 flex flex-col justify-center h-14"
+                  className="flex-1 min-w-56 sm:min-w-64 lg:min-w-72 px-4 py-2.5 flex flex-col justify-center h-14"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-mono text-[10px] font-medium text-muted-foreground/45 shrink-0">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground truncate">
-                        {resource.name}
-                      </h3>
-                    </div>
-                    {resource.type && (
-                      <span className="font-mono text-[9px] text-muted-foreground/45 tracking-tight shrink-0 hidden sm:inline">
-                        {resource.type}
-                      </span>
-                    )}
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground truncate">
+                      {resource.name}
+                    </h3>
                   </div>
                   {resource.subtitle && (
-                    <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5 pl-6">
+                    <p className="text-2xs text-muted-foreground/70 truncate mt-0.5">
                       {resource.subtitle}
                     </p>
                   )}

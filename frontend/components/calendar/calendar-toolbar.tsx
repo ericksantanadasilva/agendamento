@@ -66,7 +66,7 @@ export function CalendarToolbar({
         </div>
 
         {/* Indicador de Data Reduzida / Rótulo de Apoio */}
-        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground/70 font-mono text-[11px]">
+        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground/70 font-mono text-2xs">
           <CalendarIcon className="w-3.5 h-3.5 text-primary/80 shrink-0" />
           <span>
             {new Intl.DateTimeFormat("pt-BR", {

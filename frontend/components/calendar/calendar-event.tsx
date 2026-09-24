@@ -14,12 +14,16 @@ export interface CalendarEventProps {
 
 const STATUS_CONFIG: Record<
   AppointmentStatus,
-  { label: string; dotClass: string; borderAccentClass: string }
+  {
+    label: string;
+    dotClass: string;
+    borderAccentClass: string;
+  }
 > = {
   CONFIRMED: {
     label: "Confirmado",
-    dotClass: "bg-primary",
-    borderAccentClass: "border-l-primary",
+    dotClass: "bg-success",
+    borderAccentClass: "border-l-success",
   },
   IN_PROGRESS: {
     label: "Em andamento",
@@ -32,9 +36,9 @@ const STATUS_CONFIG: Record<
     borderAccentClass: "border-l-warning",
   },
   COMPLETED: {
-    label: "Concluído",
-    dotClass: "bg-muted-foreground/50",
-    borderAccentClass: "border-l-muted-foreground/40",
+    label: "Finalizado",
+    dotClass: "bg-muted-foreground",
+    borderAccentClass: "border-l-muted-foreground/60",
   },
   CANCELLED: {
     label: "Cancelado",
@@ -43,8 +47,8 @@ const STATUS_CONFIG: Record<
   },
   BLOCKED: {
     label: "Bloqueio",
-    dotClass: "bg-muted-foreground/70",
-    borderAccentClass: "border-l-muted-foreground/60",
+    dotClass: "bg-muted-foreground/60",
+    borderAccentClass: "border-l-border",
   },
 };
 
@@ -54,10 +58,10 @@ export function CalendarEvent({
   onClick,
 }: CalendarEventProps) {
   const top = timeToPixels(appointment.startTime, startHour);
-  const height = Math.max(durationToPixels(appointment.durationMinutes) - 2, 28);
-  const isShort = height <= 36; // 30 minutos
-  const isMedium = height > 36 && height < 68; // 45m a 60m
-  const isLong = height >= 68; // 90m a 120m+
+  const height = Math.max(durationToPixels(appointment.durationMinutes) - 2, 26);
+  const isShort = height <= 38; // <= 30 minutos
+  const isMedium = height > 38 && height < 80; // 45m a 60m
+  const isLong = height >= 80; // 90m a 150m+
   const isBlocked = appointment.status === "BLOCKED";
   const statusInfo = STATUS_CONFIG[appointment.status] || STATUS_CONFIG.SCHEDULED;
 
@@ -69,83 +73,86 @@ export function CalendarEvent({
         height: `${height}px`,
       }}
       className={cn(
-        "absolute inset-x-1.5 sm:inset-x-2 rounded-xs border border-white/[0.04] text-left transition-colors duration-150 cursor-pointer overflow-hidden select-none z-10",
-        // Acento lateral discreto de status substituindo a borda pesada tradicional
+        "absolute left-1 right-1 sm:left-1.5 sm:right-1.5 rounded-r-[2px] rounded-l-none text-left transition-colors duration-150 cursor-pointer overflow-hidden select-none z-10",
         "border-l-[2.5px]",
         statusInfo.borderAccentClass,
-        // Superfície tonal suave integrada ao grid
         isBlocked
-          ? "bg-[#121212] opacity-75 hover:bg-[#161616]"
-          : "bg-[#151515] hover:bg-[#1A1A1A] hover:border-white/[0.08]",
+          ? "bg-muted/40 opacity-70 hover:bg-muted/60"
+          : "bg-surface-elevated hover:bg-surface-elevated-hover",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
       )}
       role="button"
       tabIndex={0}
       title={`${appointment.clientName} · ${appointment.serviceName} (${appointment.startTime} - ${appointment.endTime})`}
     >
-      {/* Caso 1: Evento Curto (30 minutos) - Disposição horizontal inline limpa */}
+      {/* Caso 1: Evento Curto (30m) - Essencial e compacto */}
       {isShort && (
-        <div className="flex items-center justify-between gap-1.5 h-full px-2 py-0.5">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono text-[10px] text-muted-foreground/75 shrink-0">
-              {appointment.startTime}
-            </span>
-            <span className="text-[11px] font-medium text-foreground truncate">
+        <div className="flex flex-col justify-center h-full px-2 min-w-0">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="text-2xs font-semibold text-foreground truncate leading-tight">
               {appointment.clientName}
             </span>
+            <span className="text-3xs text-muted-foreground truncate leading-tight hidden sm:inline">
+              · {appointment.serviceName}
+            </span>
           </div>
-          <span className="font-mono text-[9px] text-muted-foreground/45 shrink-0 hidden sm:inline">
-            30m
+          <span className="text-4xs text-muted-foreground truncate leading-tight sm:hidden">
+            {appointment.serviceName}
           </span>
         </div>
       )}
 
-      {/* Caso 2: Evento Médio (45m a 60m) */}
+      {/* Caso 2: Evento Médio (45m a 60m) - Hierarquia limpa e tempo discreto */}
       {isMedium && (
-        <div className="flex flex-col justify-between h-full px-2.5 py-1.5">
-          <div className="flex items-center justify-between gap-1.5">
-            <h4 className="text-[11px] sm:text-xs font-semibold text-foreground tracking-tight truncate">
+        <div className="flex flex-col justify-between h-full px-2.5 py-1.5 min-w-0">
+          <div className="min-w-0 space-y-0.5">
+            <div className="font-mono text-4xs text-muted-foreground/75 leading-none">
+              {appointment.startTime} → {appointment.endTime}
+            </div>
+            <h4 className="text-xs font-semibold text-foreground tracking-tight truncate leading-tight">
               {appointment.clientName}
             </h4>
-            <span className="font-mono text-[10px] text-muted-foreground/60 shrink-0">
-              {appointment.startTime}
-            </span>
+            <p className="text-3xs text-muted-foreground truncate leading-tight">
+              {appointment.serviceName}
+            </p>
           </div>
-          <p className="text-[10px] text-muted-foreground/70 truncate">
-            {appointment.serviceName}
-          </p>
+          {height >= 54 && appointment.technicianName && (
+            <div className="text-4xs text-muted-foreground/70 truncate leading-none pt-0.5">
+              {appointment.technicianName}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Caso 3: Evento Longo (90m a 120m+) - Amplo, arejado e com hierarquia completa */}
+      {/* Caso 3: Evento Longo (90m+) - Presença, leitura espaçada e status discreto */}
       {isLong && (
-        <div className="flex flex-col justify-between h-full px-2.5 py-2">
-          <div className="space-y-0.5">
-            {/* Linha técnica com horário mono */}
-            <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground/60">
-              <span>{appointment.startTime} - {appointment.endTime}</span>
-              <span className="text-muted-foreground/45">{appointment.durationMinutes}m</span>
+        <div className="flex flex-col justify-between h-full px-3 py-2 min-w-0">
+          <div className="space-y-1 min-w-0">
+            <div className="font-mono text-3xs text-muted-foreground/80 leading-none">
+              {appointment.startTime} → {appointment.endTime}
             </div>
-
-            {/* Título Principal do Cliente */}
-            <h4 className="text-xs font-semibold text-foreground tracking-tight line-clamp-1 pt-0.5">
+            <h4 className="text-xs font-semibold text-foreground tracking-tight line-clamp-2 leading-snug">
               {appointment.clientName}
             </h4>
-
-            {/* Serviço / Descrição */}
-            <p className="text-[11px] text-muted-foreground/75 line-clamp-1">
+            <p className="text-2xs text-muted-foreground line-clamp-2 leading-snug">
               {appointment.serviceName}
             </p>
           </div>
 
-          {/* Rodapé: Técnico ou status com notas */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground/50 pt-1">
-            <span className="truncate">
-              {appointment.technicianName || statusInfo.label}
+          <div className="flex items-center justify-between gap-2 pt-1.5 mt-auto border-t border-border/25">
+            <span className="text-3xs text-muted-foreground/80 truncate font-medium">
+              {appointment.technicianName || "Operador"}
             </span>
-            {isBlocked && (
-              <Lock className="w-2.5 h-2.5 text-muted-foreground/60 shrink-0" />
-            )}
+
+            {/* Status discreto: dot semântico + texto neutro, sem parecer um botão */}
+            <div className="flex items-center gap-1.5 text-4xs text-muted-foreground shrink-0">
+              {isBlocked ? (
+                <Lock className="w-2.5 h-2.5 text-muted-foreground shrink-0" />
+              ) : (
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusInfo.dotClass)} />
+              )}
+              <span className="font-medium">{statusInfo.label}</span>
+            </div>
           </div>
         </div>
       )}

@@ -65,7 +65,7 @@ export function EventDetailsDialog({
         {/* Cabeçalho do Dialog */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
           <div className="space-y-0.5">
-            <span className="font-mono text-[10px] uppercase text-muted-foreground tracking-wider">
+            <span className="font-mono text-3xs uppercase text-muted-foreground tracking-wider">
               Detalhes da Reserva
             </span>
             <h3 id="dialog-title" className="text-sm font-semibold text-foreground truncate">
@@ -87,13 +87,13 @@ export function EventDetailsDialog({
           {/* Serviço e Status */}
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-border/50">
             <div>
-              <p className="text-muted-foreground text-[11px]">Serviço</p>
+              <p className="text-muted-foreground text-2xs">Serviço</p>
               <p className="font-medium text-foreground text-sm mt-0.5">
                 {appointment.serviceName}
               </p>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-muted/60 border border-border/60 text-foreground">
+              <span className="inline-flex items-center gap-1.5 text-2xs px-2.5 py-0.5 rounded bg-muted/60 border border-border/60 text-foreground">
                 <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusInfo.dotClass)} />
                 <span className="font-medium">{statusInfo.label}</span>
               </span>
@@ -103,27 +103,27 @@ export function EventDetailsDialog({
           {/* Horário & Duração */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-2.5 rounded bg-muted/40 border border-border/60">
-              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-3xs">
                 <Clock className="w-3 h-3" />
                 Horário
               </span>
               <p className="font-mono font-medium text-foreground mt-1">
                 {appointment.startTime} → {appointment.endTime}
               </p>
-              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+              <p className="text-3xs font-mono text-muted-foreground mt-0.5">
                 Duração: {appointment.durationMinutes} min
               </p>
             </div>
 
             <div className="p-2.5 rounded bg-muted/40 border border-border/60">
-              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-3xs">
                 <MapPin className="w-3 h-3" />
                 Local / Recurso
               </span>
               <p className="font-medium text-foreground mt-1 truncate">
                 {resourceName || "Estúdio Geral"}
               </p>
-              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+              <p className="text-3xs font-mono text-muted-foreground mt-0.5">
                 {appointment.resourceId}
               </p>
             </div>
@@ -134,7 +134,7 @@ export function EventDetailsDialog({
             <div className="flex items-center gap-2 p-2.5 rounded bg-muted/20 border border-border/40">
               <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <div>
-                <span className="text-[10px] text-muted-foreground block">
+                <span className="text-3xs text-muted-foreground block">
                   Profissional Designado
                 </span>
                 <span className="font-medium text-foreground">
@@ -147,11 +147,11 @@ export function EventDetailsDialog({
           {/* Observações Técnicas */}
           {appointment.notes && (
             <div className="space-y-1 pt-1">
-              <span className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+              <span className="flex items-center gap-1.5 text-muted-foreground text-3xs">
                 <FileText className="w-3 h-3" />
                 Observações
               </span>
-              <p className="text-[11px] text-muted-foreground/90 bg-muted/30 p-2.5 rounded border border-border/40 leading-relaxed">
+              <p className="text-2xs text-muted-foreground/90 bg-muted/30 p-2.5 rounded border border-border/40 leading-relaxed">
                 {appointment.notes}
               </p>
             </div>
