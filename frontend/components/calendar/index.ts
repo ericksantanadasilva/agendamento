@@ -1,6 +1,12 @@
 export * from "./calendar-header";
 export * from "./calendar-toolbar";
 export * from "./day-view";
+export * from "./week-view";
+export * from "./week-day-column";
+export * from "./week-calendar-event";
+export * from "./studio-legend";
+export * from "./studio-filter";
+export * from "./studio-config";
 export * from "./time-column";
 export * from "./resource-column";
 export * from "./calendar-event";
@@ -8,3 +14,4 @@ export * from "./current-time-indicator";
 export * from "./event-details-dialog";
 export * from "./new-appointment-dialog";
 export * from "./utils";
+

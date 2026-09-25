@@ -64,9 +64,13 @@ export function EventDetailsDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer"
+    >
       <div
-        className="w-full max-w-md bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden cursor-default"
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"

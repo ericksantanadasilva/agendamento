@@ -35,6 +35,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   return (
     <aside
+      suppressHydrationWarning
       className={cn(
         "hidden md:flex flex-col sticky top-0 h-screen border-r border-border bg-card select-none shrink-0 transition-all duration-300 ease-in-out z-30",
         isCollapsed ? "w-16" : "w-60",

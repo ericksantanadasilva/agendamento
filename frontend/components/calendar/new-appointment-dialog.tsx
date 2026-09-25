@@ -170,9 +170,13 @@ export function NewAppointmentDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer"
+    >
       <div
-        className="w-full max-w-lg bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden flex flex-col max-h-[90vh] cursor-default"
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-appointment-title"

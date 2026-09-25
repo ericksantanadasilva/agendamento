@@ -3,20 +3,26 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { formatHeaderDate } from "./utils";
+import { formatHeaderDate, formatWeekRange } from "./utils";
+import { CalendarViewMode } from "@/types/calendar";
 
 export interface CalendarHeaderProps {
   selectedDate: Date;
+  viewMode?: CalendarViewMode;
   onNewAppointment?: () => void;
 }
 
 export function CalendarHeader({
   selectedDate,
+  viewMode = "day",
   onNewAppointment,
 }: CalendarHeaderProps) {
   const formattedDate = React.useMemo(() => {
+    if (viewMode === "week") {
+      return `Semana de ${formatWeekRange(selectedDate)}`;
+    }
     return formatHeaderDate(selectedDate);
-  }, [selectedDate]);
+  }, [selectedDate, viewMode]);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b border-border/50 select-none">

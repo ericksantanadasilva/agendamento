@@ -5,6 +5,7 @@ import {
   CalendarHeader,
   CalendarToolbar,
   DayView,
+  WeekView,
   NewAppointmentDialog,
 } from "@/components/calendar";
 import { MOCK_RESOURCES, MOCK_APPOINTMENTS } from "@/lib/mock-calendar-data";
@@ -12,6 +13,7 @@ import { CalendarViewMode, CalendarAppointment } from "@/types/calendar";
 import { CheckCircle2 } from "lucide-react";
 
 export default function CalendarPage() {
+  const [mounted, setMounted] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date>(() => new Date());
   const [viewMode, setViewMode] = React.useState<CalendarViewMode>("day");
   const [appointments, setAppointments] = React.useState<CalendarAppointment[]>(MOCK_APPOINTMENTS);
@@ -19,23 +21,29 @@ export default function CalendarPage() {
   const [editingAppointment, setEditingAppointment] = React.useState<CalendarAppointment | null>(null);
   const [successToast, setSuccessToast] = React.useState<string | null>(null);
 
-  // Navegação: Dia anterior
-  const handlePreviousDay = React.useCallback(() => {
-    setSelectedDate((prev) => {
-      const next = new Date(prev);
-      next.setDate(prev.getDate() - 1);
-      return next;
-    });
+  React.useEffect(() => {
+    setMounted(true);
   }, []);
 
-  // Navegação: Próximo dia
-  const handleNextDay = React.useCallback(() => {
+  // Navegação: Período anterior (Dia ou Semana)
+  const handlePreviousPeriod = React.useCallback(() => {
     setSelectedDate((prev) => {
       const next = new Date(prev);
-      next.setDate(prev.getDate() + 1);
+      const step = viewMode === "week" ? 7 : 1;
+      next.setDate(prev.getDate() - step);
       return next;
     });
-  }, []);
+  }, [viewMode]);
+
+  // Navegação: Próximo período (Dia ou Semana)
+  const handleNextPeriod = React.useCallback(() => {
+    setSelectedDate((prev) => {
+      const next = new Date(prev);
+      const step = viewMode === "week" ? 7 : 1;
+      next.setDate(prev.getDate() + step);
+      return next;
+    });
+  }, [viewMode]);
 
   // Navegação: Voltar para Hoje
   const handleToday = React.useCallback(() => {
@@ -46,6 +54,7 @@ export default function CalendarPage() {
     setEditingAppointment(null);
     setIsNewAppointmentOpen(true);
   }, []);
+
 
   const handleEditAppointment = React.useCallback((appointment: CalendarAppointment) => {
     setEditingAppointment(appointment);
@@ -95,6 +104,16 @@ export default function CalendarPage() {
     [],
   );
 
+  if (!mounted) {
+    return (
+      <div className="flex flex-col flex-1 min-w-0 space-y-4 animate-pulse">
+        <div className="h-10 w-48 bg-muted/40 rounded-[var(--radius)]" />
+        <div className="h-8 w-64 bg-muted/30 rounded-[var(--radius)]" />
+        <div className="flex-1 bg-card/40 rounded-[var(--radius)] border border-border/30 min-h-[500px]" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col flex-1 min-w-0 space-y-4">
       {/* Toast sutil de confirmação de agendamento criado/editado/excluído */}
@@ -117,28 +136,39 @@ export default function CalendarPage() {
       {/* Header do Calendário */}
       <CalendarHeader
         selectedDate={selectedDate}
+        viewMode={viewMode}
         onNewAppointment={handleOpenNewAppointment}
       />
 
       {/* Toolbar com navegação temporal e seletor */}
       <CalendarToolbar
         selectedDate={selectedDate}
-        onPreviousDay={handlePreviousDay}
-        onNextDay={handleNextDay}
+        onPreviousDay={handlePreviousPeriod}
+        onNextDay={handleNextPeriod}
         onToday={handleToday}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
 
-      {/* Área Principal: Calendar Day View (24 Horas) */}
+      {/* Área Principal: Calendar Day View ou Week View */}
       <div className="flex-1 flex flex-col min-h-0 pt-1">
-        <DayView
-          resources={MOCK_RESOURCES}
-          appointments={appointments}
-          selectedDate={selectedDate}
-          onEditAppointment={handleEditAppointment}
-          onDeleteAppointment={handleDeleteAppointment}
-        />
+        {viewMode === "week" ? (
+          <WeekView
+            resources={MOCK_RESOURCES}
+            appointments={appointments}
+            selectedDate={selectedDate}
+            onEditAppointment={handleEditAppointment}
+            onDeleteAppointment={handleDeleteAppointment}
+          />
+        ) : (
+          <DayView
+            resources={MOCK_RESOURCES}
+            appointments={appointments}
+            selectedDate={selectedDate}
+            onEditAppointment={handleEditAppointment}
+            onDeleteAppointment={handleDeleteAppointment}
+          />
+        )}
       </div>
 
       {/* Modal de Criação / Edição de Agendamento */}

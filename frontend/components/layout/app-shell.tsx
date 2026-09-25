@@ -34,7 +34,10 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Main Content Area (rolagem independente) */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        <main className="flex-1 max-w-[1440px] w-full mx-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 flex flex-col">
+        <main
+          className="flex-1 w-full p-4 sm:p-6 pb-24 md:pb-8 flex flex-col"
+          suppressHydrationWarning
+        >
           {children}
         </main>
       </div>

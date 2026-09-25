@@ -18,17 +18,12 @@ export function CurrentTimeIndicator({
   startHour = DEFAULT_START_HOUR,
   endHour = DEFAULT_END_HOUR,
 }: CurrentTimeIndicatorProps) {
-  const [currentMinutes, setCurrentMinutes] = React.useState<number>(() => {
-    const now = new Date();
-    return now.getHours() * 60 + now.getMinutes();
-  });
-
-  const [currentTimeLabel, setCurrentTimeLabel] = React.useState<string>(() => {
-    const now = new Date();
-    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  });
+  const [mounted, setMounted] = React.useState(false);
+  const [currentMinutes, setCurrentMinutes] = React.useState<number>(0);
+  const [currentTimeLabel, setCurrentTimeLabel] = React.useState<string>("");
 
   React.useEffect(() => {
+    setMounted(true);
     const updateTime = () => {
       const now = new Date();
       setCurrentMinutes(now.getHours() * 60 + now.getMinutes());
@@ -41,6 +36,10 @@ export function CurrentTimeIndicator({
     const interval = setInterval(updateTime, 30000); // atualiza a cada 30s
     return () => clearInterval(interval);
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   // Se o horário atual estiver fora do expediente exibido, não desenha
   if (currentMinutes < startHour * 60 || currentMinutes > endHour * 60) {
