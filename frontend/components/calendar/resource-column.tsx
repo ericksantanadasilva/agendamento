@@ -8,6 +8,7 @@ import {
   DEFAULT_START_HOUR,
   DEFAULT_END_HOUR,
   getCalendarHeight,
+  toISODateString,
 } from "./utils";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ export interface ResourceColumnProps {
   startHour?: number;
   endHour?: number;
   appointments: CalendarAppointment[];
+  date?: Date | string;
   onEventClick?: (appointment: CalendarAppointment) => void;
   className?: string;
 }
@@ -27,13 +29,23 @@ export function ResourceColumn({
   startHour = DEFAULT_START_HOUR,
   endHour = DEFAULT_END_HOUR,
   appointments,
+  date,
   onEventClick,
   className,
 }: ResourceColumnProps) {
-  // Filtra agendamentos deste recurso específico
+  const dateStr = React.useMemo(() => {
+    if (!date) return null;
+    return typeof date === "string" ? date : toISODateString(date);
+  }, [date]);
+
+  // Filtra agendamentos deste recurso específico (e data se informada)
   const resourceAppointments = React.useMemo(() => {
-    return appointments.filter((apt) => apt.resourceId === resource.id);
-  }, [appointments, resource.id]);
+    return appointments.filter((apt) => {
+      const matchResource = apt.resourceId === resource.id;
+      const matchDate = dateStr ? apt.date === dateStr : true;
+      return matchResource && matchDate;
+    });
+  }, [appointments, resource.id, dateStr]);
 
   const totalHours = Math.max(endHour - startHour, 1);
   const columnHeight = getCalendarHeight(startHour, endHour);

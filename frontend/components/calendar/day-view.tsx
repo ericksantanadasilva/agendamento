@@ -11,6 +11,7 @@ import {
   DEFAULT_START_HOUR,
   DEFAULT_END_HOUR,
   isSameDay,
+  toISODateString,
 } from "./utils";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,15 @@ export function DayView({
   const isToday = React.useMemo(() => {
     return isSameDay(selectedDate, new Date());
   }, [selectedDate]);
+
+  const selectedDateStr = React.useMemo(() => {
+    return toISODateString(selectedDate);
+  }, [selectedDate]);
+
+  // Filtra agendamentos exclusivamente do dia selecionado
+  const dayAppointments = React.useMemo(() => {
+    return appointments.filter((apt) => apt.date === selectedDateStr);
+  }, [appointments, selectedDateStr]);
 
   // Viewport inicial: somente rola se initialFocusHour for explicitamente fornecido
   React.useEffect(() => {
@@ -164,7 +174,8 @@ export function DayView({
                   isLast={index === visibleResources.length - 1}
                   startHour={calendarStartHour}
                   endHour={calendarEndHour}
-                  appointments={appointments}
+                  appointments={dayAppointments}
+                  date={selectedDate}
                   onEventClick={(apt) => setSelectedAppointment(apt)}
                 />
               ))}
