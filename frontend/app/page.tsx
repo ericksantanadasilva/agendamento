@@ -6,6 +6,7 @@ import {
   CalendarToolbar,
   DayView,
   WeekView,
+  MonthView,
   NewAppointmentDialog,
 } from "@/components/calendar";
 import { MOCK_RESOURCES, MOCK_APPOINTMENTS } from "@/lib/mock-calendar-data";
@@ -25,22 +26,32 @@ export default function CalendarPage() {
     setMounted(true);
   }, []);
 
-  // Navegação: Período anterior (Dia ou Semana)
+  // Navegação: Período anterior (Dia, Semana ou Mês)
   const handlePreviousPeriod = React.useCallback(() => {
     setSelectedDate((prev) => {
       const next = new Date(prev);
-      const step = viewMode === "week" ? 7 : 1;
-      next.setDate(prev.getDate() - step);
+      if (viewMode === "month") {
+        next.setMonth(prev.getMonth() - 1);
+      } else if (viewMode === "week") {
+        next.setDate(prev.getDate() - 7);
+      } else {
+        next.setDate(prev.getDate() - 1);
+      }
       return next;
     });
   }, [viewMode]);
 
-  // Navegação: Próximo período (Dia ou Semana)
+  // Navegação: Próximo período (Dia, Semana ou Mês)
   const handleNextPeriod = React.useCallback(() => {
     setSelectedDate((prev) => {
       const next = new Date(prev);
-      const step = viewMode === "week" ? 7 : 1;
-      next.setDate(prev.getDate() + step);
+      if (viewMode === "month") {
+        next.setMonth(prev.getMonth() + 1);
+      } else if (viewMode === "week") {
+        next.setDate(prev.getDate() + 7);
+      } else {
+        next.setDate(prev.getDate() + 1);
+      }
       return next;
     });
   }, [viewMode]);
@@ -55,6 +66,16 @@ export default function CalendarPage() {
     setIsNewAppointmentOpen(true);
   }, []);
 
+  const handleCreateAppointmentAtDate = React.useCallback((date: Date) => {
+    setSelectedDate(date);
+    setEditingAppointment(null);
+    setIsNewAppointmentOpen(true);
+  }, []);
+
+  const handleSelectDayFromMonth = React.useCallback((date: Date) => {
+    setSelectedDate(date);
+    setViewMode("day");
+  }, []);
 
   const handleEditAppointment = React.useCallback((appointment: CalendarAppointment) => {
     setEditingAppointment(appointment);
@@ -150,9 +171,19 @@ export default function CalendarPage() {
         onViewModeChange={setViewMode}
       />
 
-      {/* Área Principal: Calendar Day View ou Week View */}
+      {/* Área Principal: Calendar Day View, Week View ou Month View */}
       <div className="flex-1 flex flex-col min-h-0 pt-1">
-        {viewMode === "week" ? (
+        {viewMode === "month" ? (
+          <MonthView
+            resources={MOCK_RESOURCES}
+            appointments={appointments}
+            selectedDate={selectedDate}
+            onEditAppointment={handleEditAppointment}
+            onDeleteAppointment={handleDeleteAppointment}
+            onSelectDay={handleSelectDayFromMonth}
+            onCreateAppointment={handleCreateAppointmentAtDate}
+          />
+        ) : viewMode === "week" ? (
           <WeekView
             resources={MOCK_RESOURCES}
             appointments={appointments}

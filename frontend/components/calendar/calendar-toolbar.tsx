@@ -4,7 +4,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarViewMode } from "@/types/calendar";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
-import { isSameDay, formatWeekRange, getWeekDates } from "./utils";
+import { isSameDay, formatWeekRange, getWeekDates, formatMonthRange } from "./utils";
 import { cn } from "@/lib/utils";
 
 export interface CalendarToolbarProps {
@@ -26,6 +26,12 @@ export function CalendarToolbar({
 }: CalendarToolbarProps) {
   const isCurrentTimeSelected = React.useMemo(() => {
     const today = new Date();
+    if (viewMode === "month") {
+      return (
+        selectedDate.getMonth() === today.getMonth() &&
+        selectedDate.getFullYear() === today.getFullYear()
+      );
+    }
     if (viewMode === "week") {
       const week = getWeekDates(selectedDate);
       return week.some((d) => isSameDay(d, today));
@@ -34,6 +40,9 @@ export function CalendarToolbar({
   }, [selectedDate, viewMode]);
 
   const dateLabel = React.useMemo(() => {
+    if (viewMode === "month") {
+      return formatMonthRange(selectedDate);
+    }
     if (viewMode === "week") {
       return formatWeekRange(selectedDate);
     }
@@ -44,6 +53,18 @@ export function CalendarToolbar({
     }).format(selectedDate);
   }, [selectedDate, viewMode]);
 
+  const previousTitle = React.useMemo(() => {
+    if (viewMode === "month") return "Mês anterior";
+    if (viewMode === "week") return "Semana anterior";
+    return "Dia anterior";
+  }, [viewMode]);
+
+  const nextTitle = React.useMemo(() => {
+    if (viewMode === "month") return "Próximo mês";
+    if (viewMode === "week") return "Próxima semana";
+    return "Próximo dia";
+  }, [viewMode]);
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1 text-xs select-none">
       {/* Controles de Navegação Temporal (< Hoje >) */}
@@ -52,7 +73,7 @@ export function CalendarToolbar({
           <button
             type="button"
             onClick={onPreviousDay}
-            title={viewMode === "week" ? "Semana anterior" : "Dia anterior"}
+            title={previousTitle}
             className="p-1 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -74,7 +95,7 @@ export function CalendarToolbar({
           <button
             type="button"
             onClick={onNextDay}
-            title={viewMode === "week" ? "Próxima semana" : "Próximo dia"}
+            title={nextTitle}
             className="p-1 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
@@ -88,7 +109,7 @@ export function CalendarToolbar({
         </div>
       </div>
 
-      {/* Seletor de Modo de Visualização (Integrado, sem molduras pesadas) */}
+      {/* Seletor de Modo de Visualização (Dia, Semana, Mês) */}
       <div className="flex items-center gap-1 self-start sm:self-auto">
         <button
           type="button"
@@ -118,9 +139,13 @@ export function CalendarToolbar({
 
         <button
           type="button"
-          disabled
-          title="Modo Mês (planejado para próximas fases)"
-          className="px-2.5 py-1 text-xs text-muted-foreground/30 cursor-not-allowed"
+          onClick={() => onViewModeChange?.("month")}
+          className={cn(
+            "px-2.5 py-1 text-xs rounded-[var(--radius)] transition-colors cursor-pointer",
+            viewMode === "month"
+              ? "bg-muted text-foreground font-medium"
+              : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/30",
+          )}
         >
           Mês
         </button>

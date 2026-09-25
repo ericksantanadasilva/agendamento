@@ -4,6 +4,8 @@ export * from "./day-view";
 export * from "./week-view";
 export * from "./week-day-column";
 export * from "./week-calendar-event";
+export * from "./month-view";
+export * from "./month-calendar-cell";
 export * from "./studio-legend";
 export * from "./studio-filter";
 export * from "./studio-config";

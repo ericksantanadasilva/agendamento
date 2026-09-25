@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { formatHeaderDate, formatWeekRange } from "./utils";
+import { formatHeaderDate, formatWeekRange, formatMonthRange } from "./utils";
 import { CalendarViewMode } from "@/types/calendar";
 
 export interface CalendarHeaderProps {
@@ -18,6 +18,9 @@ export function CalendarHeader({
   onNewAppointment,
 }: CalendarHeaderProps) {
   const formattedDate = React.useMemo(() => {
+    if (viewMode === "month") {
+      return `Mês de ${formatMonthRange(selectedDate)}`;
+    }
     if (viewMode === "week") {
       return `Semana de ${formatWeekRange(selectedDate)}`;
     }

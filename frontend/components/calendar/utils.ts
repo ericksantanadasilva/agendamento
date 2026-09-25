@@ -94,19 +94,19 @@ export function isSameDay(date1: Date, date2: Date): boolean {
 }
 
 /**
- * Retorna os 7 dias da semana (Segunda-feira a Domingo) contendo a data informada
+ * Retorna os 7 dias da semana (Domingo a Sábado) contendo a data informada
  */
 export function getWeekDates(date: Date): Date[] {
   const d = new Date(date);
   const day = d.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
-  const diffToMonday = day === 0 ? -6 : 1 - day;
-  const monday = new Date(d);
-  monday.setDate(d.getDate() + diffToMonday);
-  monday.setHours(0, 0, 0, 0);
+  const diffToSunday = -day;
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() + diffToSunday);
+  sunday.setHours(0, 0, 0, 0);
 
   return Array.from({ length: 7 }, (_, i) => {
-    const nextDay = new Date(monday);
-    nextDay.setDate(monday.getDate() + i);
+    const nextDay = new Date(sunday);
+    nextDay.setDate(sunday.getDate() + i);
     return nextDay;
   });
 }
@@ -235,4 +235,81 @@ export function computeOverlappingLayout<
 
   return result;
 }
+
+export interface MonthDayInfo {
+  date: Date;
+  dateStr: string;
+  dayNumber: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+}
+
+/**
+ * Retorna todos os dias (células da grade) que compõem o calendário do mês especificado.
+ * Inclui dias do mês anterior e seguinte para completar as semanas de Domingo a Sábado (grade 7x5 ou 7x6).
+ */
+export function getMonthCalendarDays(date: Date): MonthDayInfo[] {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const today = new Date();
+
+  // Primeiro dia do mês
+  const firstDayOfMonth = new Date(year, month, 1);
+  const firstDayWeekday = firstDayOfMonth.getDay(); // 0 = Dom, 1 = Seg, ..., 6 = Sáb
+  const diffToSunday = -firstDayWeekday;
+
+  const startDate = new Date(firstDayOfMonth);
+  startDate.setDate(firstDayOfMonth.getDate() + diffToSunday);
+  startDate.setHours(0, 0, 0, 0);
+
+  // Último dia do mês
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+  const lastDayWeekday = lastDayOfMonth.getDay(); // 0 = Dom, ..., 6 = Sáb
+  const diffToSaturday = 6 - lastDayWeekday;
+
+  const endDate = new Date(lastDayOfMonth);
+  endDate.setDate(lastDayOfMonth.getDate() + diffToSaturday);
+  endDate.setHours(23, 59, 59, 999);
+
+  // Gera dias entre startDate e endDate
+  const days: MonthDayInfo[] = [];
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    const dayDate = new Date(current);
+    days.push({
+      date: dayDate,
+      dateStr: toISODateString(dayDate),
+      dayNumber: dayDate.getDate(),
+      isCurrentMonth: dayDate.getMonth() === month,
+      isToday: isSameDay(dayDate, today),
+    });
+    current.setDate(current.getDate() + 1);
+  }
+
+  // Se a grade tiver menos de 35 dias (5 semanas), completa para ficar uniforme
+  while (days.length % 7 !== 0 || days.length < 35) {
+    const nextDate = new Date(current);
+    days.push({
+      date: nextDate,
+      dateStr: toISODateString(nextDate),
+      dayNumber: nextDate.getDate(),
+      isCurrentMonth: false,
+      isToday: isSameDay(nextDate, today),
+    });
+    current.setDate(current.getDate() + 1);
+  }
+
+  return days;
+}
+
+/**
+ * Formata o mês e ano para exibição na toolbar/header: "Setembro de 2026"
+ */
+export function formatMonthRange(date: Date): string {
+  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(date);
+  const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  return `${capitalizedMonth} de ${date.getFullYear()}`;
+}
+
 

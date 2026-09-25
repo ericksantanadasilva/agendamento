@@ -49,6 +49,16 @@ export const STUDIO_CONFIGS: Record<string, StudioStyleConfig> = {
     textClass: "text-warning",
     accentHex: "#f59e0b",
   },
+  "studio-4": {
+    id: "studio-4",
+    name: "Estúdio 04",
+    shortName: "E4",
+    borderClass: "border-l-purple-500",
+    dotClass: "bg-purple-500",
+    badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    textClass: "text-purple-400",
+    accentHex: "#a855f7",
+  },
 };
 
 const FALLBACK_CONFIGS: Omit<StudioStyleConfig, "id" | "name" | "shortName">[] = [
