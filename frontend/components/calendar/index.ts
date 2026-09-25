@@ -6,4 +6,5 @@ export * from "./resource-column";
 export * from "./calendar-event";
 export * from "./current-time-indicator";
 export * from "./event-details-dialog";
+export * from "./new-appointment-dialog";
 export * from "./utils";

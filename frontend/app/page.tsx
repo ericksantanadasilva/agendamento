@@ -5,14 +5,19 @@ import {
   CalendarHeader,
   CalendarToolbar,
   DayView,
+  NewAppointmentDialog,
 } from "@/components/calendar";
 import { MOCK_RESOURCES, MOCK_APPOINTMENTS } from "@/lib/mock-calendar-data";
-import { CalendarViewMode } from "@/types/calendar";
+import { CalendarViewMode, CalendarAppointment } from "@/types/calendar";
+import { CheckCircle2 } from "lucide-react";
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = React.useState<Date>(() => new Date());
   const [viewMode, setViewMode] = React.useState<CalendarViewMode>("day");
-  const [newAppointmentNotice, setNewAppointmentNotice] = React.useState(false);
+  const [appointments, setAppointments] = React.useState<CalendarAppointment[]>(MOCK_APPOINTMENTS);
+  const [isNewAppointmentOpen, setIsNewAppointmentOpen] = React.useState(false);
+  const [editingAppointment, setEditingAppointment] = React.useState<CalendarAppointment | null>(null);
+  const [successToast, setSuccessToast] = React.useState<string | null>(null);
 
   // Navegação: Dia anterior
   const handlePreviousDay = React.useCallback(() => {
@@ -37,29 +42,72 @@ export default function CalendarPage() {
     setSelectedDate(new Date());
   }, []);
 
-  const handleNewAppointment = React.useCallback(() => {
-    setNewAppointmentNotice(true);
+  const handleOpenNewAppointment = React.useCallback(() => {
+    setEditingAppointment(null);
+    setIsNewAppointmentOpen(true);
+  }, []);
+
+  const handleEditAppointment = React.useCallback((appointment: CalendarAppointment) => {
+    setEditingAppointment(appointment);
+    setIsNewAppointmentOpen(true);
+  }, []);
+
+  const handleDeleteAppointment = React.useCallback((appointmentId: string) => {
+    setAppointments((prev) => {
+      const target = prev.find((a) => a.id === appointmentId);
+      const filtered = prev.filter((a) => a.id !== appointmentId);
+      setSuccessToast(`Agendamento de "${target?.clientName || "Cliente"}" excluído.`);
+      return filtered;
+    });
+
     setTimeout(() => {
-      setNewAppointmentNotice(false);
+      setSuccessToast(null);
     }, 4000);
   }, []);
 
+  const handleSaveAppointment = React.useCallback(
+    (appointmentData: Omit<CalendarAppointment, "id">, id?: string) => {
+      if (id) {
+        // Atualização / Edição de agendamento existente
+        setAppointments((prev) =>
+          prev.map((apt) => (apt.id === id ? { ...appointmentData, id } : apt)),
+        );
+        setSuccessToast(`Agendamento de "${appointmentData.clientName}" atualizado com sucesso!`);
+      } else {
+        // Criação de novo agendamento
+        const newAppointment: CalendarAppointment = {
+          ...appointmentData,
+          id: `apt-${Date.now()}`,
+        };
+
+        setAppointments((prev) => [newAppointment, ...prev]);
+        setSuccessToast(
+          `Agendamento de "${appointmentData.clientName}" reservado no ${
+            MOCK_RESOURCES.find((r) => r.id === appointmentData.resourceId)?.name || "Estúdio"
+          }!`,
+        );
+      }
+
+      setTimeout(() => {
+        setSuccessToast(null);
+      }, 4000);
+    },
+    [],
+  );
+
   return (
     <div className="flex flex-col flex-1 min-w-0 space-y-4">
-      {/* Notificação temporária sutil ao clicar em Novo Agendamento */}
-      {newAppointmentNotice && (
-        <div className="flex items-center justify-between p-3 rounded-[var(--radius)] bg-muted border border-border text-xs text-foreground animate-in fade-in slide-in-from-top-1 select-none">
+      {/* Toast sutil de confirmação de agendamento criado/editado/excluído */}
+      {successToast && (
+        <div className="flex items-center justify-between p-3 rounded-[var(--radius)] bg-surface-elevated border border-primary/40 text-xs text-foreground animate-in fade-in slide-in-from-top-1 select-none shadow-md">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary" />
-            <span className="font-medium">Fluxo de Criação:</span>
-            <span className="text-muted-foreground">
-              O formulário completo de agendamento será conectado na próxima fase de produto.
-            </span>
+            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+            <span className="font-medium text-foreground">{successToast}</span>
           </div>
           <button
             type="button"
-            onClick={() => setNewAppointmentNotice(false)}
-            className="text-3xs text-muted-foreground hover:text-foreground underline cursor-pointer"
+            onClick={() => setSuccessToast(null)}
+            className="text-3xs text-muted-foreground hover:text-foreground underline cursor-pointer ml-3"
           >
             Fechar
           </button>
@@ -69,7 +117,7 @@ export default function CalendarPage() {
       {/* Header do Calendário */}
       <CalendarHeader
         selectedDate={selectedDate}
-        onNewAppointment={handleNewAppointment}
+        onNewAppointment={handleOpenNewAppointment}
       />
 
       {/* Toolbar com navegação temporal e seletor */}
@@ -86,10 +134,26 @@ export default function CalendarPage() {
       <div className="flex-1 flex flex-col min-h-0 pt-1">
         <DayView
           resources={MOCK_RESOURCES}
-          appointments={MOCK_APPOINTMENTS}
+          appointments={appointments}
           selectedDate={selectedDate}
+          onEditAppointment={handleEditAppointment}
+          onDeleteAppointment={handleDeleteAppointment}
         />
       </div>
+
+      {/* Modal de Criação / Edição de Agendamento */}
+      <NewAppointmentDialog
+        isOpen={isNewAppointmentOpen}
+        onClose={() => {
+          setIsNewAppointmentOpen(false);
+          setEditingAppointment(null);
+        }}
+        resources={MOCK_RESOURCES}
+        selectedDate={selectedDate}
+        initialData={editingAppointment}
+        onSave={handleSaveAppointment}
+        onDelete={handleDeleteAppointment}
+      />
     </div>
   );
 }

@@ -21,6 +21,8 @@ export interface DayViewProps {
   calendarStartHour?: number;
   calendarEndHour?: number;
   initialFocusHour?: number;
+  onEditAppointment?: (appointment: CalendarAppointment) => void;
+  onDeleteAppointment?: (appointmentId: string) => void;
 }
 
 export function DayView({
@@ -30,6 +32,8 @@ export function DayView({
   calendarStartHour = DEFAULT_START_HOUR,
   calendarEndHour = DEFAULT_END_HOUR,
   initialFocusHour,
+  onEditAppointment,
+  onDeleteAppointment,
 }: DayViewProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedAppointment, setSelectedAppointment] =
@@ -174,6 +178,14 @@ export function DayView({
         appointment={selectedAppointment}
         resourceName={selectedResource?.name}
         onClose={() => setSelectedAppointment(null)}
+        onEdit={(apt) => {
+          setSelectedAppointment(null);
+          onEditAppointment?.(apt);
+        }}
+        onDelete={(id) => {
+          setSelectedAppointment(null);
+          onDeleteAppointment?.(id);
+        }}
       />
     </div>
   );

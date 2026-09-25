@@ -3,7 +3,7 @@
 import * as React from "react";
 import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { X, Clock, Calendar, User, MapPin, FileText } from "lucide-react";
+import { X, Clock, Calendar, User, MapPin, FileText, Trash2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<
@@ -40,13 +40,22 @@ export interface EventDetailsDialogProps {
   appointment: CalendarAppointment | null;
   resourceName?: string;
   onClose: () => void;
+  onEdit?: (appointment: CalendarAppointment) => void;
+  onDelete?: (appointmentId: string) => void;
 }
 
 export function EventDetailsDialog({
   appointment,
   resourceName,
   onClose,
+  onEdit,
+  onDelete,
 }: EventDetailsDialogProps) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsConfirmingDelete(false);
+  }, [appointment]);
   if (!appointment) return null;
 
   const statusInfo = STATUS_CONFIG[appointment.status] || {
@@ -159,10 +168,47 @@ export function EventDetailsDialog({
         </div>
 
         {/* Rodapé de Ações */}
-        <div className="flex items-center justify-end gap-2.5 p-3.5 border-t border-border bg-muted/20">
-          <Button variant="secondary" size="sm" onClick={onClose}>
-            Fechar
-          </Button>
+        <div className="flex items-center justify-between gap-2.5 p-3.5 border-t border-border bg-muted/20">
+          <div>
+            {onDelete && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (!isConfirmingDelete) {
+                    setIsConfirmingDelete(true);
+                    return;
+                  }
+                  onDelete(appointment.id);
+                  onClose();
+                }}
+                className="gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {isConfirmingDelete ? "Confirmar exclusão?" : "Excluir"}
+              </Button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={onClose}>
+              Fechar
+            </Button>
+            {onEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onEdit(appointment);
+                  onClose();
+                }}
+                className="gap-1.5"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Editar
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
