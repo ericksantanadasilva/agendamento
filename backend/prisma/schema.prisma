@@ -7,21 +7,99 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
+enum Role {
   ADMIN
   OPERATOR
-  TECHNICIAN
-  CLIENT
+  USER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CANCELED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      UserRole @default(OPERATOR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  passwordHash  String
+  role          Role
+  active        Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appointments  Appointment[]
+  createdBlocks Block[]
+}
 
-  @@map("users")
+model Studio {
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  appointments   Appointment[]
+  availabilities Availability[]
+  blocks         Block[]
+}
+
+model Duration {
+  id           String        @id @default(cuid())
+  name         String
+  minutes      Int
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+}
+
+model Appointment {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  studioId   String
+  studio     Studio            @relation(fields: [studioId], references: [id])
+  durationId String
+  duration   Duration          @relation(fields: [durationId], references: [id])
+  startAt    DateTime
+  endAt      DateTime
+  status     AppointmentStatus @default(SCHEDULED)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Availability {
+  id          String    @id @default(cuid())
+  studioId    String
+  studio      Studio    @relation(fields: [studioId], references: [id])
+  dayOfWeek   DayOfWeek
+  startMinute Int
+  endMinute   Int
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Block {
+  id          String   @id @default(cuid())
+  studioId    String
+  studio      Studio   @relation(fields: [studioId], references: [id])
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  startAt     DateTime
+  endAt       DateTime
+  reason      String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
