@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -28,5 +28,23 @@ export class UsersService {
             },
             omit: { passwordHash: true },
         });
+    }
+
+    findAll() {
+        return this.prisma.user.findMany({
+            orderBy: { createdAt: 'asc' },
+            omit: { passwordHash: true },
+        });
+    }
+
+    async findOne(id: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            omit: { passwordHash: true },
+        });
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+        return user;
     }
 }
