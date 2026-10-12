@@ -1,8 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { Role } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -70,6 +72,26 @@ export class UsersService {
         return this.prisma.user.update({
             where: { id: userId },
             data: { name: dto.name, passwordHash },
+            omit: { passwordHash: true },
+        });
+    }
+
+    async update(adminId: string, id: string, dto: UpdateUserDto) {
+        if (id === adminId) {
+            const demoting = dto.role !== undefined && dto.role !== Role.ADMIN;
+            const deactivating = dto.active === false;
+            if (demoting || deactivating) {
+                throw new ForbiddenException(
+                    'Você não pode rebaixar nem desativar a si mesmo',
+                );
+            }
+        }
+
+        await this.findOne(id);
+
+        return this.prisma.user.update({
+            where: { id },
+            data: { name: dto.name, role: dto.role, active: dto.active },
             omit: { passwordHash: true },
         });
     }

@@ -7,6 +7,7 @@ import { Role } from '@prisma/client';
 import { RolesGuard } from '../auth/roles.guard';
 import type { AuthenticatedRequest } from '../auth/auth.guard';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
@@ -23,6 +24,15 @@ export class UsersController {
     @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
     updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateMeDto) {
         return this.usersService.updateMe(req.user.sub, dto);
+    }
+
+    @Patch(':id')
+    update(
+        @Req() req: AuthenticatedRequest,
+        @Param('id') id: string,
+        @Body() dto: UpdateUserDto,
+    ) {
+        return this.usersService.update(req.user.sub, id, dto);
     }
 
     @Get()
