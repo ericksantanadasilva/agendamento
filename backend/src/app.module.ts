@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { StudiosModule } from './studios/studios.module';
 import { DurationsModule } from './durations/durations.module';
 import { AvailabilitiesModule } from './availabilities/availabilities.module';
+import { BlocksModule } from './blocks/blocks.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AvailabilitiesModule } from './availabilities/availabilities.module';
     StudiosModule,
     DurationsModule,
     AvailabilitiesModule,
+    BlocksModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
