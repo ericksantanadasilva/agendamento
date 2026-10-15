@@ -8,6 +8,7 @@ import { StudiosModule } from './studios/studios.module';
 import { DurationsModule } from './durations/durations.module';
 import { AvailabilitiesModule } from './availabilities/availabilities.module';
 import { BlocksModule } from './blocks/blocks.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BlocksModule } from './blocks/blocks.module';
     DurationsModule,
     AvailabilitiesModule,
     BlocksModule,
+    AppointmentsModule,
   ],
 })
 export class AppModule {}
