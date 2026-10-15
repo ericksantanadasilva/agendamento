@@ -75,6 +75,7 @@ model Appointment {
   startAt    DateTime
   endAt      DateTime
   status     AppointmentStatus @default(SCHEDULED)
+  canceledReason String?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 }
