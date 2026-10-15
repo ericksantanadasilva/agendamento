@@ -1,5 +1,5 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { AppointmentStatus, Role } from '@prisma/client';
 import type {JwtPayload } from '../auth/auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { isWithinAvailability } from './availability-coverage';
@@ -40,6 +40,8 @@ export class AppointmentsService {
             throw new BadRequestException('O estúdio não está aberto neste horário');
         }
 
+        await this.assertNoConflicts(dto.studioId, startAt, endAt);
+
         return this.prisma.appointment.create({
             data: {
                 userId,
@@ -72,5 +74,37 @@ export class AppointmentsService {
             throw new NotFoundException('Usuário não encontrado')
         }
         return user.id;
+    }
+
+    private async assertNoConflicts(
+        studioId: string,
+        startAt: Date,
+        endAt: Date,
+        ignoreAppointmentId?: string,
+    ) {
+        const block = await this.prisma.block.findFirst({
+            where: {
+                studioId,
+                active: true,
+                startAt: { lt: endAt },
+                endAt: { gt: startAt },
+            },
+        });
+        if (block) {
+            throw new ConflictException('O estúdio está bloqueado neste horário');
+        }
+
+        const appointment = await this.prisma.appointment.findFirst({
+            where: {
+                studioId,
+                status: AppointmentStatus.SCHEDULED,
+                startAt: { lt: endAt },
+                endAt: { gt: startAt },
+                ...(ignoreAppointmentId ? { id: { not: ignoreAppointmentId } } : {}),
+            },
+        });
+        if (appointment) {
+            throw new ConflictException('Já existe agendamento neste horário')
+        }
     }
 }
