@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { isWithinAvailability } from './availability-coverage';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 const USER_EDIT_WINDOW_MS = 5 * 60_000;
 
@@ -38,18 +39,7 @@ export class AppointmentsService {
     const startAt = new Date(dto.startAt);
     const endAt = new Date(startAt.getTime() + duration.minutes * 60_000);
 
-    if (startAt <= new Date()) {
-      throw new BadRequestException('O horário precisa estar no futuro');
-    }
-
-    const periods = await this.prisma.availability.findMany({
-      where: { studioId: dto.studioId, active: true },
-    });
-    if (!isWithinAvailability(startAt, endAt, periods)) {
-      throw new BadRequestException('O estúdio não está aberto neste horário');
-    }
-
-    await this.assertNoConflicts(dto.studioId, startAt, endAt);
+    await this.assertSlotAvailable(dto.studioId, startAt, endAt);
 
     return this.prisma.appointment.create({
       data: {
@@ -71,6 +61,43 @@ export class AppointmentsService {
         status: AppointmentStatus.CANCELED,
         canceledReason: dto.reason,
       },
+    });
+  }
+
+  async update(actor: JwtPayload, id: string, dto: UpdateAppointmentDto) {
+    if (!dto.studioId && !dto.durationId && !dto.startAt) {
+      throw new BadRequestException('Informe ao menos um campo para alterar');
+    }
+
+    const current = await this.findModifiable(actor, id);
+
+    const studioId = dto.studioId ?? current.studioId;
+    const durationId = dto.durationId ?? current.durationId;
+    const startAt = dto.startAt ? new Date(dto.startAt) : current.startAt;
+
+    if (dto.studioId) {
+      const studio = await this.prisma.studio.findUnique({
+        where: { id: dto.studioId },
+      });
+      if (!studio || !studio.active) {
+        throw new NotFoundException('Estúdio não encontrado');
+      }
+    }
+
+    const duration = await this.prisma.duration.findUnique({
+      where: { id: durationId },
+    });
+    if (!duration || (dto.durationId && !duration.active)) {
+      throw new NotFoundException('Duração não encontrada');
+    }
+
+    const endAt = new Date(startAt.getTime() + duration.minutes * 60_000);
+
+    await this.assertSlotAvailable(studioId, startAt, endAt, id);
+
+    return this.prisma.appointment.update({
+      where: { id },
+      data: { studioId, durationId, startAt, endAt },
     });
   }
 
@@ -129,6 +156,25 @@ export class AppointmentsService {
     }
   }
 
+  private async assertSlotAvailable(
+    studioId: string,
+    startAt: Date,
+    endAt: Date,
+    ignoreAppointmentId?: string,
+  ) {
+    if (startAt <= new Date()) {
+      throw new BadRequestException('O horário precisa estar no futuro');
+    }
+
+    const periods = await this.prisma.availability.findMany({
+      where: { studioId, active: true },
+    });
+    if (!isWithinAvailability(startAt, endAt, periods)) {
+      throw new BadRequestException('O estúdio não está aberto neste horário');
+    }
+    await this.assertNoConflicts(studioId, startAt, endAt, ignoreAppointmentId);
+  }
+
   private async findModifiable(actor: JwtPayload, id: string) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },
@@ -153,6 +199,12 @@ export class AppointmentsService {
 
     if (appointment.status !== AppointmentStatus.SCHEDULED) {
       throw new ConflictException('Este agendamento já foi cancelado');
+    }
+
+    if (appointment.startAt <= new Date()) {
+      throw new ConflictException(
+        'Este agendamento já começou e não pode mais ser cancelado',
+      );
     }
 
     return appointment;
