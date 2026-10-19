@@ -40,6 +40,12 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
+    @Get('me')
+    @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
+    findMe(@Req() req: AuthenticatedRequest) {
+        return this.usersService.findOne(req.user.sub);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(id);
