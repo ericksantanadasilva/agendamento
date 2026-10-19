@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsISO8601,
   IsNotEmpty,
   IsOptional,
@@ -26,4 +27,8 @@ export class CreateBlockDto {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  cancelConflicting?: boolean;
 }
