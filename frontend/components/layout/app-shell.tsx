@@ -3,12 +3,14 @@
 import * as React from "react";
 import { Sidebar } from "./sidebar";
 import { FloatingBottomNav } from "./floating-bottom-nav";
+import { usePathname } from "next/navigation";
 
 export interface AppShellProps {
   children: React.ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   // Carrega a preferência salva no carregamento
@@ -26,6 +28,10 @@ export function AppShell({ children }: AppShellProps) {
       return next;
     });
   }, []);
+
+  if (pathname === '/login') {
+    return <>{children}</>
+  }
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
