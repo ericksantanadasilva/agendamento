@@ -8,7 +8,7 @@ import { ApiError, apiClient } from "@/lib/api";
 import { setToken } from "@/lib/auth-storage";
 
 interface LoginResponse {
-    acess_token: string;
+    access_token: string;
 }
 
 export default function LoginPage() {
@@ -28,7 +28,7 @@ export default function LoginPage() {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
             });
-            setToken(data.acess_token);
+            setToken(data.access_token);
             router.replace('/');
         } catch (err) {
             if (err instanceof ApiError) {
