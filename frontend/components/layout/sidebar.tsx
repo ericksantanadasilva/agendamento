@@ -13,8 +13,12 @@ import {
   UserCheck,
   PanelLeftClose,
   PanelLeftOpen,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import type { UserRole } from "@/types/auth";
+import { Button } from "../ui/button";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -25,6 +29,12 @@ const NAV_ITEMS = [
   { label: "Estúdios", href: "#estudios", icon: Layers },
 ];
 
+const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: 'Administrador',
+  OPERATOR: 'Operador',
+  USER: 'Usuário',
+};
+
 export interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
@@ -32,6 +42,7 @@ export interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   return (
     <aside
@@ -128,13 +139,13 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* User Footer */}
-      <div className="p-2.5 border-t border-border">
+      <div className="p-2.5 border-t border-border space-y-1.5">
         <div
           className={cn(
             "flex items-center rounded-[var(--radius)] bg-muted/40 border border-border/60 transition-all",
             isCollapsed ? "justify-center p-2" : "gap-2.5 px-2.5 py-2",
           )}
-          title={isCollapsed ? "Operador (operacao@agendamento)" : undefined}
+          title={user ? `${user.name} (${user.email})` : undefined}
         >
           <div className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground shrink-0">
             <UserCheck className="w-3.5 h-3.5" />
@@ -142,14 +153,26 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           {!isCollapsed && (
             <div className="flex-1 min-w-0 overflow-hidden">
               <p className="text-xs font-medium text-foreground truncate">
-                Operador
+                {user?.name}
               </p>
               <p className="text-3xs text-muted-foreground truncate font-mono">
-                operacao@agendamento
+                {user ? ROLE_LABELS[user.role] : ''}
               </p>
             </div>
           )}
         </div>
+
+        <Button
+         type="button"
+         variant="ghost"
+         size={isCollapsed ? 'icon' : 'sm'}
+         onClick={signOut}
+         title="sair"
+         className={cn(isCollapsed ? "flex mx-auto" : "w-full justify-start")}
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          {!isCollapsed && <span>Sair</span>}
+        </Button>
       </div>
     </aside>
   );
