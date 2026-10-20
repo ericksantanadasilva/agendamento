@@ -10,6 +10,9 @@ export function getToken(): string | null {
 }
 
 export function setToken(token: string): void {
+    if (typeof token !== 'string' || token.split('.').length !== 3) {
+        throw new Error('Token inválido recebido do servidor');
+    }
     try {
         window.localStorage.setItem(TOKEN_KEY, token);
     } catch {

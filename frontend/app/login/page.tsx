@@ -32,9 +32,12 @@ export default function LoginPage() {
             router.replace('/');
         } catch (err) {
             if (err instanceof ApiError) {
-                setError(err.message)
-            } else {
+                setError(err.message);
+            } else if (err instanceof TypeError) {
                 setError('Não foi possível conectar ao servidor.');
+            } else {
+                console.error(err);
+                setError('Resposta inesperada do servidor.')
             }
         } finally {
             setLoading(false);
