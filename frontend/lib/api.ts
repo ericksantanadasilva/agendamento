@@ -1,3 +1,5 @@
+import { clearToken, getToken } from "./auth-storage";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -7,32 +9,59 @@ export interface ApiResponse<T = unknown> {
   statusCode?: number;
 }
 
+export class ApiError extends Error {
+  statusCode: number;
+  body: unknown;
+
+  constructor(message: string, statusCode: number, body?: unknown) {
+    super(message);
+    this.statusCode = statusCode;
+    this.body = body;
+  }
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const token = getToken();
 
   const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
   });
 
   if (!response.ok) {
-    let errorMessage = `Erro na requisição: ${response.statusText}`;
+    let body: unknown;
+    let message = `Erro na requisição (${response.status})`;
     try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
+      body = await response.json();
+      const apiMessage = (body as { message?: string | string[] }).message;
+      if (Array.isArray(apiMessage)) {
+        message = apiMessage.join('. ');
+      } else if (typeof apiMessage === 'string') {
+        message = apiMessage;
+      }
     } catch {
-      // Falha ao parsear JSON do erro, usa mensagem padrão
+      // resposta sem JSON: fica a mensagem padrão
     }
-    throw new Error(errorMessage);
+
+    if (response.status === 401 && path !== '/auth/login') {
+      clearToken();
+      if (typeof window !== 'undefined') {
+        window.location.assign('/login');
+      }
+    }
+
+    throw new ApiError(message, response.status, body);
   }
 
-  return response.json();
+  return response.json()
 }
