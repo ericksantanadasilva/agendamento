@@ -29,5 +29,6 @@ export interface CalendarAppointment {
   status: AppointmentStatus;
   notes?: string;
   mine?: boolean;
+  durationName?: string;
   createdAt?: string;
 }

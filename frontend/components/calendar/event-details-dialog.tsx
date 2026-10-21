@@ -130,7 +130,8 @@ export function EventDetailsDialog({
                 {dateLabel}
               </p>
               <p className="text-3xs font-mono text-muted-foreground mt-0.5">
-                {appointment.startTime} → {appointment.endTime} · {appointment.durationMinutes} min
+                {appointment.startTime} → {appointment.endTime} · {' '}
+                {appointment.durationName ?? `${appointment.durationMinutes} min`}
               </p>
             </div>
 

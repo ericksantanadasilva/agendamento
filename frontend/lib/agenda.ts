@@ -32,6 +32,7 @@ export interface AgendaItem {
     durationName?: string;
     createdAt?: string;
     reason?: string | null;
+    service?: string | null;
 }
 
 export function studioToResource(studio: ApiStudio): StudioResource {
@@ -64,13 +65,14 @@ export function agendaItemToAppointment(
         clientName: isBlock
          ? (item.reason ?? 'Bloqueado')
          : (item.userName ?? 'Ocupado'),
-        serviceName: isBlock ? 'Bloqueio' : (item.durationName ?? 'Reserva'),
+        serviceName: isBlock ? 'Bloqueio' : (item.service ?? 'Reserva'),
         date: start.date,
         startTime: start.time,
         endTime,
         durationMinutes: timeToMinutes(endTime) - timeToMinutes(start.time),
         status: isBlock ? 'BLOCKED' : 'SCHEDULED',
         mine: item.mine,
+        durationName: item.durationName,
         createdAt: item.createdAt,
     };
 }
