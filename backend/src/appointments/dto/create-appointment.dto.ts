@@ -4,7 +4,9 @@ import {
     IsOptional,
     IsString,
     Matches,
+    MaxLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 const WITH_TIMEZONE = /(Z|[+-]\d{2}:\d{2})$/;
 const TIMEZONE_MESSAGE =
@@ -22,6 +24,14 @@ const TIMEZONE_MESSAGE =
         @IsISO8601({ strict: true })
         @Matches(WITH_TIMEZONE, { message: TIMEZONE_MESSAGE })
         startAt: string;
+
+        @Transform(({ value }: { value: unknown }) =>
+            typeof value === 'string' ? value.trim() : value,
+        )
+        @IsString()
+        @IsNotEmpty()
+        @MaxLength(120)
+        service: string;
 
         @IsOptional()
         @IsString()
