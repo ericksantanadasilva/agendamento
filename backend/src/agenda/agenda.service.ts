@@ -4,6 +4,7 @@ import type { JwtPayload } from 'src/auth/auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AgendaQueryDto } from './dto/agenda-query.dto';
 
+const MAX_RANGE_DAYS = 42;
 const MAX_RANGE_MS = 31 * 24 * 60 * 60_000;
 
 @Injectable()
@@ -20,7 +21,7 @@ export class AgendaService {
             );
         }
         if (to.getTime() - from.getTime() > MAX_RANGE_MS) {
-            throw new BadRequestException('O intervalo máximo é de 31 dias');
+            throw new BadRequestException(`O intervalo máximo é de ${MAX_RANGE_DAYS} dias`);
         }
 
         const studio = await this.prisma.studio.findUnique({
