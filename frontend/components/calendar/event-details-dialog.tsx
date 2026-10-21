@@ -3,7 +3,8 @@
 import * as React from "react";
 import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { X, Clock, Calendar, User, MapPin, FileText, Trash2, Pencil } from "lucide-react";
+import { X, Calendar, User, MapPin, FileText, Trash2, Pencil } from "lucide-react";
+import { formatHeaderDate } from "./utils";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<
@@ -53,10 +54,15 @@ export function EventDetailsDialog({
 }: EventDetailsDialogProps) {
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
-  React.useEffect(() => {
+  const [previousAppointment, setPreviousAppointment] = React.useState(appointment);
+  if (appointment !== previousAppointment) {
+    setPreviousAppointment(appointment);
     setIsConfirmingDelete(false);
-  }, [appointment]);
+  }
   if (!appointment) return null;
+
+  const [year, month, day] = appointment.date.split('-').map(Number);
+  const dateLabel = formatHeaderDate(new Date(year, month - 1, day));
 
   const statusInfo = STATUS_CONFIG[appointment.status] || {
     label: appointment.status,
@@ -117,27 +123,24 @@ export function EventDetailsDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="p-2.5 rounded bg-muted/40 border border-border/60">
               <span className="flex items-center gap-1.5 text-muted-foreground text-3xs">
-                <Clock className="w-3 h-3" />
-                Horário
+                <Calendar className="w-3 h-3" />
+                Quando
               </span>
-              <p className="font-mono font-medium text-foreground mt-1">
-                {appointment.startTime} → {appointment.endTime}
+              <p className="font-medium text-foreground mt-1 truncate">
+                {dateLabel}
               </p>
               <p className="text-3xs font-mono text-muted-foreground mt-0.5">
-                Duração: {appointment.durationMinutes} min
+                {appointment.startTime} → {appointment.endTime} · {appointment.durationMinutes} min
               </p>
             </div>
 
             <div className="p-2.5 rounded bg-muted/40 border border-border/60">
               <span className="flex items-center gap-1.5 text-muted-foreground text-3xs">
                 <MapPin className="w-3 h-3" />
-                Local / Recurso
+                Local
               </span>
               <p className="font-medium text-foreground mt-1 truncate">
-                {resourceName || "Estúdio Geral"}
-              </p>
-              <p className="text-3xs font-mono text-muted-foreground mt-0.5">
-                {appointment.resourceId}
+                {resourceName || "Estúdio"}
               </p>
             </div>
           </div>
