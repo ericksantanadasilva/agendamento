@@ -9,22 +9,23 @@ import {
   MonthView,
   NewAppointmentDialog,
 } from "@/components/calendar";
-import { MOCK_RESOURCES, MOCK_APPOINTMENTS } from "@/lib/mock-calendar-data";
+import { useCalendarData } from "@/hooks/use-calendar-data";
 import { CalendarViewMode, CalendarAppointment } from "@/types/calendar";
 import { CheckCircle2 } from "lucide-react";
 
 export default function CalendarPage() {
-  const [mounted, setMounted] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date>(() => new Date());
   const [viewMode, setViewMode] = React.useState<CalendarViewMode>("day");
-  const [appointments, setAppointments] = React.useState<CalendarAppointment[]>(MOCK_APPOINTMENTS);
   const [isNewAppointmentOpen, setIsNewAppointmentOpen] = React.useState(false);
   const [editingAppointment, setEditingAppointment] = React.useState<CalendarAppointment | null>(null);
   const [successToast, setSuccessToast] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const {
+    resources,
+    appointments,
+    error,
+  } = useCalendarData(selectedDate, viewMode);
+
 
   // Navegação: Período anterior (Dia, Semana ou Mês)
   const handlePreviousPeriod = React.useCallback(() => {
@@ -82,58 +83,10 @@ export default function CalendarPage() {
     setIsNewAppointmentOpen(true);
   }, []);
 
-  const handleDeleteAppointment = React.useCallback((appointmentId: string) => {
-    setAppointments((prev) => {
-      const target = prev.find((a) => a.id === appointmentId);
-      const filtered = prev.filter((a) => a.id !== appointmentId);
-      setSuccessToast(`Agendamento de "${target?.clientName || "Cliente"}" excluído.`);
-      return filtered;
-    });
-
-    setTimeout(() => {
-      setSuccessToast(null);
-    }, 4000);
-  }, []);
-
-  const handleSaveAppointment = React.useCallback(
-    (appointmentData: Omit<CalendarAppointment, "id">, id?: string) => {
-      if (id) {
-        // Atualização / Edição de agendamento existente
-        setAppointments((prev) =>
-          prev.map((apt) => (apt.id === id ? { ...appointmentData, id } : apt)),
-        );
-        setSuccessToast(`Agendamento de "${appointmentData.clientName}" atualizado com sucesso!`);
-      } else {
-        // Criação de novo agendamento
-        const newAppointment: CalendarAppointment = {
-          ...appointmentData,
-          id: `apt-${Date.now()}`,
-        };
-
-        setAppointments((prev) => [newAppointment, ...prev]);
-        setSuccessToast(
-          `Agendamento de "${appointmentData.clientName}" reservado no ${
-            MOCK_RESOURCES.find((r) => r.id === appointmentData.resourceId)?.name || "Estúdio"
-          }!`,
-        );
-      }
-
-      setTimeout(() => {
-        setSuccessToast(null);
-      }, 4000);
-    },
-    [],
-  );
-
-  if (!mounted) {
-    return (
-      <div className="flex flex-col flex-1 min-w-0 space-y-4 animate-pulse">
-        <div className="h-10 w-48 bg-muted/40 rounded-[var(--radius)]" />
-        <div className="h-8 w-64 bg-muted/30 rounded-[var(--radius)]" />
-        <div className="flex-1 bg-card/40 rounded-[var(--radius)] border border-border/30 min-h-[500px]" />
-      </div>
-    );
-  }
+  const showNotConnectedToast = React.useCallback(() => {
+    setSuccessToast('Criar, editar e excluir ainda não estão ligados ao servidor.');
+    setTimeout(() => setSuccessToast(null), 4000)
+  }, [])
 
   return (
     <div className="flex flex-col flex-1 min-w-0 space-y-4">
@@ -152,6 +105,12 @@ export default function CalendarPage() {
             Fechar
           </button>
         </div>
+      )}
+
+      {error && (
+        <p role="alert" className="text-xs font-medium text-destructive">
+          {error}
+        </p>
       )}
 
       {/* Header do Calendário */}
@@ -175,29 +134,29 @@ export default function CalendarPage() {
       <div className="flex-1 flex flex-col min-h-0 pt-1">
         {viewMode === "month" ? (
           <MonthView
-            resources={MOCK_RESOURCES}
+            resources={resources}
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={handleDeleteAppointment}
+            onDeleteAppointment={showNotConnectedToast}
             onSelectDay={handleSelectDayFromMonth}
             onCreateAppointment={handleCreateAppointmentAtDate}
           />
         ) : viewMode === "week" ? (
           <WeekView
-            resources={MOCK_RESOURCES}
+            resources={resources}
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={handleDeleteAppointment}
+            onDeleteAppointment={showNotConnectedToast}
           />
         ) : (
           <DayView
-            resources={MOCK_RESOURCES}
+            resources={resources}
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={handleDeleteAppointment}
+            onDeleteAppointment={showNotConnectedToast}
           />
         )}
       </div>
@@ -209,11 +168,11 @@ export default function CalendarPage() {
           setIsNewAppointmentOpen(false);
           setEditingAppointment(null);
         }}
-        resources={MOCK_RESOURCES}
+        resources={resources}
         selectedDate={selectedDate}
         initialData={editingAppointment}
-        onSave={handleSaveAppointment}
-        onDelete={handleDeleteAppointment}
+        onSave={showNotConnectedToast}
+        onDelete={showNotConnectedToast}
       />
     </div>
   );
