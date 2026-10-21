@@ -29,6 +29,8 @@ export interface AgendaItem {
     id?: string;
     userId?: string;
     userName?: string;
+    durationName?: string;
+    createdAt?: string;
     reason?: string | null;
 }
 
@@ -61,13 +63,15 @@ export function agendaItemToAppointment(
         resourceId: studioId,
         clientName: isBlock
          ? (item.reason ?? 'Bloqueado')
-         : (item.userName ?? (item.mine ? 'Minha reserva' : 'ocupado')),
-        serviceName: isBlock ? 'Bloqueio' : 'Reserva',
+         : (item.userName ?? 'Ocupado'),
+        serviceName: isBlock ? 'Bloqueio' : (item.durationName ?? 'Reserva'),
         date: start.date,
         startTime: start.time,
         endTime,
         durationMinutes: timeToMinutes(endTime) - timeToMinutes(start.time),
         status: isBlock ? 'BLOCKED' : 'SCHEDULED',
+        mine: item.mine,
+        createdAt: item.createdAt,
     };
 }
 
