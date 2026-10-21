@@ -43,7 +43,9 @@ export class AgendaService {
                 userId: true,
                 startAt: true,
                 endAt: true,
+                createdAt: true,
                 user: { select: { name: true } },
+                duration: { select: { name: true } },
             },
         });
 
@@ -62,13 +64,21 @@ export class AgendaService {
         const items = [
             ...appointments.map((a) => {
                 const mine = a.userId === actor.sub;
+                const canSeeDetails = mine || isStaff
                 return {
                     type: 'APPOINTMENT' as const,
                     startAt: a.startAt,
                     endAt: a.endAt,
                     mine,
-                    ...(mine || isStaff ? { id: a.id } : {}),
-                    ...(isStaff ? { userId: a.userId, userName: a.user.name } : {}),
+                    ...(canSeeDetails
+                        ? {
+                            id: a.id,
+                            userName: a.user.name,
+                            durationName: a.duration.name,
+                            createdAt: a.createdAt,
+                        }
+                    : {}),
+                    ...(isStaff ? { userId : a.userId } : {})
                 };
             }),
             ...blocks.map((b) => ({
