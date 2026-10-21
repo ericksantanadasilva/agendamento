@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AgendaQueryDto } from './dto/agenda-query.dto';
 
 const MAX_RANGE_DAYS = 42;
-const MAX_RANGE_MS = 31 * 24 * 60 * 60_000;
+const MAX_RANGE_MS = MAX_RANGE_DAYS * 24 * 60 * 60_000;
 
 @Injectable()
 export class AgendaService {
