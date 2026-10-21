@@ -14,7 +14,6 @@ import {
     CalendarViewMode,
     StudioResource,
 } from "@/types/calendar";
-import { group } from "console";
 
 export function useCalendarData(
     selectedDate: Date,
@@ -23,6 +22,8 @@ export function useCalendarData(
     const [resources, setResources] = React.useState<StudioResource[]>([]);
     const [appointments, setAppointments] = React.useState<CalendarAppointment[]>([]);
     const [error, setError] = React.useState<string | null>(null);
+    const [reloadKey, setReloadKey] = React.useState(0);
+    const reload = React.useCallback(() => setReloadKey((key) =>  key + 1), []);
 
     const range = React.useMemo(
         () => getVisibleRange(selectedDate, viewMode),
@@ -75,7 +76,7 @@ export function useCalendarData(
         return () => {
             cancelled = true;
         };
-    }, [resources, range.from, range.to]);
+    }, [resources, range.from, range.to, reloadKey]);
 
-    return { resources, appointments, error };
+    return { resources, appointments, error, reload };
 }

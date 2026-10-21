@@ -12,6 +12,7 @@ import {
 import { useCalendarData } from "@/hooks/use-calendar-data";
 import { CalendarViewMode, CalendarAppointment } from "@/types/calendar";
 import { CheckCircle2 } from "lucide-react";
+import { apiClient } from "@/lib/api";
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = React.useState<Date>(() => new Date());
@@ -19,11 +20,13 @@ export default function CalendarPage() {
   const [isNewAppointmentOpen, setIsNewAppointmentOpen] = React.useState(false);
   const [editingAppointment, setEditingAppointment] = React.useState<CalendarAppointment | null>(null);
   const [successToast, setSuccessToast] = React.useState<string | null>(null);
+  const [actionError, setActionError] = React.useState<string | null>(null);
 
   const {
     resources,
     appointments,
     error,
+    reload,
   } = useCalendarData(selectedDate, viewMode);
 
 
@@ -88,6 +91,27 @@ export default function CalendarPage() {
     setTimeout(() => setSuccessToast(null), 4000)
   }, [])
 
+  const handleCancelAppointment = React.useCallback(
+    async (appointmentId: string) => {
+      setActionError(null);
+      try {
+        await apiClient(`/appointments/${appointmentId}/cancel`, {
+          method: 'PATCH',
+          body: JSON.stringify({}),
+        });
+        setSuccessToast('Reserva cancelada.');
+        setTimeout(() => setSuccessToast(null), 4000);
+        reload();
+      } catch (err) {
+        setActionError(
+          err instanceof Error ? err.message : 'Não foi possível cancelar.',
+        );
+        setTimeout(() => setActionError(null), 6000);
+      }
+    },
+    [reload],
+  );
+
   return (
     <div className="flex flex-col flex-1 min-w-0 space-y-4">
       {/* Toast sutil de confirmação de agendamento criado/editado/excluído */}
@@ -107,9 +131,9 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {error && (
+      {(error || actionError) && (
         <p role="alert" className="text-xs font-medium text-destructive">
-          {error}
+          {actionError || error}
         </p>
       )}
 
@@ -138,7 +162,7 @@ export default function CalendarPage() {
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={showNotConnectedToast}
+            onDeleteAppointment={handleCancelAppointment}
             onSelectDay={handleSelectDayFromMonth}
             onCreateAppointment={handleCreateAppointmentAtDate}
           />
@@ -148,7 +172,7 @@ export default function CalendarPage() {
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={showNotConnectedToast}
+            onDeleteAppointment={handleCancelAppointment}
           />
         ) : (
           <DayView
@@ -156,7 +180,7 @@ export default function CalendarPage() {
             appointments={appointments}
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
-            onDeleteAppointment={showNotConnectedToast}
+            onDeleteAppointment={handleCancelAppointment}
           />
         )}
       </div>
@@ -172,7 +196,7 @@ export default function CalendarPage() {
         selectedDate={selectedDate}
         initialData={editingAppointment}
         onSave={showNotConnectedToast}
-        onDelete={showNotConnectedToast}
+        onDelete={handleCancelAppointment}
       />
     </div>
   );
