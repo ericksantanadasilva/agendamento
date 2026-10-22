@@ -31,4 +31,5 @@ export interface CalendarAppointment {
   mine?: boolean;
   durationName?: string;
   createdAt?: string;
+  startAt?: string; //ISO UTC
 }

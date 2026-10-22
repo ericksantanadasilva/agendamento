@@ -74,6 +74,7 @@ export function agendaItemToAppointment(
         mine: item.mine,
         durationName: item.durationName,
         createdAt: item.createdAt,
+        startAt: item.startAt,
     };
 }
 

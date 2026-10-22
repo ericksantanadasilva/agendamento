@@ -3,9 +3,15 @@
 import * as React from "react";
 import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { X, Calendar, User, MapPin, FileText, Trash2, Pencil } from "lucide-react";
+import { X, Calendar, CalendarX, User, MapPin, FileText, Pencil } from "lucide-react";
 import { formatHeaderDate } from "./utils";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { useNow } from "@/hooks/use-now";
+import { 
+  getAppointmentPermission,
+  type AppointmentPermission
+} from "@/lib/appointment-permissions";
 
 const STATUS_CONFIG: Record<
   AppointmentStatus,
@@ -45,6 +51,14 @@ export interface EventDetailsDialogProps {
   onDelete?: (appointmentId: string) => void;
 }
 
+function formatClock(date: Date): string {
+  return date.toLocaleDateString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  });
+}
+
 export function EventDetailsDialog({
   appointment,
   resourceName,
@@ -59,7 +73,13 @@ export function EventDetailsDialog({
     setPreviousAppointment(appointment);
     setIsConfirmingDelete(false);
   }
+  const { user } = useAuth();
+  const now = useNow();
   if (!appointment) return null;
+
+  const permission: AppointmentPermission = user
+    ? getAppointmentPermission(appointment, user, now)
+    : { canModify: false };
 
   const [year, month, day] = appointment.date.split('-').map(Number);
   const dateLabel = formatHeaderDate(new Date(year, month - 1, day));
@@ -173,12 +193,18 @@ export function EventDetailsDialog({
               </p>
             </div>
           )}
+          {permission.canModify && permission.editableUntil && (
+            <p className="text-2xs text-muted-foreground">
+              Você pode alterar esta reserva até{' '}
+              {formatClock(permission.editableUntil)}.
+            </p>
+          )}
         </div>
 
         {/* Rodapé de Ações */}
         <div className="flex items-center justify-between gap-2.5 p-3.5 border-t border-border bg-muted/20">
           <div>
-            {onDelete && (
+            {onDelete && permission.canModify && (
               <Button
                 variant="destructive"
                 size="sm"
@@ -192,8 +218,8 @@ export function EventDetailsDialog({
                 }}
                 className="gap-1.5"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                {isConfirmingDelete ? "Confirmar exclusão?" : "Excluir"}
+                <CalendarX className="w-3.5 h-3.5" />
+                {isConfirmingDelete ? "Confirmar cancelamento?" : "Cancelar reserva"}
               </Button>
             )}
           </div>
@@ -202,7 +228,7 @@ export function EventDetailsDialog({
             <Button variant="secondary" size="sm" onClick={onClose}>
               Fechar
             </Button>
-            {onEdit && (
+            {onEdit && permission.canModify && (
               <Button
                 variant="outline"
                 size="sm"
