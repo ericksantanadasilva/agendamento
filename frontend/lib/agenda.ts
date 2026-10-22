@@ -14,6 +14,8 @@ import type {
 const STUDIO_OFFSET = '-03:00';
 const STUDIO_OFFSET_MS = -3 * 60 * 60_000;
 
+export const DEFAULT_SERVICE_LABEL = 'Reserva'
+
 export interface ApiStudio {
     id: string;
     name: string;
@@ -65,7 +67,7 @@ export function agendaItemToAppointment(
         clientName: isBlock
          ? (item.reason ?? 'Bloqueado')
          : (item.userName ?? 'Ocupado'),
-        serviceName: isBlock ? 'Bloqueio' : (item.service ?? 'Reserva'),
+        serviceName: isBlock ? 'Bloqueio' : (item.service ?? DEFAULT_SERVICE_LABEL),
         date: start.date,
         startTime: start.time,
         endTime,
@@ -108,4 +110,8 @@ export function getVisibleRange(date: Date, viewMode: CalendarViewMode) {
         from: startOfStudioDay(first),
         to: startOfStudioDay(dayAfter(last)),
     };
+}
+
+export function studioDateTimeToIso(date: string, time: string): string {
+    return new Date(`${date}T${time}:00${STUDIO_OFFSET}`).toISOString();
 }

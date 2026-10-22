@@ -1,11 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { StudioResource, CalendarAppointment, AppointmentStatus } from "@/types/calendar";
+import { Check, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Clock, Check, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Select } from "@/components/ui/select";
+import { apiClient } from "@/lib/api";
+import { DEFAULT_SERVICE_LABEL, studioDateTimeToIso } from "@/lib/agenda";
+import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/lib/toast-context";
+import { useAppointmentFormOptions } from "@/hooks/use-appointment-form-options";
+import type { CalendarAppointment, StudioResource } from "@/types/calendar";
+import { timeToMinutes } from "./utils";
 
 export interface NewAppointmentDialogProps {
   isOpen: boolean;
@@ -13,18 +19,12 @@ export interface NewAppointmentDialogProps {
   resources: StudioResource[];
   selectedDate: Date;
   initialData?: CalendarAppointment | null;
-  onSave: (appointment: Omit<CalendarAppointment, "id">, id?: string) => void;
-  onDelete?: (appointmentId: string) => void;
+  onSaved: () => void;
 }
 
-function calculateDuration(start: string, end: string): number {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  if (isNaN(sh) || isNaN(sm) || isNaN(eh) || isNaN(em)) return 0;
-  const startTotal = sh * 60 + sm;
-  const endTotal = eh * 60 + em;
-  return Math.max(endTotal - startTotal, 0);
-}
+type FormErrors = Partial<
+  Record<"resourceId" | "dateStr" | "startTime" | "duration" | "service", string>
+>;
 
 function formatDateToIso(date: Date): string {
   const year = date.getFullYear();
@@ -33,364 +33,320 @@ function formatDateToIso(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function formatEndTime(startTime: string, minutes: number): string {
+  const total = timeToMinutes(startTime) + minutes;
+  const hours = String(Math.floor((total % 1440) / 60)).padStart(2, "0");
+  const mins = String(total % 60).padStart(2, "0");
+  return total >= 1440 ? `${hours}:${mins} (dia seguinte)` : `${hours}:${mins}`;
+}
+
 export function NewAppointmentDialog({
   isOpen,
+  ...rest
+}: NewAppointmentDialogProps) {
+  if (!isOpen) return null;
+  return <AppointmentForm {...rest} />;
+}
+
+function AppointmentForm({
   onClose,
   resources,
   selectedDate,
   initialData,
-  onSave,
-  onDelete,
-}: NewAppointmentDialogProps) {
+  onSaved,
+}: Omit<NewAppointmentDialogProps, "isOpen">) {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const isStaff = user !== null && user.role !== "USER";
+  const { durations, users, error: optionsError } =
+    useAppointmentFormOptions(isStaff);
   const isEditing = Boolean(initialData);
 
-  // Estados do formulário
-  const [clientName, setClientName] = React.useState("");
-  const [serviceName, setServiceName] = React.useState("");
-  const [resourceId, setResourceId] = React.useState(resources[0]?.id || "");
-  const [dateStr, setDateStr] = React.useState(() => formatDateToIso(selectedDate));
-  const [startTime, setStartTime] = React.useState("10:00");
-  const [endTime, setEndTime] = React.useState("11:30");
-  const [technicianName, setTechnicianName] = React.useState("");
-  const [status, setStatus] = React.useState<AppointmentStatus>("CONFIRMED");
-  const [notes, setNotes] = React.useState("");
-  const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
+  const initialService =
+    initialData && initialData.serviceName !== DEFAULT_SERVICE_LABEL
+      ? initialData.serviceName
+      : "";
+  const initialDurationId = initialData
+    ? durations?.find((d) => d.minutes === initialData.durationMinutes)?.id
+    : undefined;
 
-  // Erros de validação
-  const [errors, setErrors] = React.useState<{
-    clientName?: string;
-    serviceName?: string;
-    time?: string;
-  }>({});
+  const [ownerId, setOwnerId] = React.useState("");
+  const [resourceId, setResourceId] = React.useState(
+    initialData?.resourceId ?? resources[0]?.id ?? "",
+  );
+  const [dateStr, setDateStr] = React.useState(
+    () => initialData?.date ?? formatDateToIso(selectedDate),
+  );
+  const [startTime, setStartTime] = React.useState(
+    initialData?.startTime ?? "10:00",
+  );
+  const [chosenDurationId, setChosenDurationId] = React.useState<string | null>(
+    null,
+  );
+  const [service, setService] = React.useState(initialService);
+  const [errors, setErrors] = React.useState<FormErrors>({});
+  const [submitting, setSubmitting] = React.useState(false);
 
-  // Sincroniza os dados iniciais quando abrir o dialog
+  const durationId =
+    chosenDurationId ??
+    initialDurationId ??
+    (isEditing ? "" : (durations?.[0]?.id ?? ""));
+  const selectedDuration = durations?.find((d) => d.id === durationId);
+
   React.useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setClientName(initialData.clientName);
-        setServiceName(initialData.serviceName);
-        setResourceId(initialData.resourceId);
-        setDateStr(initialData.date);
-        setStartTime(initialData.startTime);
-        setEndTime(initialData.endTime);
-        setTechnicianName(initialData.technicianName || "");
-        setStatus(initialData.status);
-        setNotes(initialData.notes || "");
-      } else {
-        setClientName("");
-        setServiceName("");
-        setResourceId(resources[0]?.id || "");
-        setDateStr(formatDateToIso(selectedDate));
-        setStartTime("10:00");
-        setEndTime("11:30");
-        setTechnicianName("");
-        setStatus("CONFIRMED");
-        setNotes("");
-      }
-      setIsConfirmingDelete(false);
-      setErrors({});
-    }
-  }, [isOpen, initialData, selectedDate, resources]);
-
-  // Fecha ao pressionar ESC
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
-  const durationMinutes = React.useMemo(() => {
-    return calculateDuration(startTime, endTime);
-  }, [startTime, endTime]);
+  function clearError(key: keyof FormErrors) {
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-    const newErrors: typeof errors = {};
+    const trimmedService = service.trim();
+    const nextErrors: FormErrors = {};
+    if (!resourceId) nextErrors.resourceId = "Escolha o estúdio";
+    if (!dateStr) nextErrors.dateStr = "Informe a data";
+    if (!startTime) nextErrors.startTime = "Informe o horário de início";
+    if (!durationId) nextErrors.duration = "Escolha a duração";
+    if (!isEditing && !trimmedService) nextErrors.service = "Informe o serviço";
 
-    if (!clientName.trim()) {
-      newErrors.clientName = "Informe o nome do cliente ou projeto";
-    }
-
-    if (!serviceName.trim()) {
-      newErrors.serviceName = "Informe o tipo de serviço";
-    }
-
-    if (durationMinutes <= 0) {
-      newErrors.time = "O horário de término deve ser posterior ao de início";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
       return;
     }
 
-    // Salva ou atualiza o agendamento
-    onSave(
-      {
-        clientName: clientName.trim(),
-        serviceName: serviceName.trim(),
-        resourceId,
-        date: dateStr,
-        startTime,
-        endTime,
-        durationMinutes,
-        technicianName: technicianName.trim() || undefined,
-        status,
-        notes: notes.trim() || undefined,
-      },
-      initialData?.id,
-    );
+    setSubmitting(true);
+    try {
+      if (initialData) {
+        const body: Record<string, string> = {};
+        if (resourceId !== initialData.resourceId) body.studioId = resourceId;
+        if (dateStr !== initialData.date || startTime !== initialData.startTime) {
+          body.startAt = studioDateTimeToIso(dateStr, startTime);
+        }
+        if (chosenDurationId && chosenDurationId !== initialDurationId) {
+          body.durationId = chosenDurationId;
+        }
+        if (trimmedService && trimmedService !== initialService) {
+          body.service = trimmedService;
+        }
 
-    // Limpa os campos e fecha
-    setClientName("");
-    setServiceName("");
-    setTechnicianName("");
-    setNotes("");
-    setErrors({});
-    onClose();
-  };
+        if (Object.keys(body).length === 0) {
+          onClose();
+          return;
+        }
 
-  const handleDelete = () => {
-    if (!initialData || !onDelete) return;
-
-    if (!isConfirmingDelete) {
-      setIsConfirmingDelete(true);
-      return;
+        await apiClient(`/appointments/${initialData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        });
+        showToast("Reserva atualizada.");
+      } else {
+        await apiClient("/appointments", {
+          method: "POST",
+          body: JSON.stringify({
+            studioId: resourceId,
+            durationId,
+            startAt: studioDateTimeToIso(dateStr, startTime),
+            service: trimmedService,
+            ...(ownerId ? { userId: ownerId } : {}),
+          }),
+        });
+        showToast("Reserva criada.");
+      }
+      onSaved();
+      onClose();
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Não foi possível salvar a reserva.",
+        "error",
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    onDelete(initialData.id);
-    onClose();
-  };
-
-  if (!isOpen) return null;
+  }
 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer"
+      className="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-background/80 p-4 backdrop-blur-xs animate-in fade-in duration-150"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+        className="flex max-h-[90vh] w-full max-w-lg cursor-default flex-col overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-xl shadow-black/40"
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-appointment-title"
       >
-        {/* Cabeçalho do Dialog */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between border-b border-border bg-muted/30 p-4">
           <div className="space-y-0.5">
-            <span className="font-mono text-3xs uppercase text-muted-foreground tracking-wider">
-              {isEditing ? "Gestão de Agendamento" : "Operação de Recursos"}
+            <span className="font-mono text-3xs uppercase tracking-wider text-muted-foreground">
+              {isEditing ? "Gestão de reserva" : "Reserva de estúdio"}
             </span>
-            <h2 id="new-appointment-title" className="text-sm sm:text-base font-semibold text-foreground">
-              {isEditing ? "Editar Agendamento" : "Novo Agendamento"}
+            <h2
+              id="new-appointment-title"
+              className="text-sm font-semibold text-foreground sm:text-base"
+            >
+              {isEditing ? "Editar reserva" : "Nova reserva"}
             </h2>
           </div>
-          <button
+          <Button
             type="button"
+            variant="icon"
+            size="icon"
             onClick={onClose}
-            className="p-1.5 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-            aria-label="Fechar modal"
+            aria-label="Fechar"
           >
-            <X className="w-4 h-4" />
-          </button>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
-        {/* Formulário com Scroll Interno se necessário */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-y-auto">
-          <div className="p-5 space-y-4 text-xs">
-            {/* Cliente e Serviço */}
-            <div className="space-y-3">
-              <Input
-                label="Cliente / Projeto *"
-                placeholder="Ex: Banda Aurora, João Silva, Produtora..."
-                value={clientName}
-                onChange={(e) => {
-                  setClientName(e.target.value);
-                  if (errors.clientName) setErrors((prev) => ({ ...prev, clientName: undefined }));
-                }}
-                error={errors.clientName}
-                autoFocus
-              />
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col overflow-y-auto"
+        >
+          <div className="space-y-4 p-5 text-xs">
+            {isStaff && !isEditing && (
+              <Select
+                id="appointment-owner"
+                label="Reservar para"
+                value={ownerId}
+                onChange={(e) => setOwnerId(e.target.value)}
+              >
+                <option value="">Eu mesmo</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} · {u.email}
+                  </option>
+                ))}
+              </Select>
+            )}
 
+            <Select
+              id="appointment-studio"
+              label="Estúdio"
+              value={resourceId}
+              onChange={(e) => {
+                setResourceId(e.target.value);
+                clearError("resourceId");
+              }}
+              error={errors.resourceId}
+            >
+              {resources.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                  {r.subtitle ? ` · ${r.subtitle}` : ""}
+                </option>
+              ))}
+            </Select>
+
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <Input
-                label="Serviço *"
-                placeholder="Ex: Gravação Acústica, Mixagem Dolby Atmos, Podcast..."
-                value={serviceName}
+                id="appointment-date"
+                label="Data"
+                type="date"
+                value={dateStr}
                 onChange={(e) => {
-                  setServiceName(e.target.value);
-                  if (errors.serviceName) setErrors((prev) => ({ ...prev, serviceName: undefined }));
+                  setDateStr(e.target.value);
+                  clearError("dateStr");
                 }}
-                error={errors.serviceName}
+                error={errors.dateStr}
+              />
+              <Input
+                id="appointment-start"
+                label="Início"
+                type="time"
+                value={startTime}
+                onChange={(e) => {
+                  setStartTime(e.target.value);
+                  clearError("startTime");
+                }}
+                error={errors.startTime}
               />
             </div>
 
-            {/* Recurso / Estúdio */}
-            <div className="space-y-1.5">
-              <label htmlFor="resource-select" className="block text-xs font-medium text-muted-foreground select-none">
-                Estúdio / Recurso *
-              </label>
-              <div className="relative">
-                <select
-                  id="resource-select"
-                  value={resourceId}
-                  onChange={(e) => setResourceId(e.target.value)}
-                  className="flex h-9 w-full rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary cursor-pointer"
-                >
-                  {resources.map((res) => (
-                    <option key={res.id} value={res.id} className="bg-card text-foreground">
-                      {res.name} {res.subtitle ? `· ${res.subtitle}` : ""}
+            <Select
+              id="appointment-duration"
+              label="Duração"
+              value={durationId}
+              onChange={(e) => {
+                setChosenDurationId(e.target.value);
+                clearError("duration");
+              }}
+              disabled={durations === null}
+              error={errors.duration}
+            >
+              {durations === null ? (
+                <option value="">Carregando...</option>
+              ) : (
+                <>
+                  <option value="" disabled>
+                    Selecione...
+                  </option>
+                  {durations.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name} · {d.minutes} min
                     </option>
                   ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Data e Horários */}
-            <div className="space-y-1.5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div className="space-y-1.5">
-                  <label htmlFor="date-input" className="block text-xs font-medium text-muted-foreground select-none">
-                    Data *
-                  </label>
-                  <input
-                    id="date-input"
-                    type="date"
-                    value={dateStr}
-                    onChange={(e) => setDateStr(e.target.value)}
-                    className="flex h-9 w-full rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-xs text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary cursor-pointer"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="start-time" className="block text-xs font-medium text-muted-foreground select-none">
-                    Início *
-                  </label>
-                  <input
-                    id="start-time"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => {
-                      setStartTime(e.target.value);
-                      if (errors.time) setErrors((prev) => ({ ...prev, time: undefined }));
-                    }}
-                    className="flex h-9 w-full rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-xs font-mono text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary cursor-pointer"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="end-time" className="block text-xs font-medium text-muted-foreground select-none">
-                    Término *
-                  </label>
-                  <input
-                    id="end-time"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => {
-                      setEndTime(e.target.value);
-                      if (errors.time) setErrors((prev) => ({ ...prev, time: undefined }));
-                    }}
-                    className="flex h-9 w-full rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-xs font-mono text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {errors.time ? (
-                <p className="text-2xs text-destructive mt-1 font-medium">{errors.time}</p>
-              ) : (
-                <div className="flex items-center gap-1.5 pt-1 text-2xs text-muted-foreground">
-                  <Clock className="w-3 h-3 text-primary/70 shrink-0" />
-                  <span>
-                    Duração calculada: <strong className="text-foreground font-mono">{durationMinutes} min</strong> ({Math.floor(durationMinutes / 60)}h {durationMinutes % 60 > 0 ? `${durationMinutes % 60}m` : ""})
-                  </span>
-                </div>
+                </>
               )}
-            </div>
+            </Select>
 
-            {/* Técnico / Responsável e Status Inicial */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Input
-                label="Técnico / Responsável"
-                placeholder="Ex: Carlos M."
-                value={technicianName}
-                onChange={(e) => setTechnicianName(e.target.value)}
-              />
-
-              <div className="space-y-1.5">
-                <label htmlFor="status-select" className="block text-xs font-medium text-muted-foreground select-none">
-                  Status
-                </label>
-                <select
-                  id="status-select"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as AppointmentStatus)}
-                  className="flex h-9 w-full rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary cursor-pointer"
-                >
-                  <option value="CONFIRMED" className="bg-card text-foreground">Confirmado</option>
-                  <option value="SCHEDULED" className="bg-card text-foreground">Agendado</option>
-                  <option value="IN_PROGRESS" className="bg-card text-foreground">Em andamento</option>
-                  <option value="BLOCKED" className="bg-card text-foreground">Bloqueio / Manutenção</option>
-                </select>
+            {selectedDuration && startTime && (
+              <div className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+                <Clock className="h-3 w-3 shrink-0 text-primary/70" />
+                <span>
+                  Termina às{" "}
+                  <strong className="font-mono text-foreground">
+                    {formatEndTime(startTime, selectedDuration.minutes)}
+                  </strong>
+                </span>
               </div>
-            </div>
+            )}
 
-            {/* Observações Técnicas */}
-            <div className="space-y-1.5">
-              <label htmlFor="notes-textarea" className="block text-xs font-medium text-muted-foreground select-none">
-                Observações Técnicas (opcional)
-              </label>
-              <textarea
-                id="notes-textarea"
-                rows={3}
-                placeholder="Requisitos de microfonação, número de canais, instrumentos ou equipamentos solicitados..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-[var(--radius)] border border-border bg-card px-3 py-2 text-xs sm:text-sm text-foreground transition-colors placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary resize-none"
-              />
-            </div>
+            <Input
+              id="appointment-service"
+              label="Serviço"
+              placeholder="Ex: Gravação da aula 12, Transmissão ao vivo..."
+              maxLength={120}
+              value={service}
+              onChange={(e) => {
+                setService(e.target.value);
+                clearError("service");
+              }}
+              error={errors.service}
+            />
+
+            {optionsError && (
+              <p role="alert" className="text-2xs font-medium text-destructive">
+                {optionsError}
+              </p>
+            )}
           </div>
 
-          {/* Rodapé com Ações */}
-          <div className="flex items-center justify-between gap-2.5 p-4 border-t border-border bg-muted/20 mt-auto">
-            <div>
-              {isEditing && onDelete && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDelete}
-                  className="gap-1.5"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  {isConfirmingDelete ? "Confirmar exclusão?" : "Excluir"}
-                </Button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onClose}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                className="gap-1.5"
-              >
-                <Check className="w-3.5 h-3.5" />
-                {isEditing ? "Salvar Alterações" : "Salvar Agendamento"}
-              </Button>
-            </div>
+          <div className="mt-auto flex items-center justify-end gap-2 border-t border-border bg-muted/20 p-4">
+            <Button type="button" variant="outline" size="sm" onClick={onClose}>
+              Fechar
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              className="gap-1.5"
+              disabled={submitting || durations === null}
+            >
+              <Check className="h-3.5 w-3.5" />
+              {submitting
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Reservar"}
+            </Button>
           </div>
         </form>
       </div>

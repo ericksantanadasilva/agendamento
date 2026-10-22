@@ -90,9 +90,6 @@ export default function CalendarPage() {
     setIsNewAppointmentOpen(true);
   }, []);
 
-  const showNotConnectedToast = React.useCallback(() => {
-    showToast('Criar e editar ainda não estão ligados ao servidor.', 'error');
-  }, [showToast]);
 
   const handleCancelAppointment = React.useCallback(
     async (appointmentId: string) => {
@@ -173,8 +170,7 @@ export default function CalendarPage() {
         resources={resources}
         selectedDate={selectedDate}
         initialData={editingAppointment}
-        onSave={showNotConnectedToast}
-        onDelete={handleCancelAppointment}
+        onSaved={reload}
       />
     </div>
   );
