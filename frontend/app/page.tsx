@@ -11,16 +11,14 @@ import {
 } from "@/components/calendar";
 import { useCalendarData } from "@/hooks/use-calendar-data";
 import { CalendarViewMode, CalendarAppointment } from "@/types/calendar";
-import { CheckCircle2 } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { useToast } from "@/lib/toast-context";
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = React.useState<Date>(() => new Date());
   const [viewMode, setViewMode] = React.useState<CalendarViewMode>("day");
   const [isNewAppointmentOpen, setIsNewAppointmentOpen] = React.useState(false);
   const [editingAppointment, setEditingAppointment] = React.useState<CalendarAppointment | null>(null);
-  const [successToast, setSuccessToast] = React.useState<string | null>(null);
-  const [actionError, setActionError] = React.useState<string | null>(null);
 
   const {
     resources,
@@ -28,6 +26,12 @@ export default function CalendarPage() {
     error,
     reload,
   } = useCalendarData(selectedDate, viewMode);
+
+  const { showToast } = useToast();
+
+  React.useEffect(() => {
+    if (error) showToast(error, 'error');
+  }, [error, showToast]);
 
 
   // Navegação: Período anterior (Dia, Semana ou Mês)
@@ -87,56 +91,30 @@ export default function CalendarPage() {
   }, []);
 
   const showNotConnectedToast = React.useCallback(() => {
-    setSuccessToast('Criar, editar e excluir ainda não estão ligados ao servidor.');
-    setTimeout(() => setSuccessToast(null), 4000)
-  }, [])
+    showToast('Criar e editar ainda não estão ligados ao servidor.', 'error');
+  }, [showToast]);
 
   const handleCancelAppointment = React.useCallback(
     async (appointmentId: string) => {
-      setActionError(null);
       try {
         await apiClient(`/appointments/${appointmentId}/cancel`, {
           method: 'PATCH',
           body: JSON.stringify({}),
         });
-        setSuccessToast('Reserva cancelada.');
-        setTimeout(() => setSuccessToast(null), 4000);
+        showToast('Reserva cancelada.');
         reload();
       } catch (err) {
-        setActionError(
+        showToast(
           err instanceof Error ? err.message : 'Não foi possível cancelar.',
+          'error',
         );
-        setTimeout(() => setActionError(null), 6000);
       }
     },
-    [reload],
+    [reload, showToast],
   );
 
   return (
     <div className="flex flex-col flex-1 min-w-0 space-y-4">
-      {/* Toast sutil de confirmação de agendamento criado/editado/excluído */}
-      {successToast && (
-        <div className="flex items-center justify-between p-3 rounded-[var(--radius)] bg-surface-elevated border border-primary/40 text-xs text-foreground animate-in fade-in slide-in-from-top-1 select-none shadow-md">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-medium text-foreground">{successToast}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSuccessToast(null)}
-            className="text-3xs text-muted-foreground hover:text-foreground underline cursor-pointer ml-3"
-          >
-            Fechar
-          </button>
-        </div>
-      )}
-
-      {(error || actionError) && (
-        <p role="alert" className="text-xs font-medium text-destructive">
-          {actionError || error}
-        </p>
-      )}
-
       {/* Header do Calendário */}
       <CalendarHeader
         selectedDate={selectedDate}
