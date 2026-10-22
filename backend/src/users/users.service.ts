@@ -95,4 +95,12 @@ export class UsersService {
             omit: { passwordHash: true },
         });
     }
+
+    findOptions() {
+        return this.prisma.user.findMany({
+            where: { active: true },
+            select: { id: true, name: true, email: true },
+            orderBy: { name: 'asc' },
+        });
+    }
 }

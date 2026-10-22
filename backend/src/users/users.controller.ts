@@ -46,6 +46,12 @@ export class UsersController {
         return this.usersService.findOne(req.user.sub);
     }
 
+    @Get('options')
+    @Roles(Role.ADMIN, Role.OPERATOR)
+    findOptions() {
+        return this.usersService.findOptions();
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(id);
