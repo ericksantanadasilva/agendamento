@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { apiClient } from "./api";
 import { clearToken, getToken } from "./auth-storage";
 import type { CurrentUser } from "@/types/auth";
+import { Button } from "@/components/ui/button";
 
 interface AuthContextValue {
     user: CurrentUser | null;
@@ -20,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isLoginPage = pathname === '/login';
     const [user, setUser] = React.useState<CurrentUser | null>(null);
     const [failed, setFailed] = React.useState(false);
+    const [attempt, setAtempt] = React.useState(0);
 
     React.useEffect(() => {
         if (isLoginPage || user) return;
@@ -41,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             cancelled = true;
         };
-    }, [isLoginPage, user, router]);
+    }, [isLoginPage, user, router, attempt]);
 
     const signOut = React.useCallback(() => {
         clearToken();
@@ -49,10 +51,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.replace('/login');
     }, [router]);
 
+    const retry = React.useCallback(() => {
+        setFailed(false);
+        setAtempt((current) => current + 1);
+    }, [])
+
     if (!isLoginPage && !user) {
         return (
-            <div className="flex min-h-screen items-center justify-center text-xs text-muted-foreground">
-                {failed ? 'Não foi possível conectar ao servidor.' : 'Carregando...'}
+            <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-xs text-muted-foreground">
+                {failed ? (
+                    <>
+                        <p>Não foi possível conectar ao servidor.</p>
+                        <Button variant="outline" size="sm" onClick={retry}>
+                            Tentar de novo
+                        </Button>
+                    </>
+                ) : (
+                    "Carregando..."
+                )}
             </div>
         );
     }
