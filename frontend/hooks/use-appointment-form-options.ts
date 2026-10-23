@@ -2,13 +2,7 @@
 
 import * as React from "react";
 import { apiClient } from "@/lib/api";
-
-export interface ApiDuration {
-  id: string;
-  name: string;
-  minutes: number;
-  active: boolean;
-}
+import { ApiDuration } from "@/lib/agenda";
 
 export interface UserOption {
   id: string;

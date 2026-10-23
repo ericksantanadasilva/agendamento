@@ -23,6 +23,13 @@ export interface ApiStudio {
     active: boolean;
 }
 
+export interface ApiDuration {
+    id: string;
+    name: string;
+    minutes: number;
+    active: boolean;
+}
+
 export interface AgendaItem {
     type: 'APPOINTMENT' | 'BLOCK';
     startAt: string;
