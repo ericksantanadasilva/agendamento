@@ -4,12 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  Calendar,
-  Clock,
-  Users,
-  Briefcase,
-  Layers,
   UserCheck,
   PanelLeftClose,
   PanelLeftOpen,
@@ -19,15 +13,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import type { UserRole } from "@/types/auth";
 import { Button } from "../ui/button";
-
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Agendamentos", href: "#agendamentos", icon: Clock },
-  { label: "Calendário", href: "#calendario", icon: Calendar },
-  { label: "Clientes", href: "#clientes", icon: Users },
-  { label: "Serviços", href: "#servicos", icon: Briefcase },
-  { label: "Estúdios", href: "#estudios", icon: Layers },
-];
+import { getNavItems } from "./nav-items";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   ADMIN: 'Administrador',
@@ -43,6 +29,7 @@ export interface SidebarProps {
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const navItems = getNavItems(user?.role);
 
   return (
     <aside
@@ -100,7 +87,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* Navigation Links */}
       <nav className="flex-1 px-2.5 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
 
