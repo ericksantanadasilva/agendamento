@@ -126,6 +126,7 @@ export default function StudiosPage() {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge
+                    className="w-28 justify-center"
                     dotClassName={
                       studio.active ? "bg-primary" : "bg-muted-foreground/50"
                     }
@@ -143,6 +144,7 @@ export default function StudiosPage() {
                     <Button
                       variant={confirmingId === studio.id ? "destructive" : "ghost"}
                       size="sm"
+                      className="min-w-24"
                       onClick={() => handleDeactivate(studio)}
                     >
                       {confirmingId === studio.id
@@ -153,6 +155,7 @@ export default function StudiosPage() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="min-w-24"
                       onClick={() => void changeActive(studio, true)}
                     >
                       Ativar
