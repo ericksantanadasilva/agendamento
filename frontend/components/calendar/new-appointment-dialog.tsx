@@ -66,9 +66,26 @@ function AppointmentForm({
     initialData && initialData.serviceName !== DEFAULT_SERVICE_LABEL
       ? initialData.serviceName
       : "";
-  const initialDurationId = initialData
-    ? durations?.find((d) => d.minutes === initialData.durationMinutes)?.id
-    : undefined;
+  const initialDurationId = initialData?.durationId;
+
+  const durationOptions = React.useMemo(() => {
+    if (durations === null) return null;
+    if (
+      !initialData?.durationId ||
+      durations.some((d) => d.id === initialData.durationId)
+    ) {
+      return durations
+    }
+    return [
+      ...durations,
+      {
+        id: initialData.durationId,
+        name: `${initialData.durationName ?? "Duração atual"} (desativada)`,
+        minutes: initialData.durationMinutes,
+        active: false,
+      },
+    ];
+  }, [durations, initialData]);
 
   const [ownerId, setOwnerId] = React.useState("");
   const [resourceId, setResourceId] = React.useState(
@@ -91,7 +108,7 @@ function AppointmentForm({
     chosenDurationId ??
     initialDurationId ??
     (isEditing ? "" : (durations?.[0]?.id ?? ""));
-  const selectedDuration = durations?.find((d) => d.id === durationId);
+  const selectedDuration = durationOptions?.find((d) => d.id === durationId);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -281,14 +298,14 @@ function AppointmentForm({
               disabled={durations === null}
               error={errors.duration}
             >
-              {durations === null ? (
+              {durationOptions === null ? (
                 <option value="">Carregando...</option>
               ) : (
                 <>
                   <option value="" disabled>
                     Selecione...
                   </option>
-                  {durations.map((d) => (
+                  {durationOptions.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name} · {d.minutes} min
                     </option>

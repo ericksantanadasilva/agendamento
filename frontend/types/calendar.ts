@@ -30,6 +30,7 @@ export interface CalendarAppointment {
   notes?: string;
   mine?: boolean;
   durationName?: string;
+  durationId?: string;
   createdAt?: string;
   startAt?: string; //ISO UTC
 }

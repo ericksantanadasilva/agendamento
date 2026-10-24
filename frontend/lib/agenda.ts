@@ -39,6 +39,7 @@ export interface AgendaItem {
     userId?: string;
     userName?: string;
     durationName?: string;
+    durationId?: string;
     createdAt?: string;
     reason?: string | null;
     service?: string | null;
@@ -82,6 +83,7 @@ export function agendaItemToAppointment(
         status: isBlock ? 'BLOCKED' : 'SCHEDULED',
         mine: item.mine,
         durationName: item.durationName,
+        durationId: item.durationId,
         createdAt: item.createdAt,
         startAt: item.startAt,
     };
