@@ -47,6 +47,7 @@ export class AgendaService {
                 user: { select: { name: true } },
                 duration: { select: { name: true } },
                 service: true,
+                durationId: true,
             },
         });
 
@@ -78,6 +79,7 @@ export class AgendaService {
                             durationName: a.duration.name,
                             service: a.service,
                             createdAt: a.createdAt,
+                            durationId: a.durationId,
                         }
                     : {}),
                     ...(isStaff ? { userId : a.userId } : {})
