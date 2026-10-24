@@ -31,3 +31,8 @@ export function minutesToTime(minutes: number): string {
     const mins = String(minutes % 60).padStart(2, "0");
     return `${hours}:${mins}`;
 }
+
+export function formatPeriod(startMinute: number, endMinute: number): string {
+  if (startMinute === 0 && endMinute === 1440) return "Dia inteiro";
+  return `${minutesToTime(startMinute)} – ${minutesToTime(endMinute % 1440)}`;
+}
