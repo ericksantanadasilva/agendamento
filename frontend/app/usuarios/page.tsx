@@ -8,6 +8,7 @@ import {
   ManagedListSkeleton,
 } from '@/components/admin/managed-list';
 import { PageHeader } from '@/components/layout/page-header';
+import { UserFormDialog } from '@/components/users/user-form-dialog';
 import { Button } from '@/components/ui/button';
 import { useUsers } from '@/hooks/use-users';
 import { apiClient } from '@/lib/api';
@@ -15,6 +16,7 @@ import { useAuth } from '@/lib/auth-context';
 import { ROLE_LABELS } from '@/lib/roles';
 import { useToast } from '@/lib/toast-context';
 import type { ApiUser } from '@/types/auth';
+import { Plus } from 'lucide-react';
 
 export default function UsersPage() {
   const router = useRouter();
@@ -22,6 +24,9 @@ export default function UsersPage() {
   const { showToast } = useToast();
   const isAdmin = user?.role === 'ADMIN';
   const { users, error, reload } = useUsers(isAdmin);
+
+  const [isCreating, setIsCreating] = React.useState(false);
+  const [editing, setEditing] = React.useState<ApiUser | null>(null);
 
   React.useEffect(() => {
     if (user && user.role !== 'ADMIN') router.replace('/');
@@ -55,6 +60,16 @@ export default function UsersPage() {
       <PageHeader
         title='Usuários'
         description='Gerencie quem tem acesso ao sistema e com qual papel.'
+        action={
+          <Button
+            size='sm'
+            className='gap-1.5'
+            onClick={() => setIsCreating(true)}
+          >
+            <Plus className='h-3.5 w-3.5' />
+            Novo usuário
+          </Button>
+        }
       />
 
       {error ? (
@@ -80,6 +95,7 @@ export default function UsersPage() {
                   subtitle={`${item.email} · ${ROLE_LABELS[item.role]}${isSelf ? ' · você' : ''}`}
                   active={item.active}
                   deactivateDisabled={isSelf}
+                  onEdit={() => setEditing(item)}
                   onSetActive={(active) => void changeActive(item, active)}
                 />
               );
@@ -92,6 +108,23 @@ export default function UsersPage() {
             login da pessoa.
           </p>
         </>
+      )}
+
+      {isCreating && (
+        <UserFormDialog
+          user={null}
+          isSelf={false}
+          onClose={() => setIsCreating(false)}
+          onSaved={reload}
+        />
+      )}
+      {editing && (
+        <UserFormDialog
+          user={editing}
+          isSelf={editing.id === user?.id}
+          onClose={() => setEditing(null)}
+          onSaved={reload}
+        />
       )}
     </div>
   );
