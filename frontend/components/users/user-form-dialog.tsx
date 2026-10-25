@@ -10,6 +10,7 @@ import { apiClient } from '@/lib/api';
 import { ROLE_OPTIONS } from '@/lib/roles';
 import { useToast } from '@/lib/toast-context';
 import type { ApiUser, UserRole } from '@/types/auth';
+import { ResetPasswordSection } from './reset-password-section';
 
 const FORM_ID = 'user-form';
 const MIN_PASSWORD_LENGTH = 8;
@@ -190,6 +191,9 @@ export function UserFormDialog({
           ))}
         </Select>
       </form>
+      {user && !isSelf && (
+        <ResetPasswordSection userId={user.id} userName={user.name} />
+      )}
     </Dialog>
   );
 }
