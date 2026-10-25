@@ -5,7 +5,11 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AvailabilityFormDialog } from "@/components/availability/availability-form-dialog";
 import { PageHeader } from "@/components/layout/page-header";
-import { Badge } from "@/components/ui/badge";
+import { 
+  ManagedItemRow,
+  ManagedList,
+  ManagedListSkeleton,
+ } from "@/components/admin/managed-list";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { useAvailabilities } from "@/hooks/use-availabilities";
@@ -41,7 +45,6 @@ export default function AvailabilityPage() {
 
   const [creatingDay, setCreatingDay] = React.useState<DayOfWeek | null>(null);
   const [editing, setEditing] = React.useState<ApiAvailability | null>(null);
-  const [confirmingId, setConfirmingId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (user && user.role !== "ADMIN") router.replace("/");
@@ -49,7 +52,6 @@ export default function AvailabilityPage() {
 
   const changeActive = React.useCallback(
     async (period: ApiAvailability, active: boolean) => {
-      setConfirmingId(null);
       try {
         await apiClient(`/availabilities/${period.id}`, {
           method: "PATCH",
@@ -66,14 +68,6 @@ export default function AvailabilityPage() {
     },
     [reloadAvailabilities, showToast],
   );
-
-  function handleDeactivate(period: ApiAvailability) {
-    if (confirmingId !== period.id) {
-      setConfirmingId(period.id);
-      return;
-    }
-    void changeActive(period, false);
-  }
 
   if (!isAdmin) return null;
 
@@ -101,10 +95,7 @@ export default function AvailabilityPage() {
           </Button>
         </div>
       ) : studios === null ? (
-        <div className="animate-pulse space-y-3">
-          <div className="h-9 w-64 rounded bg-muted/40" />
-          <div className="h-40 rounded-[var(--radius)] border border-border/60" />
-        </div>
+        <ManagedListSkeleton />
       ) : studios.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
           <div className="space-y-1">
@@ -128,7 +119,6 @@ export default function AvailabilityPage() {
               value={studioId ?? ""}
               onChange={(e) => {
                 setChosenId(e.target.value);
-                setConfirmingId(null);
               }}
             >
               {studios.map((studio) => (
@@ -174,62 +164,23 @@ export default function AvailabilityPage() {
                         Sem horários cadastrados: o estúdio fica fechado neste dia.
                       </p>
                     ) : (
-                      <ul className="divide-y divide-border/60 rounded-[var(--radius)] border border-border bg-card">
+                      <ManagedList>
                         {periods.map((period) => (
-                          <li
+                          <ManagedItemRow
                             key={period.id}
-                            className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                          >
-                            <p className="font-mono text-sm text-foreground">
-                              {formatPeriod(period.startMinute, period.endMinute)}
-                            </p>
-                            <div className="flex shrink-0 items-center gap-2">
-                              <Badge
-                                className="w-28 justify-center"
-                                dotClassName={
-                                  period.active
-                                    ? "bg-primary"
-                                    : "bg-muted-foreground/50"
-                                }
-                              >
-                                {period.active ? "Ativo" : "Desativado"}
-                              </Badge>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setEditing(period)}
-                              >
-                                Editar
-                              </Button>
-                              {period.active ? (
-                                <Button
-                                  variant={
-                                    confirmingId === period.id
-                                      ? "destructive"
-                                      : "ghost"
-                                  }
-                                  size="sm"
-                                  className="min-w-24"
-                                  onClick={() => handleDeactivate(period)}
-                                >
-                                  {confirmingId === period.id
-                                    ? "Confirmar desativação?"
-                                    : "Desativar"}
-                                </Button>
-                              ) : (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="min-w-24"
-                                  onClick={() => void changeActive(period, true)}
-                                >
-                                  Ativar
-                                </Button>
-                              )}
-                            </div>
-                          </li>
+                            title={formatPeriod(
+                              period.startMinute,
+                              period.endMinute,
+                            )}
+                            monoTitle
+                            active={period.active}
+                            onEdit={() => setEditing(period)}
+                            onSetActive={(active) =>
+                              void changeActive(period, active)
+                            }
+                          />
                         ))}
-                      </ul>
+                      </ManagedList>
                     )}
                   </section>
                 );

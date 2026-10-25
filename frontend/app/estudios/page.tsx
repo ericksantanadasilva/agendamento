@@ -5,7 +5,11 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { StudioFormDialog } from "@/components/studios/studio-form-dialog";
-import { Badge } from "@/components/ui/badge";
+import { 
+  ManagedItemRow,
+  ManagedList,
+  ManagedListSkeleton,
+} from "@/components/admin/managed-list";
 import { Button } from "@/components/ui/button";
 import { useStudios } from "@/hooks/use-studios";
 import { apiClient } from "@/lib/api";
@@ -22,7 +26,6 @@ export default function StudiosPage() {
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [editing, setEditing] = React.useState<ApiStudio | null>(null);
-  const [confirmingId, setConfirmingId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (user && user.role !== "ADMIN") router.replace("/");
@@ -30,7 +33,6 @@ export default function StudiosPage() {
 
   const changeActive = React.useCallback(
     async (studio: ApiStudio, active: boolean) => {
-      setConfirmingId(null);
       try {
         await apiClient(`/studios/${studio.id}`, {
           method: "PATCH",
@@ -47,14 +49,6 @@ export default function StudiosPage() {
     },
     [reload, showToast],
   );
-
-  function handleDeactivate(studio: ApiStudio) {
-    if (confirmingId !== studio.id) {
-      setConfirmingId(studio.id);
-      return;
-    }
-    void changeActive(studio, false);
-  }
 
   if (!isAdmin) return null;
 
@@ -83,17 +77,7 @@ export default function StudiosPage() {
           </Button>
         </div>
       ) : studios === null ? (
-        <div className="animate-pulse divide-y divide-border/60 rounded-[var(--radius)] border border-border/60">
-          {[0, 1, 2].map((row) => (
-            <div key={row} className="flex items-center justify-between p-4">
-              <div className="space-y-2">
-                <div className="h-3 w-40 rounded bg-muted/50" />
-                <div className="h-2.5 w-56 rounded bg-muted/30" />
-              </div>
-              <div className="h-5 w-16 rounded bg-muted/40" />
-            </div>
-          ))}
-        </div>
+        <ManagedListSkeleton />
       ) : studios.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
           <div className="space-y-1">
@@ -108,63 +92,18 @@ export default function StudiosPage() {
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-border/60 rounded-[var(--radius)] border border-border bg-card">
+          <ManagedList>
             {studios.map((studio) => (
-              <li
+              <ManagedItemRow
                 key={studio.id}
-                className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {studio.name}
-                  </p>
-                  {studio.description && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {studio.description}
-                    </p>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <Badge
-                    className="w-28 justify-center"
-                    dotClassName={
-                      studio.active ? "bg-primary" : "bg-muted-foreground/50"
-                    }
-                  >
-                    {studio.active ? "Ativo" : "Desativado"}
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditing(studio)}
-                  >
-                    Editar
-                  </Button>
-                  {studio.active ? (
-                    <Button
-                      variant={confirmingId === studio.id ? "destructive" : "ghost"}
-                      size="sm"
-                      className="min-w-24"
-                      onClick={() => handleDeactivate(studio)}
-                    >
-                      {confirmingId === studio.id
-                        ? "Confirmar desativação?"
-                        : "Desativar"}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="min-w-24"
-                      onClick={() => void changeActive(studio, true)}
-                    >
-                      Ativar
-                    </Button>
-                  )}
-                </div>
-              </li>
+                title={studio.name}
+                subtitle={studio.description}
+                active={studio.active}
+                onEdit={() => setEditing(studio)}
+                onSetActive={(active) => void changeActive(studio, active)}
+              />
             ))}
-          </ul>
+          </ManagedList>
           <p className="text-2xs text-muted-foreground">
             Desativar um estúdio o esconde do calendário e do formulário de
             reserva para quem não é administrador. As reservas futuras dele não
