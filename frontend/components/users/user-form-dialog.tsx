@@ -133,7 +133,11 @@ export function UserFormDialog({
         </>
       }
     >
-      <form id={FORM_ID} onSubmit={handleSubmit} className='space-y-4 text-xs'>
+      <form
+        id={FORM_ID}
+        onSubmit={handleSubmit}
+        className='space-y-4 p-5 text-xs'
+      >
         <Input
           id='user-name'
           label='Nome'
