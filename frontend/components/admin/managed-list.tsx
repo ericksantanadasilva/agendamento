@@ -37,6 +37,7 @@ export interface ManagedItemRowProps {
   labels?: { active: string; inactive: string };
   onEdit?: () => void;
   deactivateDisabled?: boolean;
+  canReactivate?: boolean;
   onSetActive: (active: boolean) => void;
 }
 
@@ -50,6 +51,7 @@ export function ManagedItemRow({
   labels = DEFAULT_LABELS,
   onEdit,
   deactivateDisabled = false,
+  canReactivate = true,
   onSetActive,
 }: ManagedItemRowProps) {
   const [confirming, setConfirming] = React.useState(false);
@@ -106,7 +108,7 @@ export function ManagedItemRow({
           >
             {confirming ? 'Confirmar desativação?' : 'Desativar'}
           </Button>
-        ) : (
+        ) : canReactivate ? (
           <Button
             variant='ghost'
             size='sm'
@@ -115,6 +117,8 @@ export function ManagedItemRow({
           >
             Ativar
           </Button>
+        ) : (
+          <span className='min-w-24' aria-hidden='true' />
         )}
       </div>
     </li>

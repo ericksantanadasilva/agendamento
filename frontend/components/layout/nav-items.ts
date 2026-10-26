@@ -1,4 +1,5 @@
 import {
+  Ban,
   Calendar,
   CalendarClock,
   Clock,
@@ -19,6 +20,13 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Calendário', href: '/', icon: Calendar },
+  {
+    label: 'Bloqueios',
+    href: '/bloqueios',
+    icon: Ban,
+    roles: ['ADMIN', 'OPERATOR'],
+    section: 'admin',
+  },
   {
     label: 'Estúdios',
     href: '/estudios',
