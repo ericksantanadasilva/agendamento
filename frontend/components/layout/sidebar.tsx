@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { UserCheck, PanelLeftClose, PanelLeftOpen, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
-import type { UserRole } from '@/types/auth';
 import { Button } from '../ui/button';
 import { getNavItems } from './nav-items';
 import { ROLE_LABELS } from '@/lib/roles';
@@ -119,12 +118,14 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* User Footer */}
       <div className='p-2.5 border-t border-border space-y-1.5'>
-        <div
+        <Link
+          href='/perfil'
           className={cn(
-            'flex items-center rounded-[var(--radius)] bg-muted/40 border border-border/60 transition-all',
+            'flex items-center rounded-[var(--radius)] border border-border/60 bg-muted/40 transition-all hover:bg-muted/70',
+            pathname === '/perfil' && 'border-primary/50',
             isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-2',
           )}
-          title={user ? `${user.name} (${user.email})` : undefined}
+          title={user ? `Meu perfil (${user.name}, ${user.email})` : undefined}
         >
           <div className='w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground shrink-0'>
             <UserCheck className='w-3.5 h-3.5' />
@@ -139,7 +140,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               </p>
             </div>
           )}
-        </div>
+        </Link>
 
         <Button
           type='button'
