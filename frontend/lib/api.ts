@@ -1,7 +1,7 @@
-import { clearToken, getToken } from "./auth-storage";
+import { clearToken, getToken } from './auth-storage';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export interface ApiResponse<T = unknown> {
   data?: T;
@@ -53,6 +53,11 @@ export async function apiClient<T>(
       // resposta sem JSON: fica a mensagem padrão
     }
 
+    if (response.status === 429) {
+      message =
+        'Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.';
+    }
+
     if (response.status === 401 && path !== '/auth/login') {
       clearToken();
       if (typeof window !== 'undefined') {
@@ -63,5 +68,5 @@ export async function apiClient<T>(
     throw new ApiError(message, response.status, body);
   }
 
-  return response.json()
+  return response.json();
 }

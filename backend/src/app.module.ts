@@ -10,12 +10,15 @@ import { AvailabilitiesModule } from './availabilities/availabilities.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AgendaModule } from './agenda/agenda.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     PrismaModule,
     HealthModule,
     UsersModule,
@@ -27,5 +30,6 @@ import { AgendaModule } from './agenda/agenda.module';
     AppointmentsModule,
     AgendaModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
