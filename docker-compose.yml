@@ -1,63 +1,48 @@
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: agendamento-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-agendamento_db}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-agendamento_db}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - agendamento-network
+name: agendamento
 
-  backend:
+services:
+  agendamento-api:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: agendamento-api
     restart: unless-stopped
     environment:
+      NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-agendamento_db}?schema=public
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-    ports:
-      - "${BACKEND_PORT:-3001}:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      TRUST_PROXY: 1
+      DATABASE_URL: postgresql://agendamento_prod_app:${DB_PASSWORD:?defina DB_PASSWORD no .env}@stunning_tivy-main_app-1:5432/agendamento_prod?schema=public
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
+      FRONTEND_URL: ${FRONTEND_URL:?defina FRONTEND_URL no .env}
     networks:
-      - agendamento-network
+      - dev-network
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/api/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
-  frontend:
+  agendamento-web:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: agendamento-web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?defina NEXT_PUBLIC_API_URL no .env}
     restart: unless-stopped
-    environment:
-      PORT: 3000
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
-    depends_on:
-      - backend
     networks:
-      - agendamento-network
+      - dev-network
 
-volumes:
-  postgres_data:
-    name: agendamento_postgres_data
+  # Tarefas pontuais (migrations e seed): docker compose run --rm agendamento-migrate <comando>
+  agendamento-migrate:
+    build:
+      context: ./backend
+      target: builder
+    profiles: ['tools']
+    environment:
+      DATABASE_URL: postgresql://agendamento_prod_app:${DB_PASSWORD:?defina DB_PASSWORD no .env}@stunning_tivy-main_app-1:5432/agendamento_prod?schema=public
+      SHADOW_DATABASE_URL: postgresql://agendamento_prod_app:${DB_PASSWORD}@stunning_tivy-main_app-1:5432/agendamento_prod?schema=public
+    command: npx prisma migrate deploy
+    networks:
+      - dev-network
 
 networks:
-  agendamento-network:
-    name: agendamento_network
-    driver: bridge
+  dev-network:
+    external: true

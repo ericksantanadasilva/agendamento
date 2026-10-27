@@ -1,0 +1,2 @@
+# Segredos do compose de produção (existem só na VPS)
+.env
