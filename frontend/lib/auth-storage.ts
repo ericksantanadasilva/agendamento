@@ -1,29 +1,26 @@
-const TOKEN_KEY = 'agendamento.token';
+// O token de acesso vive só na memória: some ao recarregar a página, e a sessão
+// é recuperada pelo cookie de renovação (httpOnly), que o JavaScript não lê.
+let accessToken: string | null = null;
+
+const LEGACY_KEY = 'agendamento.token';
 
 export function getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    try {
-        return window.localStorage.getItem(TOKEN_KEY);
-    } catch {
-        return null;
-    }
+  return accessToken;
 }
 
 export function setToken(token: string): void {
-    if (typeof token !== 'string' || token.split('.').length !== 3) {
-        throw new Error('Token inválido recebido do servidor');
-    }
-    try {
-        window.localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-        // armazenamento indisponível: o usuário precisará logar de novo
-    }
+  if (typeof token !== 'string' || token.split('.').length !== 3) {
+    throw new Error('Token inválido recebido do servidor');
+  }
+  accessToken = token;
 }
 
 export function clearToken(): void {
-    try {
-        window.localStorage.removeItem(TOKEN_KEY);
-    } catch {
-        // nada a fazer
-    }
+  accessToken = null;
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(LEGACY_KEY);
+  } catch {
+    // armazenamento indisponível: nada a limpar
+  }
 }
