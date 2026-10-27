@@ -17,6 +17,8 @@ import { apiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatBlockRange, type ApiBlock } from '@/lib/blocks';
 import { useToast } from '@/lib/toast-context';
+import { Plus } from 'lucide-react';
+import { BlockFormDialog } from '@/components/blocks/block-form-dialog';
 
 export default function BlocksPage() {
   const router = useRouter();
@@ -38,6 +40,7 @@ export default function BlocksPage() {
     reload: reloadBlocks,
   } = useBlocks(studioId);
   const [showPast, setShowPast] = React.useState(false);
+  const [isCreating, setIsCreating] = React.useState(false);
 
   React.useEffect(() => {
     if (user && user.role === 'USER') router.replace('/');
@@ -80,6 +83,17 @@ export default function BlocksPage() {
       <PageHeader
         title="Bloqueios"
         description="Bloqueie um estúdio por um período, como manutenção, feriado ou evento. Nesse periíodo, ninguém consegue reservá-lo."
+        action={
+          <Button
+            size="sm"
+            className="gap-1.5"
+            disabled={!studios || studios.length === 0}
+            onClick={() => setIsCreating(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Novo Bloqueio
+          </Button>
+        }
       />
 
       {loadError ? (
@@ -163,6 +177,18 @@ export default function BlocksPage() {
             voltam, e um bloqueio desativado não pode ser reativado: crie outro.
           </p>
         </>
+      )}
+
+      {isCreating && studios && studioId && (
+        <BlockFormDialog
+          studios={studios}
+          defaultStudioId={studioId}
+          onClose={() => setIsCreating(false)}
+          onSaved={(savedStudioId) => {
+            if (savedStudioId === studioId) reloadBlocks();
+            else setChosenId(savedStudioId);
+          }}
+        />
       )}
     </div>
   );
