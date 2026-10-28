@@ -1,45 +1,53 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
-import { X, Calendar, CalendarX, User, MapPin, FileText, Pencil } from "lucide-react";
-import { formatHeaderDate } from "./utils";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth-context";
-import { useNow } from "@/hooks/use-now";
-import { 
+import * as React from 'react';
+import { CalendarAppointment, AppointmentStatus } from '@/types/calendar';
+import { Button } from '@/components/ui/button';
+import {
+  X,
+  Calendar,
+  CalendarX,
+  User,
+  MapPin,
+  FileText,
+  Pencil,
+} from 'lucide-react';
+import { formatHeaderDate } from './utils';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
+import { useNow } from '@/hooks/use-now';
+import {
   getAppointmentPermission,
-  type AppointmentPermission
-} from "@/lib/appointment-permissions";
+  type AppointmentPermission,
+} from '@/lib/appointment-permissions';
 
 const STATUS_CONFIG: Record<
   AppointmentStatus,
   { label: string; dotClass: string }
 > = {
   CONFIRMED: {
-    label: "Confirmado",
-    dotClass: "bg-primary",
+    label: 'Confirmado',
+    dotClass: 'bg-primary',
   },
   IN_PROGRESS: {
-    label: "Em andamento",
-    dotClass: "bg-info",
+    label: 'Em andamento',
+    dotClass: 'bg-info',
   },
   SCHEDULED: {
-    label: "Agendado",
-    dotClass: "bg-warning",
+    label: 'Agendado',
+    dotClass: 'bg-warning',
   },
   COMPLETED: {
-    label: "Concluído",
-    dotClass: "bg-muted-foreground/50",
+    label: 'Concluído',
+    dotClass: 'bg-muted-foreground/50',
   },
   CANCELLED: {
-    label: "Cancelado",
-    dotClass: "bg-destructive",
+    label: 'Cancelado',
+    dotClass: 'bg-destructive',
   },
   BLOCKED: {
-    label: "Bloqueado",
-    dotClass: "bg-muted-foreground/70",
+    label: 'Bloqueado',
+    dotClass: 'bg-muted-foreground/70',
   },
 };
 
@@ -52,7 +60,7 @@ export interface EventDetailsDialogProps {
 }
 
 function formatClock(date: Date): string {
-  return date.toLocaleDateString('pt-BR', {
+  return date.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'America/Sao_Paulo',
@@ -68,7 +76,8 @@ export function EventDetailsDialog({
 }: EventDetailsDialogProps) {
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
-  const [previousAppointment, setPreviousAppointment] = React.useState(appointment);
+  const [previousAppointment, setPreviousAppointment] =
+    React.useState(appointment);
   if (appointment !== previousAppointment) {
     setPreviousAppointment(appointment);
     setIsConfirmingDelete(false);
@@ -86,7 +95,7 @@ export function EventDetailsDialog({
 
   const statusInfo = STATUS_CONFIG[appointment.status] || {
     label: appointment.status,
-    dotClass: "bg-muted-foreground",
+    dotClass: 'bg-muted-foreground',
   };
 
   return (
@@ -107,7 +116,10 @@ export function EventDetailsDialog({
             <span className="font-mono text-3xs uppercase text-muted-foreground tracking-wider">
               Detalhes da Reserva
             </span>
-            <h3 id="dialog-title" className="text-sm font-semibold text-foreground truncate">
+            <h3
+              id="dialog-title"
+              className="text-sm font-semibold text-foreground truncate"
+            >
               {appointment.clientName}
             </h3>
           </div>
@@ -133,7 +145,12 @@ export function EventDetailsDialog({
             </div>
             <div className="text-right">
               <span className="inline-flex items-center gap-1.5 text-2xs px-2.5 py-0.5 rounded bg-muted/60 border border-border/60 text-foreground">
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusInfo.dotClass)} />
+                <span
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full shrink-0',
+                    statusInfo.dotClass,
+                  )}
+                />
                 <span className="font-medium">{statusInfo.label}</span>
               </span>
             </div>
@@ -150,8 +167,9 @@ export function EventDetailsDialog({
                 {dateLabel}
               </p>
               <p className="text-3xs font-mono text-muted-foreground mt-0.5">
-                {appointment.startTime} → {appointment.endTime} · {' '}
-                {appointment.durationName ?? `${appointment.durationMinutes} min`}
+                {appointment.startTime} → {appointment.endTime} ·{' '}
+                {appointment.durationName ??
+                  `${appointment.durationMinutes} min`}
               </p>
             </div>
 
@@ -161,7 +179,7 @@ export function EventDetailsDialog({
                 Local
               </span>
               <p className="font-medium text-foreground mt-1 truncate">
-                {resourceName || "Estúdio"}
+                {resourceName || 'Estúdio'}
               </p>
             </div>
           </div>
@@ -219,7 +237,9 @@ export function EventDetailsDialog({
                 className="gap-1.5"
               >
                 <CalendarX className="w-3.5 h-3.5" />
-                {isConfirmingDelete ? "Confirmar cancelamento?" : "Cancelar reserva"}
+                {isConfirmingDelete
+                  ? 'Confirmar cancelamento?'
+                  : 'Cancelar reserva'}
               </Button>
             )}
           </div>
