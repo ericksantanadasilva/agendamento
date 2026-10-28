@@ -18,7 +18,7 @@ export interface NavItem {
   section?: 'admin';
 }
 
-export const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   { label: 'Calendário', href: '/', icon: Calendar },
   {
     label: 'Bloqueios',

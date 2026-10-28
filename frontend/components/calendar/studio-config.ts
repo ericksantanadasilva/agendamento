@@ -14,7 +14,7 @@ export interface StudioStyleConfig {
 type StudioPalette = Omit<StudioStyleConfig, 'id' | 'name' | 'shortName'>;
 
 // As classes precisam estar escritas por extenso: o Tailwind só gera o CSS do que encontra no código.
-export const STUDIO_PALETTE: StudioPalette[] = [
+const STUDIO_PALETTE: StudioPalette[] = [
   {
     borderClass: 'border-l-primary',
     dotClass: 'bg-primary',

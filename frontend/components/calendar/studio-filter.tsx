@@ -65,17 +65,9 @@ export function StudioFilter({
               className={cn('w-2 h-2 rounded-full shrink-0', config.dotClass)}
             />
             <span>{res.name}</span>
-            {res.type && (
-              <span className='text-muted-foreground/60 text-3xs hidden md:inline'>
-                ({res.type})
-              </span>
-            )}
           </button>
         );
       })}
     </div>
   );
 }
-
-// Mantém StudioLegend como compatibilidade
-export const StudioLegend = StudioFilter;

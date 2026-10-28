@@ -20,30 +20,10 @@ const STATUS_CONFIG: Record<
     borderAccentClass: string;
   }
 > = {
-  CONFIRMED: {
-    label: 'Confirmado',
-    dotClass: 'bg-success',
-    borderAccentClass: 'border-l-success',
-  },
-  IN_PROGRESS: {
-    label: 'Em andamento',
-    dotClass: 'bg-info',
-    borderAccentClass: 'border-l-info',
-  },
   SCHEDULED: {
     label: 'Agendado',
     dotClass: 'bg-warning',
     borderAccentClass: 'border-l-warning',
-  },
-  COMPLETED: {
-    label: 'Finalizado',
-    dotClass: 'bg-muted-foreground',
-    borderAccentClass: 'border-l-muted-foreground/60',
-  },
-  CANCELLED: {
-    label: 'Cancelado',
-    dotClass: 'bg-destructive',
-    borderAccentClass: 'border-l-destructive',
   },
   BLOCKED: {
     label: 'Bloqueio',
@@ -120,11 +100,6 @@ export function CalendarEvent({
               {appointment.serviceName}
             </p>
           </div>
-          {height >= 54 && appointment.technicianName && (
-            <div className='text-4xs text-muted-foreground/70 truncate leading-none pt-0.5'>
-              {appointment.technicianName}
-            </div>
-          )}
         </div>
       )}
 
@@ -145,7 +120,7 @@ export function CalendarEvent({
 
           <div className='flex items-center justify-between gap-2 pt-1.5 mt-auto border-t border-border/25'>
             <span className='text-3xs text-muted-foreground/80 truncate font-medium'>
-              {appointment.technicianName || 'Operador'}
+              {appointment.durationName ?? `${appointment.durationMinutes} min`}
             </span>
 
             {/* Status discreto: dot semântico + texto neutro, sem parecer um botão */}

@@ -1,19 +1,12 @@
 export type CalendarViewMode = 'day' | 'week' | 'month';
 
-export type AppointmentStatus =
-  | 'SCHEDULED'
-  | 'CONFIRMED'
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'BLOCKED';
+// A agenda só devolve reservas agendadas e bloqueios; as canceladas não chegam ao calendário.
+export type AppointmentStatus = 'SCHEDULED' | 'BLOCKED';
 
 export interface StudioResource {
   id: string;
   name: string;
   subtitle?: string;
-  capacity?: number;
-  type?: string;
 }
 
 export interface CalendarAppointment {
@@ -21,18 +14,16 @@ export interface CalendarAppointment {
   resourceId: string;
   clientName: string;
   serviceName: string;
-  technicianName?: string;
   date: string; // YYYY-MM-DD
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   durationMinutes: number;
   status: AppointmentStatus;
-  notes?: string;
   mine?: boolean;
   durationName?: string;
   durationId?: string;
   createdAt?: string;
-  startAt?: string; //ISO UTC
+  startAt?: string; // ISO UTC
 }
 
 export interface AppointmentSlot {

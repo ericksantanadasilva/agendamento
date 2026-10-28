@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { CalendarAppointment, AppointmentStatus } from '@/types/calendar';
 import { Button } from '@/components/ui/button';
-import {
-  X,
-  Calendar,
-  CalendarX,
-  User,
-  MapPin,
-  FileText,
-  Pencil,
-} from 'lucide-react';
+import { X, Calendar, CalendarX, MapPin, Pencil } from 'lucide-react';
 import { formatHeaderDate } from './utils';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
@@ -25,25 +17,9 @@ const STATUS_CONFIG: Record<
   AppointmentStatus,
   { label: string; dotClass: string }
 > = {
-  CONFIRMED: {
-    label: 'Confirmado',
-    dotClass: 'bg-primary',
-  },
-  IN_PROGRESS: {
-    label: 'Em andamento',
-    dotClass: 'bg-info',
-  },
   SCHEDULED: {
     label: 'Agendado',
     dotClass: 'bg-warning',
-  },
-  COMPLETED: {
-    label: 'Concluído',
-    dotClass: 'bg-muted-foreground/50',
-  },
-  CANCELLED: {
-    label: 'Cancelado',
-    dotClass: 'bg-destructive',
   },
   BLOCKED: {
     label: 'Bloqueado',
@@ -93,10 +69,7 @@ export function EventDetailsDialog({
   const [year, month, day] = appointment.date.split('-').map(Number);
   const dateLabel = formatHeaderDate(new Date(year, month - 1, day));
 
-  const statusInfo = STATUS_CONFIG[appointment.status] || {
-    label: appointment.status,
-    dotClass: 'bg-muted-foreground',
-  };
+  const statusInfo = STATUS_CONFIG[appointment.status];
 
   return (
     <div
@@ -184,33 +157,6 @@ export function EventDetailsDialog({
             </div>
           </div>
 
-          {/* Técnico / Responsável */}
-          {appointment.technicianName && (
-            <div className='flex items-center gap-2 p-2.5 rounded bg-muted/20 border border-border/40'>
-              <User className='w-3.5 h-3.5 text-muted-foreground shrink-0' />
-              <div>
-                <span className='text-3xs text-muted-foreground block'>
-                  Profissional Designado
-                </span>
-                <span className='font-medium text-foreground'>
-                  {appointment.technicianName}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Observações Técnicas */}
-          {appointment.notes && (
-            <div className='space-y-1 pt-1'>
-              <span className='flex items-center gap-1.5 text-muted-foreground text-3xs'>
-                <FileText className='w-3 h-3' />
-                Observações
-              </span>
-              <p className='text-2xs text-muted-foreground/90 bg-muted/30 p-2.5 rounded border border-border/40 leading-relaxed'>
-                {appointment.notes}
-              </p>
-            </div>
-          )}
           {permission.canModify && permission.editableUntil && (
             <p className='text-2xs text-muted-foreground'>
               Você pode alterar esta reserva até{' '}

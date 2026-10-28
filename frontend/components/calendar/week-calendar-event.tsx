@@ -111,7 +111,7 @@ export function WeekCalendarEvent({
           </div>
           {height >= 85 && (
             <div className='pt-0.5 text-4xs text-muted-foreground/75 truncate mt-auto border-t border-border/15'>
-              {appointment.technicianName || studioConfig.name}
+              {studioConfig.name}
             </div>
           )}
         </div>
@@ -145,9 +145,7 @@ export function WeekCalendarEvent({
 
           {height >= 75 && (
             <div className='flex items-center justify-between gap-1 pt-1 mt-auto border-t border-border/20 text-4xs text-muted-foreground'>
-              <span className='truncate'>
-                {appointment.technicianName || studioConfig.name}
-              </span>
+              <span className='truncate'>{studioConfig.name}</span>
               {isBlocked && <Lock className='w-2.5 h-2.5 shrink-0' />}
             </div>
           )}

@@ -1,9 +1,6 @@
 export const HOUR_HEIGHT = 64; // pixels por hora (aprox 1.066px por minuto)
-export const HEADER_HEIGHT = 56; // pixels da barra de cabeçalho dos estúdios (h-14)
 export const DEFAULT_START_HOUR = 0;
 export const DEFAULT_END_HOUR = 24;
-export const TOTAL_HOURS = 24;
-export const TOTAL_DAY_HEIGHT = HOUR_HEIGHT * TOTAL_HOURS; // 1536px (default 24h)
 
 /**
  * Retorna a altura total do calendário com base na janela operacional configurada

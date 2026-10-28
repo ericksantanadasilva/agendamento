@@ -3,12 +3,6 @@ import { clearToken, getToken, setToken } from './auth-storage';
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  error?: string;
-  statusCode?: number;
-}
-
 export class ApiError extends Error {
   statusCode: number;
   body: unknown;
