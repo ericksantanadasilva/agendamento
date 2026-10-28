@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { CalendarAppointment, AppointmentStatus } from "@/types/calendar";
-import { timeToPixels, durationToPixels } from "./utils";
-import { cn } from "@/lib/utils";
-import { Lock } from "lucide-react";
+import * as React from 'react';
+import { CalendarAppointment, AppointmentStatus } from '@/types/calendar';
+import { timeToPixels, durationToPixels } from './utils';
+import { cn } from '@/lib/utils';
+import { Lock } from 'lucide-react';
 
 export interface CalendarEventProps {
   appointment: CalendarAppointment;
@@ -21,34 +21,34 @@ const STATUS_CONFIG: Record<
   }
 > = {
   CONFIRMED: {
-    label: "Confirmado",
-    dotClass: "bg-success",
-    borderAccentClass: "border-l-success",
+    label: 'Confirmado',
+    dotClass: 'bg-success',
+    borderAccentClass: 'border-l-success',
   },
   IN_PROGRESS: {
-    label: "Em andamento",
-    dotClass: "bg-info",
-    borderAccentClass: "border-l-info",
+    label: 'Em andamento',
+    dotClass: 'bg-info',
+    borderAccentClass: 'border-l-info',
   },
   SCHEDULED: {
-    label: "Agendado",
-    dotClass: "bg-warning",
-    borderAccentClass: "border-l-warning",
+    label: 'Agendado',
+    dotClass: 'bg-warning',
+    borderAccentClass: 'border-l-warning',
   },
   COMPLETED: {
-    label: "Finalizado",
-    dotClass: "bg-muted-foreground",
-    borderAccentClass: "border-l-muted-foreground/60",
+    label: 'Finalizado',
+    dotClass: 'bg-muted-foreground',
+    borderAccentClass: 'border-l-muted-foreground/60',
   },
   CANCELLED: {
-    label: "Cancelado",
-    dotClass: "bg-destructive",
-    borderAccentClass: "border-l-destructive",
+    label: 'Cancelado',
+    dotClass: 'bg-destructive',
+    borderAccentClass: 'border-l-destructive',
   },
   BLOCKED: {
-    label: "Bloqueio",
-    dotClass: "bg-muted-foreground/60",
-    borderAccentClass: "border-l-border",
+    label: 'Bloqueio',
+    dotClass: 'bg-muted-foreground/60',
+    borderAccentClass: 'border-l-border',
   },
 };
 
@@ -58,12 +58,16 @@ export function CalendarEvent({
   onClick,
 }: CalendarEventProps) {
   const top = timeToPixels(appointment.startTime, startHour);
-  const height = Math.max(durationToPixels(appointment.durationMinutes) - 2, 26);
+  const height = Math.max(
+    durationToPixels(appointment.durationMinutes) - 2,
+    26,
+  );
   const isShort = height <= 38; // <= 30 minutos
   const isMedium = height > 38 && height < 80; // 45m a 60m
   const isLong = height >= 80; // 90m a 150m+
-  const isBlocked = appointment.status === "BLOCKED";
-  const statusInfo = STATUS_CONFIG[appointment.status] || STATUS_CONFIG.SCHEDULED;
+  const isBlocked = appointment.status === 'BLOCKED';
+  const statusInfo =
+    STATUS_CONFIG[appointment.status] || STATUS_CONFIG.SCHEDULED;
 
   return (
     <div
@@ -73,30 +77,30 @@ export function CalendarEvent({
         height: `${height}px`,
       }}
       className={cn(
-        "absolute left-1 right-1 sm:left-1.5 sm:right-1.5 rounded-r-[2px] rounded-l-none text-left transition-colors duration-150 cursor-pointer overflow-hidden select-none z-10",
-        "border-l-[2.5px]",
+        'absolute left-1 right-1 sm:left-1.5 sm:right-1.5 rounded-r-[2px] rounded-l-none text-left transition-colors duration-150 cursor-pointer overflow-hidden select-none z-10',
+        'border-l-[2.5px]',
         statusInfo.borderAccentClass,
         isBlocked
-          ? "bg-muted/40 opacity-70 hover:bg-muted/60"
-          : "bg-surface-elevated hover:bg-surface-elevated-hover",
-        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
+          ? 'bg-muted/40 opacity-70 hover:bg-muted/60'
+          : 'bg-surface-elevated hover:bg-surface-elevated-hover',
+        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40',
       )}
-      role="button"
+      role='button'
       tabIndex={0}
       title={`${appointment.clientName} · ${appointment.serviceName} (${appointment.startTime} - ${appointment.endTime})`}
     >
       {/* Caso 1: Evento Curto (30m) - Essencial e compacto */}
       {isShort && (
-        <div className="flex flex-col justify-center h-full px-2 min-w-0">
-          <div className="flex items-baseline gap-1.5 min-w-0">
-            <span className="text-2xs font-semibold text-foreground truncate leading-tight">
+        <div className='flex flex-col justify-center h-full px-2 min-w-0'>
+          <div className='flex items-baseline gap-1.5 min-w-0'>
+            <span className='text-2xs font-semibold text-foreground truncate leading-tight'>
               {appointment.clientName}
             </span>
-            <span className="text-3xs text-muted-foreground truncate leading-tight hidden sm:inline">
+            <span className='text-3xs text-muted-foreground truncate leading-tight hidden sm:inline'>
               · {appointment.serviceName}
             </span>
           </div>
-          <span className="text-4xs text-muted-foreground truncate leading-tight sm:hidden">
+          <span className='text-4xs text-muted-foreground truncate leading-tight sm:hidden'>
             {appointment.serviceName}
           </span>
         </div>
@@ -104,20 +108,20 @@ export function CalendarEvent({
 
       {/* Caso 2: Evento Médio (45m a 60m) - Hierarquia limpa e tempo discreto */}
       {isMedium && (
-        <div className="flex flex-col justify-between h-full px-2.5 py-1.5 min-w-0">
-          <div className="min-w-0 space-y-0.5">
-            <div className="font-mono text-4xs text-muted-foreground/75 leading-none">
+        <div className='flex flex-col justify-between h-full px-2.5 py-1.5 min-w-0'>
+          <div className='min-w-0 space-y-0.5'>
+            <div className='font-mono text-4xs text-muted-foreground/75 leading-none'>
               {appointment.startTime} → {appointment.endTime}
             </div>
-            <h4 className="text-xs font-semibold text-foreground tracking-tight truncate leading-tight">
+            <h4 className='text-xs font-semibold text-foreground tracking-tight truncate leading-tight'>
               {appointment.clientName}
             </h4>
-            <p className="text-3xs text-muted-foreground truncate leading-tight">
+            <p className='text-3xs text-muted-foreground truncate leading-tight'>
               {appointment.serviceName}
             </p>
           </div>
           {height >= 54 && appointment.technicianName && (
-            <div className="text-4xs text-muted-foreground/70 truncate leading-none pt-0.5">
+            <div className='text-4xs text-muted-foreground/70 truncate leading-none pt-0.5'>
               {appointment.technicianName}
             </div>
           )}
@@ -126,32 +130,37 @@ export function CalendarEvent({
 
       {/* Caso 3: Evento Longo (90m+) - Presença, leitura espaçada e status discreto */}
       {isLong && (
-        <div className="flex flex-col justify-between h-full px-3 py-2 min-w-0">
-          <div className="space-y-1 min-w-0">
-            <div className="font-mono text-3xs text-muted-foreground/80 leading-none">
+        <div className='flex flex-col justify-between h-full px-3 py-2 min-w-0'>
+          <div className='space-y-1 min-w-0'>
+            <div className='font-mono text-3xs text-muted-foreground/80 leading-none'>
               {appointment.startTime} → {appointment.endTime}
             </div>
-            <h4 className="text-xs font-semibold text-foreground tracking-tight line-clamp-2 leading-snug">
+            <h4 className='text-xs font-semibold text-foreground tracking-tight line-clamp-2 leading-snug'>
               {appointment.clientName}
             </h4>
-            <p className="text-2xs text-muted-foreground line-clamp-2 leading-snug">
+            <p className='text-2xs text-muted-foreground line-clamp-2 leading-snug'>
               {appointment.serviceName}
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-2 pt-1.5 mt-auto border-t border-border/25">
-            <span className="text-3xs text-muted-foreground/80 truncate font-medium">
-              {appointment.technicianName || "Operador"}
+          <div className='flex items-center justify-between gap-2 pt-1.5 mt-auto border-t border-border/25'>
+            <span className='text-3xs text-muted-foreground/80 truncate font-medium'>
+              {appointment.technicianName || 'Operador'}
             </span>
 
             {/* Status discreto: dot semântico + texto neutro, sem parecer um botão */}
-            <div className="flex items-center gap-1.5 text-4xs text-muted-foreground shrink-0">
+            <div className='flex items-center gap-1.5 text-4xs text-muted-foreground shrink-0'>
               {isBlocked ? (
-                <Lock className="w-2.5 h-2.5 text-muted-foreground shrink-0" />
+                <Lock className='w-2.5 h-2.5 text-muted-foreground shrink-0' />
               ) : (
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", statusInfo.dotClass)} />
+                <span
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full shrink-0',
+                    statusInfo.dotClass,
+                  )}
+                />
               )}
-              <span className="font-medium">{statusInfo.label}</span>
+              <span className='font-medium'>{statusInfo.label}</span>
             </div>
           </div>
         </div>

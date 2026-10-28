@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { apiClient } from "@/lib/api";
-import { ApiDuration } from "@/lib/agenda";
+import * as React from 'react';
+import { apiClient } from '@/lib/api';
+import { ApiDuration } from '@/lib/agenda';
 
 export interface UserOption {
   id: string;
@@ -18,7 +18,7 @@ export function useAppointmentFormOptions(isStaff: boolean) {
   React.useEffect(() => {
     let cancelled = false;
 
-    apiClient<ApiDuration[]>("/durations")
+    apiClient<ApiDuration[]>('/durations')
       .then((data) => {
         if (!cancelled) setDurations(data.filter((d) => d.active));
       })
@@ -27,7 +27,7 @@ export function useAppointmentFormOptions(isStaff: boolean) {
       });
 
     if (isStaff) {
-      apiClient<UserOption[]>("/users/options")
+      apiClient<UserOption[]>('/users/options')
         .then((data) => {
           if (!cancelled) setUsers(data);
         })

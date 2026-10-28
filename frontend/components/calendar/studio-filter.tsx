@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { StudioResource } from "@/types/calendar";
-import { getStudioConfig } from "./studio-config";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { StudioResource } from '@/types/calendar';
+import { getStudioConfig } from './studio-config';
+import { cn } from '@/lib/utils';
 
 export interface StudioFilterProps {
   resources: StudioResource[];
@@ -14,31 +14,31 @@ export interface StudioFilterProps {
 
 export function StudioFilter({
   resources,
-  selectedResourceId = "all",
+  selectedResourceId = 'all',
   onSelectResource,
   className,
 }: StudioFilterProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs select-none",
+        'flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs select-none',
         className,
       )}
-      aria-label="Filtro de visualização por estúdio"
+      aria-label='Filtro de visualização por estúdio'
     >
-      <span className="text-3xs uppercase tracking-wider text-muted-foreground/60 font-mono shrink-0 mr-1 hidden sm:inline">
+      <span className='text-3xs uppercase tracking-wider text-muted-foreground/60 font-mono shrink-0 mr-1 hidden sm:inline'>
         Visualizar:
       </span>
 
       {/* Botão Todos os Estúdios */}
       <button
-        type="button"
-        onClick={() => onSelectResource?.("all")}
+        type='button'
+        onClick={() => onSelectResource?.('all')}
         className={cn(
-          "px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap border",
-          selectedResourceId === "all"
-            ? "bg-card text-foreground border-border/80 shadow-xs"
-            : "bg-transparent text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/40",
+          'px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap border',
+          selectedResourceId === 'all'
+            ? 'bg-card text-foreground border-border/80 shadow-xs'
+            : 'bg-transparent text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/40',
         )}
       >
         Todos os Estúdios
@@ -52,21 +52,21 @@ export function StudioFilter({
         return (
           <button
             key={res.id}
-            type="button"
+            type='button'
             onClick={() => onSelectResource?.(res.id)}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap border",
+              'flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap border',
               isSelected
-                ? "bg-card text-foreground border-border/80 shadow-xs"
-                : "bg-transparent text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/40",
+                ? 'bg-card text-foreground border-border/80 shadow-xs'
+                : 'bg-transparent text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/40',
             )}
           >
             <span
-              className={cn("w-2 h-2 rounded-full shrink-0", config.dotClass)}
+              className={cn('w-2 h-2 rounded-full shrink-0', config.dotClass)}
             />
             <span>{res.name}</span>
             {res.type && (
-              <span className="text-muted-foreground/60 text-3xs hidden md:inline">
+              <span className='text-muted-foreground/60 text-3xs hidden md:inline'>
                 ({res.type})
               </span>
             )}
