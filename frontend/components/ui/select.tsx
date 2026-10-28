@@ -3,25 +3,16 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
+import { usePopover } from '@/components/ui/use-popover';
 import { cn } from '@/lib/utils';
 
 const PANEL_MAX_HEIGHT = 240;
-const PANEL_GAP = 4;
-const VIEWPORT_MARGIN = 8;
 const OPTION_HEIGHT = 36;
 
 interface SelectOption {
   value: string;
   label: React.ReactNode;
   disabled: boolean;
-}
-
-interface PanelPosition {
-  left: number;
-  width: number;
-  top?: number;
-  bottom?: number;
-  maxHeight: number;
 }
 
 // Lê os <option> que o formulário passa como filhos, inclusive os dentro de fragmentos.
@@ -82,9 +73,6 @@ export function Select({
   const listId = `${triggerId}-list`;
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const panelRef = React.useRef<HTMLDivElement>(null);
-  const [open, setOpen] = React.useState(false);
-  const [position, setPosition] = React.useState<PanelPosition | null>(null);
   const [highlighted, setHighlighted] = React.useState(0);
 
   const options = collectOptions(children);
@@ -95,47 +83,31 @@ export function Select({
   const selected = options.find((option) => option.value === value);
   const showPlaceholder = !selected || selected.disabled;
 
+  const { open, position, panelRef, openPopover, close } = usePopover(
+    triggerRef,
+    {
+      height: Math.min(
+        PANEL_MAX_HEIGHT,
+        visibleOptions.length * OPTION_HEIGHT + 8,
+      ),
+    },
+  );
+
   function openPanel() {
-    const trigger = triggerRef.current;
-    if (!trigger || disabled || visibleOptions.length === 0) return;
-
-    const rect = trigger.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom - VIEWPORT_MARGIN;
-    const spaceAbove = rect.top - VIEWPORT_MARGIN;
-    const wanted = Math.min(
-      PANEL_MAX_HEIGHT,
-      visibleOptions.length * OPTION_HEIGHT + 8,
-    );
-    const openUp = spaceBelow < wanted && spaceAbove > spaceBelow;
-
-    setPosition(
-      openUp
-        ? {
-            left: rect.left,
-            width: rect.width,
-            bottom: window.innerHeight - rect.top + PANEL_GAP,
-            maxHeight: Math.min(PANEL_MAX_HEIGHT, spaceAbove - PANEL_GAP),
-          }
-        : {
-            left: rect.left,
-            width: rect.width,
-            top: rect.bottom + PANEL_GAP,
-            maxHeight: Math.min(PANEL_MAX_HEIGHT, spaceBelow - PANEL_GAP),
-          },
-    );
+    if (disabled || visibleOptions.length === 0) return;
 
     const selectedIndex = visibleOptions.findIndex((o) => o.value === value);
     const firstEnabled = visibleOptions.findIndex((o) => !o.disabled);
     setHighlighted(
       selectedIndex >= 0 ? selectedIndex : Math.max(firstEnabled, 0),
     );
-    setOpen(true);
+    openPopover();
   }
 
   function choose(option: SelectOption) {
     if (option.disabled) return;
     onValueChange(option.value);
-    setOpen(false);
+    close();
   }
 
   function moveHighlight(step: 1 | -1) {
@@ -192,44 +164,10 @@ export function Select({
         break;
       }
       case 'Tab':
-        setOpen(false);
+        close();
         break;
     }
   }
-
-  React.useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (triggerRef.current?.contains(target)) return;
-      if (panelRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-    const handleScroll = (event: Event) => {
-      if (panelRef.current?.contains(event.target as Node)) return;
-      setOpen(false);
-    };
-    // Captura: o Esc fecha só o painel, antes de chegar ao Dialog.
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        setOpen(false);
-      }
-    };
-    const handleResize = () => setOpen(false);
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('scroll', handleScroll, true);
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('keydown', handleKeyDown, true);
-    };
-  }, [open]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -261,7 +199,7 @@ export function Select({
         aria-invalid={error ? true : undefined}
         aria-activedescendant={open ? `${listId}-${highlighted}` : undefined}
         disabled={disabled}
-        onClick={() => (open ? setOpen(false) : openPanel())}
+        onClick={() => (open ? close() : openPanel())}
         onKeyDown={handleKeyDown}
         className={cn(
           'flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-[var(--radius)] border border-border bg-card px-3 py-1.5 text-left text-xs text-foreground transition-colors sm:text-sm',
