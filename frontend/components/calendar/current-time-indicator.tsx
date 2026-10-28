@@ -1,7 +1,13 @@
 'use client';
 
-import * as React from 'react';
-import { minutesToPixels, DEFAULT_START_HOUR, DEFAULT_END_HOUR } from './utils';
+import { useNow } from '@/hooks/use-now';
+import { toStudioParts } from '@/lib/agenda';
+import {
+  minutesToPixels,
+  timeToMinutes,
+  DEFAULT_START_HOUR,
+  DEFAULT_END_HOUR,
+} from './utils';
 
 export interface CurrentTimeIndicatorProps {
   showLabel?: boolean;
@@ -14,28 +20,11 @@ export function CurrentTimeIndicator({
   startHour = DEFAULT_START_HOUR,
   endHour = DEFAULT_END_HOUR,
 }: CurrentTimeIndicatorProps) {
-  const [mounted, setMounted] = React.useState(false);
-  const [currentMinutes, setCurrentMinutes] = React.useState<number>(0);
-  const [currentTimeLabel, setCurrentTimeLabel] = React.useState<string>('');
+  const now = useNow(30_000);
 
-  React.useEffect(() => {
-    setMounted(true);
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentMinutes(now.getHours() * 60 + now.getMinutes());
-      setCurrentTimeLabel(
-        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
-      );
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 30000); // atualiza a cada 30s
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
+  // Hora atual no fuso do estúdio (São Paulo), como o resto do calendário.
+  const currentTimeLabel = toStudioParts(new Date(now).toISOString()).time;
+  const currentMinutes = timeToMinutes(currentTimeLabel);
 
   // Se o horário atual estiver fora do expediente exibido, não desenha
   if (currentMinutes < startHour * 60 || currentMinutes > endHour * 60) {

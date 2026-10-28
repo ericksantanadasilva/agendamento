@@ -5,29 +5,55 @@ import { Sidebar } from './sidebar';
 import { FloatingBottomNav } from './floating-bottom-nav';
 import { usePathname } from 'next/navigation';
 
+const STORAGE_KEY = 'sidebar_collapsed';
+const listeners = new Set<() => void>();
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  // O evento "storage" avisa quando outra aba muda o valor.
+  window.addEventListener('storage', callback);
+  return () => {
+    listeners.delete(callback);
+    window.removeEventListener('storage', callback);
+  };
+}
+
+function getSnapshot(): boolean {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function getServerSnapshot(): boolean {
+  return false;
+}
+
+function saveCollapsed(next: boolean) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, String(next));
+  } catch {
+    // armazenamento indisponível: a preferência vale só até recarregar
+  }
+  listeners.forEach((listener) => listener());
+}
+
 export interface AppShellProps {
   children: React.ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-
-  // Carrega a preferência salva no carregamento
-  React.useEffect(() => {
-    const saved = localStorage.getItem('sidebar_collapsed');
-    if (saved !== null) {
-      setIsCollapsed(saved === 'true');
-    }
-  }, []);
+  const isCollapsed = React.useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   const handleToggle = React.useCallback(() => {
-    setIsCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem('sidebar_collapsed', String(next));
-      return next;
-    });
-  }, []);
+    saveCollapsed(!isCollapsed);
+  }, [isCollapsed]);
 
   if (pathname === '/login') {
     return <>{children}</>;
