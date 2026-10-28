@@ -9,8 +9,9 @@ import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
 import { getNavItems, PROFILE_ITEM } from './nav-items';
 
-const BAR_ITEM_CLASS =
-  'flex h-9 w-16 flex-col items-center justify-center rounded-full text-3xs font-medium transition-colors';
+const PRESS_CLASS = 'transition active:scale-90 motion-reduce:active:scale-100';
+
+const BAR_ITEM_CLASS = `flex h-9 w-16 flex-col items-center justify-center rounded-full text-3xs font-medium ${PRESS_CLASS}`;
 
 export function FloatingBottomNav() {
   const pathname = usePathname();
@@ -36,7 +37,7 @@ export function FloatingBottomNav() {
       {moreOpen && (
         <div
           onClick={() => setMoreOpen(false)}
-          className='fixed inset-0 z-40 bg-background/60 md:hidden'
+          className='fixed inset-0 z-40 animate-in bg-background/60 fade-in duration-300 ease-out motion-reduce:animate-none md:hidden'
           aria-hidden='true'
         />
       )}
@@ -45,7 +46,7 @@ export function FloatingBottomNav() {
         {moreOpen && (
           <nav
             aria-label='Mais opções'
-            className='pointer-events-auto w-full max-w-xs divide-y divide-border/60 overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-md shadow-black/20'
+            className='pointer-events-auto w-full max-w-xs animate-in divide-y divide-border/60 overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-md shadow-black/20 fade-in slide-in-from-bottom-6 duration-300 ease-out motion-reduce:animate-none'
           >
             {moreItems.map((item) => {
               const Icon = item.icon;
@@ -57,7 +58,7 @@ export function FloatingBottomNav() {
                   href={item.href}
                   onClick={() => setMoreOpen(false)}
                   className={cn(
-                    'flex items-center gap-2.5 px-4 py-3 text-xs transition-colors',
+                    'flex items-center gap-2.5 px-4 py-3 text-xs transition-colors active:bg-muted',
                     isActive
                       ? 'bg-muted font-medium text-foreground'
                       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -103,7 +104,9 @@ export function FloatingBottomNav() {
               onClick={() => setMoreOpen((open) => !open)}
               className={cn(
                 'h-9 w-16 flex-col gap-0 rounded-full text-3xs',
+                PRESS_CLASS,
                 (moreOpen || moreActive) && 'text-primary',
+                moreOpen && '-translate-y-0.5 motion-reduce:translate-y-0',
               )}
             >
               <MoreHorizontal className='h-3.5 w-3.5' />
@@ -116,7 +119,10 @@ export function FloatingBottomNav() {
             variant='ghost'
             size='icon'
             onClick={signOut}
-            className='h-9 w-16 flex-col gap-0 rounded-full text-3xs'
+            className={cn(
+              'h-9 w-16 flex-col gap-0 rounded-full text-3xs',
+              PRESS_CLASS,
+            )}
           >
             <LogOut className='h-3.5 w-3.5' />
             <span className='mt-0.5'>Sair</span>
