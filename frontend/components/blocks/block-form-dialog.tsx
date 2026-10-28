@@ -14,6 +14,7 @@ import {
 import { ApiError, apiClient } from '@/lib/api';
 import { formatBlockRange } from '@/lib/blocks';
 import { useToast } from '@/lib/toast-context';
+import { DatePicker } from '../ui/date-picker';
 
 const FORM_ID = 'block-form';
 
@@ -240,15 +241,13 @@ export function BlockFormDialog({
         </Select>
 
         <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
-          <Input
+          <DatePicker
             id='block-start-date'
             label='Data de início'
-            type='date'
             value={startDate}
-            onChange={(e) => {
-              const value = e.target.value;
+            onValueChange={(value) => {
               setStartDate(value);
-              if (endDate < value) setEndDate(value);
+              if (value && endDate < value) setEndDate(value);
               setRangeError(null);
             }}
           />
@@ -262,13 +261,12 @@ export function BlockFormDialog({
               setRangeError(null);
             }}
           />
-          <Input
+          <DatePicker
             id='block-end-date'
             label='Data de fim'
-            type='date'
             value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
+            onValueChange={(value) => {
+              setEndDate(value);
               setRangeError(null);
             }}
           />

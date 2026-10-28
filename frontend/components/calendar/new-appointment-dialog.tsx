@@ -16,6 +16,7 @@ import type {
   StudioResource,
 } from '@/types/calendar';
 import { timeToMinutes } from './utils';
+import { DatePicker } from '@/components/ui/date-picker';
 
 export interface NewAppointmentDialogProps {
   isOpen: boolean;
@@ -283,13 +284,12 @@ function AppointmentForm({
             </Select>
 
             <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
-              <Input
+              <DatePicker
                 id='appointment-date'
                 label='Data'
-                type='date'
                 value={dateStr}
-                onChange={(e) => {
-                  setDateStr(e.target.value);
+                onValueChange={(value) => {
+                  setDateStr(value);
                   clearError('dateStr');
                 }}
                 error={errors.dateStr}
