@@ -14,6 +14,8 @@ import {
   toISODateString,
 } from './utils';
 import { cn } from '@/lib/utils';
+import { StudioFilter } from './studio-filter';
+import { getStudioConfig } from './studio-config';
 
 export interface DayViewProps {
   resources: StudioResource[];
@@ -41,7 +43,7 @@ export function DayView({
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedAppointment, setSelectedAppointment] =
     React.useState<CalendarAppointment | null>(null);
-  const [activeMobileResourceId, setActiveMobileResourceId] =
+  const [selectedResourceId, setSelectedResourceId] =
     React.useState<string>('all');
 
   const isToday = React.useMemo(() => {
@@ -71,9 +73,9 @@ export function DayView({
 
   // Recursos filtrados no mobile quando uma aba específica é selecionada
   const visibleResources = React.useMemo(() => {
-    if (activeMobileResourceId === 'all') return resources;
-    return resources.filter((r) => r.id === activeMobileResourceId);
-  }, [resources, activeMobileResourceId]);
+    if (selectedResourceId === 'all') return resources;
+    return resources.filter((r) => r.id === selectedResourceId);
+  }, [resources, selectedResourceId]);
 
   const selectedResource = React.useMemo(() => {
     if (!selectedAppointment) return undefined;
@@ -82,35 +84,13 @@ export function DayView({
 
   return (
     <div className='flex flex-col flex-1 min-w-0 border border-border/50 rounded-[var(--radius)] bg-card overflow-hidden'>
-      {/* Mobile Resource Selector Tabs (visível somente em telas < md) */}
-      <div className='flex md:hidden items-center gap-1.5 p-2 border-b border-border/50 bg-muted/20 overflow-x-auto no-scrollbar'>
-        <button
-          type='button'
-          onClick={() => setActiveMobileResourceId('all')}
-          className={cn(
-            'px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors cursor-pointer',
-            activeMobileResourceId === 'all'
-              ? 'bg-card text-foreground border border-border/70 shadow-xs'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          Todos os Estúdios
-        </button>
-        {resources.map((res) => (
-          <button
-            key={res.id}
-            type='button'
-            onClick={() => setActiveMobileResourceId(res.id)}
-            className={cn(
-              'px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors cursor-pointer',
-              activeMobileResourceId === res.id
-                ? 'bg-card text-foreground border border-border/70 shadow-xs'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {res.name}
-          </button>
-        ))}
+      {/* Filtro rápido de estúdios (Todos ou um estúdio individual) */}
+      <div className='flex items-center justify-between px-3 py-2 border-b border-border/50 bg-muted/20'>
+        <StudioFilter
+          resources={resources}
+          selectedResourceId={selectedResourceId}
+          onSelectResource={setSelectedResourceId}
+        />
       </div>
 
       {/* Grade com Scroll Vertical e Scroll Horizontal */}
@@ -135,7 +115,13 @@ export function DayView({
                   key={resource.id}
                   className='flex-1 min-w-56 sm:min-w-64 lg:min-w-72 px-4 py-2.5 flex flex-col justify-center h-14'
                 >
-                  <div className='flex items-center justify-between gap-2'>
+                  <div className='flex items-center gap-2'>
+                    <span
+                      className={cn(
+                        'h-2 w-2 shrink-0 rounded-full',
+                        getStudioConfig(resource.id, resources).dotClass,
+                      )}
+                    />
                     <h3 className='text-xs font-semibold uppercase tracking-wider text-foreground truncate'>
                       {resource.name}
                     </h3>
