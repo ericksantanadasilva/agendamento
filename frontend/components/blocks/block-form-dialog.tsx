@@ -15,6 +15,7 @@ import { ApiError, apiClient } from '@/lib/api';
 import { formatBlockRange } from '@/lib/blocks';
 import { useToast } from '@/lib/toast-context';
 import { DatePicker } from '../ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 
 const FORM_ID = 'block-form';
 
@@ -251,13 +252,12 @@ export function BlockFormDialog({
               setRangeError(null);
             }}
           />
-          <Input
+          <TimePicker
             id='block-start-time'
             label='Hora de início'
-            type='time'
             value={startTime}
-            onChange={(e) => {
-              setStartTime(e.target.value);
+            onValueChange={(value) => {
+              setStartTime(value);
               setRangeError(null);
             }}
           />
@@ -270,13 +270,12 @@ export function BlockFormDialog({
               setRangeError(null);
             }}
           />
-          <Input
+          <TimePicker
             id='block-end-time'
             label='Hora de fim'
-            type='time'
             value={endTime}
-            onChange={(e) => {
-              setEndTime(e.target.value);
+            onValueChange={(value) => {
+              setEndTime(value);
               setRangeError(null);
             }}
           />

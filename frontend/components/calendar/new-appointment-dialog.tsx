@@ -17,6 +17,7 @@ import type {
 } from '@/types/calendar';
 import { timeToMinutes } from './utils';
 import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 
 export interface NewAppointmentDialogProps {
   isOpen: boolean;
@@ -294,13 +295,12 @@ function AppointmentForm({
                 }}
                 error={errors.dateStr}
               />
-              <Input
+              <TimePicker
                 id='appointment-start'
                 label='Início'
-                type='time'
                 value={startTime}
-                onChange={(e) => {
-                  setStartTime(e.target.value);
+                onValueChange={(value) => {
+                  setStartTime(value);
                   clearError('startTime');
                 }}
                 error={errors.startTime}
