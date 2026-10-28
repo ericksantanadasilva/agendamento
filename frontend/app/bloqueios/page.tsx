@@ -79,50 +79,50 @@ export default function BlocksPage() {
   const hiddenCount = (blocks?.length ?? 0) - visible.length;
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col space-y-6">
+    <div className='flex min-w-0 flex-1 flex-col space-y-6'>
       <PageHeader
-        title="Bloqueios"
-        description="Bloqueie um estúdio por um período, como manutenção, feriado ou evento. Nesse periíodo, ninguém consegue reservá-lo."
+        title='Bloqueios'
+        description='Bloqueie um estúdio por um período, como manutenção, feriado ou evento. Nesse periíodo, ninguém consegue reservá-lo.'
         action={
           <Button
-            size="sm"
-            className="gap-1.5"
+            size='sm'
+            className='gap-1.5'
             disabled={!studios || studios.length === 0}
             onClick={() => setIsCreating(true)}
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className='h-3.5 w-3.5' />
             Novo Bloqueio
           </Button>
         }
       />
 
       {loadError ? (
-        <div className="space-y-3">
-          <p role="alert" className="text-xs font-medium text-destructive">
+        <div className='space-y-3'>
+          <p role='alert' className='text-xs font-medium text-destructive'>
             {loadError}
           </p>
-          <Button variant="outline" size="sm" onClick={retry}>
+          <Button variant='outline' size='sm' onClick={retry}>
             Tentar de novo
           </Button>
         </div>
       ) : studios === null ? (
-        <div className="animate-pulse space-y-3">
-          <div className="h-9 w-64 rounded bg-muted/40" />
-          <div className="h-40 rounded-[var(--radius)] border border-border/60" />
+        <div className='animate-pulse space-y-3'>
+          <div className='h-9 w-64 rounded bg-muted/40' />
+          <div className='h-40 rounded-[var(--radius)] border border-border/60' />
         </div>
       ) : studios.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">
+        <p className='py-10 text-center text-sm text-muted-foreground'>
           Nenhum estúdio cadastrado.
         </p>
       ) : (
         <>
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="w-full max-w-xs">
+          <div className='flex flex-wrap items-end justify-between gap-3'>
+            <div className='w-full max-w-xs'>
               <Select
-                id="blocks-studio"
-                label="Estúdio"
+                id='blocks-studio'
+                label='Estúdio'
                 value={studioId ?? ''}
-                onChange={(e) => setChosenId(e.target.value)}
+                onValueChange={setChosenId}
               >
                 {studios.map((studio) => (
                   <option key={studio.id} value={studio.id}>
@@ -133,8 +133,8 @@ export default function BlocksPage() {
               </Select>
             </div>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={() => setShowPast((current) => !current)}
             >
               {showPast ? 'Ocultar passados' : 'Mostrar passados'}
@@ -144,13 +144,13 @@ export default function BlocksPage() {
           {blocks === null ? (
             <ManagedListSkeleton />
           ) : visible.length === 0 ? (
-            <div className="space-y-1 py-10 text-center">
-              <p className="text-sm font-medium text-foreground">
+            <div className='space-y-1 py-10 text-center'>
+              <p className='text-sm font-medium text-foreground'>
                 Nenhum bloqueio{' '}
                 {showPast ? 'neste estúdio' : 'futuro neste estúdio'}.
               </p>
               {!showPast && hiddenCount > 0 && (
-                <p className="text-xs text-muted-foreground">
+                <p className='text-xs text-muted-foreground'>
                   Há {hiddenCount} bloqueio(s) passado(s) escondido(s).
                 </p>
               )}
@@ -171,7 +171,7 @@ export default function BlocksPage() {
             </ManagedList>
           )}
 
-          <p className="text-2xs text-muted-foreground">
+          <p className='text-2xs text-muted-foreground'>
             Desativar um bloqueio libera o horário para novas reservas. As
             reservas que foram canceladas quando o bloqueio foi criado não
             voltam, e um bloqueio desativado não pode ser reativado: crie outro.

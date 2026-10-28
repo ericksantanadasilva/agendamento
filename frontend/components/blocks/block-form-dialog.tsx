@@ -142,24 +142,24 @@ export function BlockFormDialog({
 
     return (
       <Dialog
-        eyebrow="Atenção"
-        title="Confirmar cancelamentos"
+        eyebrow='Atenção'
+        title='Confirmar cancelamentos'
         onClose={onClose}
         footer={
           <>
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
+              type='button'
+              variant='outline'
+              size='sm'
               onClick={() => setConflict(null)}
               disabled={submitting}
             >
               Voltar
             </Button>
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
+              type='button'
+              variant='outline'
+              size='sm'
               disabled={submitting}
               onClick={() => void submit(conflict.payload, true)}
             >
@@ -170,22 +170,22 @@ export function BlockFormDialog({
           </>
         }
       >
-        <div className="space-y-4 p-5 text-xs">
-          <p className="text-sm font-medium text-foreground">
+        <div className='space-y-4 p-5 text-xs'>
+          <p className='text-sm font-medium text-foreground'>
             Este bloqueio cancela {count} reserva{plural}.
           </p>
-          <p className="text-muted-foreground">
+          <p className='text-muted-foreground'>
             As reservas abaixo estão dentro do período escolhido. Se você
             continuar, elas são canceladas e o sistema não avisa ninguém, então
             avise as pessoas por fora.
           </p>
-          <ul className="divide-y divide-border/60 rounded-[var(--radius)] border border-border">
+          <ul className='divide-y divide-border/60 rounded-[var(--radius)] border border-border'>
             {conflict.appointments.map((appointment) => (
-              <li key={appointment.id} className="space-y-0.5 p-3">
-                <p className="font-mono text-foreground">
+              <li key={appointment.id} className='space-y-0.5 p-3'>
+                <p className='font-mono text-foreground'>
                   {formatBlockRange(appointment.startAt, appointment.endAt)}
                 </p>
-                <p className="text-muted-foreground">
+                <p className='text-muted-foreground'>
                   {appointment.user.name} · {appointment.user.email}
                 </p>
               </li>
@@ -198,23 +198,23 @@ export function BlockFormDialog({
 
   return (
     <Dialog
-      eyebrow="Operação"
-      title="Novo bloqueio"
+      eyebrow='Operação'
+      title='Novo bloqueio'
       onClose={onClose}
       footer={
         <>
-          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+          <Button type='button' variant='outline' size='sm' onClick={onClose}>
             Fechar
           </Button>
           <Button
-            type="submit"
+            type='submit'
             form={FORM_ID}
-            variant="primary"
-            size="sm"
-            className="gap-1.5"
+            variant='primary'
+            size='sm'
+            className='gap-1.5'
             disabled={submitting}
           >
-            <Check className="h-3.5 w-3.5" />
+            <Check className='h-3.5 w-3.5' />
             {submitting ? 'Verificando...' : 'Criar bloqueio'}
           </Button>
         </>
@@ -223,13 +223,13 @@ export function BlockFormDialog({
       <form
         id={FORM_ID}
         onSubmit={handleSubmit}
-        className="space-y-4 p-5 text-xs"
+        className='space-y-4 p-5 text-xs'
       >
         <Select
-          id="block-studio"
-          label="Estúdio"
+          id='block-studio'
+          label='Estúdio'
           value={studioId}
-          onChange={(e) => setStudioId(e.target.value)}
+          onValueChange={setStudioId}
         >
           {studios.map((studio) => (
             <option key={studio.id} value={studio.id}>
@@ -239,11 +239,11 @@ export function BlockFormDialog({
           ))}
         </Select>
 
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
           <Input
-            id="block-start-date"
-            label="Data de início"
-            type="date"
+            id='block-start-date'
+            label='Data de início'
+            type='date'
             value={startDate}
             onChange={(e) => {
               const value = e.target.value;
@@ -253,9 +253,9 @@ export function BlockFormDialog({
             }}
           />
           <Input
-            id="block-start-time"
-            label="Hora de início"
-            type="time"
+            id='block-start-time'
+            label='Hora de início'
+            type='time'
             value={startTime}
             onChange={(e) => {
               setStartTime(e.target.value);
@@ -263,9 +263,9 @@ export function BlockFormDialog({
             }}
           />
           <Input
-            id="block-end-date"
-            label="Data de fim"
-            type="date"
+            id='block-end-date'
+            label='Data de fim'
+            type='date'
             value={endDate}
             onChange={(e) => {
               setEndDate(e.target.value);
@@ -273,9 +273,9 @@ export function BlockFormDialog({
             }}
           />
           <Input
-            id="block-end-time"
-            label="Hora de fim"
-            type="time"
+            id='block-end-time'
+            label='Hora de fim'
+            type='time'
             value={endTime}
             onChange={(e) => {
               setEndTime(e.target.value);
@@ -284,15 +284,15 @@ export function BlockFormDialog({
           />
         </div>
         {rangeError && (
-          <p role="alert" className="text-2xs font-medium text-destructive">
+          <p role='alert' className='text-2xs font-medium text-destructive'>
             {rangeError}
           </p>
         )}
 
         <Input
-          id="block-reason"
-          label="Motivo (opcional)"
-          placeholder="Ex: Manutenção, feriado, evento"
+          id='block-reason'
+          label='Motivo (opcional)'
+          placeholder='Ex: Manutenção, feriado, evento'
           maxLength={200}
           value={reason}
           onChange={(e) => setReason(e.target.value)}

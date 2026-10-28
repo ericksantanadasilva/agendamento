@@ -253,7 +253,7 @@ function AppointmentForm({
                 id='appointment-owner'
                 label='Reservar para'
                 value={ownerId}
-                onChange={(e) => setOwnerId(e.target.value)}
+                onValueChange={setOwnerId}
               >
                 <option value=''>Eu mesmo</option>
                 {users.map((u) => (
@@ -268,8 +268,8 @@ function AppointmentForm({
               id='appointment-studio'
               label='Estúdio'
               value={resourceId}
-              onChange={(e) => {
-                setResourceId(e.target.value);
+              onValueChange={(value) => {
+                setResourceId(value);
                 clearError('resourceId');
               }}
               error={errors.resourceId}
@@ -311,8 +311,8 @@ function AppointmentForm({
               id='appointment-duration'
               label='Duração'
               value={durationId}
-              onChange={(e) => {
-                setChosenDurationId(e.target.value);
+              onValueChange={(value) => {
+                setChosenDurationId(value);
                 clearError('duration');
               }}
               disabled={durations === null}

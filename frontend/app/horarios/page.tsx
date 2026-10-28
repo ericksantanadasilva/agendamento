@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { AvailabilityFormDialog } from "@/components/availability/availability-form-dialog";
-import { PageHeader } from "@/components/layout/page-header";
-import { 
+import * as React from 'react';
+import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { AvailabilityFormDialog } from '@/components/availability/availability-form-dialog';
+import { PageHeader } from '@/components/layout/page-header';
+import {
   ManagedItemRow,
   ManagedList,
   ManagedListSkeleton,
- } from "@/components/admin/managed-list";
-import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
-import { useAvailabilities } from "@/hooks/use-availabilities";
-import { useStudios } from "@/hooks/use-studios";
-import { apiClient } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
+} from '@/components/admin/managed-list';
+import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
+import { useAvailabilities } from '@/hooks/use-availabilities';
+import { useStudios } from '@/hooks/use-studios';
+import { apiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import {
   DAYS,
   formatPeriod,
   type ApiAvailability,
   type DayOfWeek,
-} from "@/lib/availability";
-import { useToast } from "@/lib/toast-context";
+} from '@/lib/availability';
+import { useToast } from '@/lib/toast-context';
 
 export default function AvailabilityPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === 'ADMIN';
 
   const {
     studios,
@@ -47,22 +47,24 @@ export default function AvailabilityPage() {
   const [editing, setEditing] = React.useState<ApiAvailability | null>(null);
 
   React.useEffect(() => {
-    if (user && user.role !== "ADMIN") router.replace("/");
+    if (user && user.role !== 'ADMIN') router.replace('/');
   }, [user, router]);
 
   const changeActive = React.useCallback(
     async (period: ApiAvailability, active: boolean) => {
       try {
         await apiClient(`/availabilities/${period.id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           body: JSON.stringify({ active }),
         });
-        showToast(active ? "Período ativado." : "Período desativado.");
+        showToast(active ? 'Período ativado.' : 'Período desativado.');
         reloadAvailabilities();
       } catch (err) {
         showToast(
-          err instanceof Error ? err.message : "Não foi possível alterar o período.",
-          "error",
+          err instanceof Error
+            ? err.message
+            : 'Não foi possível alterar o período.',
+          'error',
         );
       }
     },
@@ -79,89 +81,88 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col space-y-6">
+    <div className='flex min-w-0 flex-1 flex-col space-y-6'>
       <PageHeader
-        title="Horários de funcionamento"
-        description="Defina em quais dias e horários cada estúdio aceita reservas. Dias sem períodos ficam fechados."
+        title='Horários de funcionamento'
+        description='Defina em quais dias e horários cada estúdio aceita reservas. Dias sem períodos ficam fechados.'
       />
 
       {loadError ? (
-        <div className="space-y-3">
-          <p role="alert" className="text-xs font-medium text-destructive">
+        <div className='space-y-3'>
+          <p role='alert' className='text-xs font-medium text-destructive'>
             {loadError}
           </p>
-          <Button variant="outline" size="sm" onClick={retry}>
+          <Button variant='outline' size='sm' onClick={retry}>
             Tentar de novo
           </Button>
         </div>
       ) : studios === null ? (
         <ManagedListSkeleton />
       ) : studios.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-10 text-center">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">
+        <div className='flex flex-col items-center gap-3 py-10 text-center'>
+          <div className='space-y-1'>
+            <p className='text-sm font-medium text-foreground'>
               Nenhum estúdio cadastrado.
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className='text-xs text-muted-foreground'>
               Cadastre um estúdio antes de definir os horários dele.
             </p>
           </div>
-          <Button size="sm" onClick={() => router.push("/estudios")}>
+          <Button size='sm' onClick={() => router.push('/estudios')}>
             Ir para Estúdios
           </Button>
         </div>
       ) : (
         <>
-          <div className="max-w-xs">
+          <div className='max-w-xs'>
             <Select
-              id="availability-studio"
-              label="Estúdio"
-              value={studioId ?? ""}
-              onChange={(e) => {
-                setChosenId(e.target.value);
-              }}
+              id='availability-studio'
+              label='Estúdio'
+              value={studioId ?? ''}
+              onValueChange={setChosenId}
             >
               {studios.map((studio) => (
                 <option key={studio.id} value={studio.id}>
                   {studio.name}
-                  {studio.active ? "" : " (desativado)"}
+                  {studio.active ? '' : ' (desativado)'}
                 </option>
               ))}
             </Select>
           </div>
 
           {availabilities === null ? (
-            <div className="animate-pulse space-y-3">
+            <div className='animate-pulse space-y-3'>
               {DAYS.map((day) => (
-                <div key={day.value} className="h-14 rounded bg-muted/30" />
+                <div key={day.value} className='h-14 rounded bg-muted/30' />
               ))}
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className='space-y-6'>
               {DAYS.map((day) => {
                 const periods = availabilities
                   .filter((a) => a.dayOfWeek === day.value)
                   .sort((a, b) => a.startMinute - b.startMinute);
 
                 return (
-                  <section key={day.value} className="space-y-2">
-                    <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <section key={day.value} className='space-y-2'>
+                    <div className='flex items-center justify-between gap-3'>
+                      <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
                         {day.label}
                       </h2>
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        className="gap-1.5"
+                        variant='ghost'
+                        size='sm'
+                        className='gap-1.5'
                         onClick={() => setCreatingDay(day.value)}
                       >
-                        <Plus className="h-3.5 w-3.5" />
+                        <Plus className='h-3.5 w-3.5' />
                         Adicionar período
                       </Button>
                     </div>
                     {periods.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">
-                        Sem horários cadastrados: o estúdio fica fechado neste dia.
+                      <p className='text-xs text-muted-foreground'>
+                        Sem horários cadastrados: o estúdio fica fechado neste
+                        dia.
                       </p>
                     ) : (
                       <ManagedList>
@@ -188,10 +189,10 @@ export default function AvailabilityPage() {
             </div>
           )}
 
-          <p className="text-2xs text-muted-foreground">
+          <p className='text-2xs text-muted-foreground'>
             Desativar um período não cancela as reservas que já estão nele, mas
-            ninguém consegue reservar naquele horário a partir daí. Para mudar
-            o dia de um período, crie um novo e desative o antigo.
+            ninguém consegue reservar naquele horário a partir daí. Para mudar o
+            dia de um período, crie um novo e desative o antigo.
           </p>
         </>
       )}

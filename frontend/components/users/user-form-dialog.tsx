@@ -183,7 +183,7 @@ export function UserFormDialog({
           label='Papel'
           value={role}
           disabled={isSelf}
-          onChange={(e) => setRole(e.target.value as UserRole)}
+          onValueChange={(value) => setRole(value as UserRole)}
           helperText={
             isSelf ? 'Você não pode alterar o seu próprio papel.' : undefined
           }
