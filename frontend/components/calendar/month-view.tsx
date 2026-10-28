@@ -5,8 +5,7 @@ import { StudioResource, CalendarAppointment } from '@/types/calendar';
 import { StudioFilter } from './studio-filter';
 import { MonthCalendarCell } from './month-calendar-cell';
 import { EventDetailsDialog } from './event-details-dialog';
-import { getMonthCalendarDays, formatWeekDayShort } from './utils';
-import { cn } from '@/lib/utils';
+import { getMonthCalendarDays } from './utils';
 
 export interface MonthViewProps {
   resources: StudioResource[];
