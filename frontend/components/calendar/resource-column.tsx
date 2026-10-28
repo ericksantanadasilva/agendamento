@@ -8,6 +8,7 @@ import {
   DEFAULT_START_HOUR,
   DEFAULT_END_HOUR,
   getCalendarHeight,
+  getSlotTimeFromClick,
   toISODateString,
 } from './utils';
 import { cn } from '@/lib/utils';
@@ -57,12 +58,10 @@ export function ResourceColumn({
     if (!onSlotClick || event.target !== event.currentTarget) return;
 
     const rect = event.currentTarget.getBoundingClientRect();
-    const rawMinutes =
-      startHour * 60 + ((event.clientY - rect.top) / HOUR_HEIGHT) * 60;
-    const snapped = Math.floor(rawMinutes / 15) * 15;
-    const hours = String(Math.floor(snapped / 60)).padStart(2, '0');
-    const minutes = String(snapped % 60).padStart(2, '0');
-    onSlotClick(resource.id, `${hours}:${minutes}`);
+    onSlotClick(
+      resource.id,
+      getSlotTimeFromClick(event.clientY, rect.top, startHour),
+    );
   }
 
   return (

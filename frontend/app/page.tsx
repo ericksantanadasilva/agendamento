@@ -92,7 +92,7 @@ export default function CalendarPage() {
   }, []);
 
   const handleCreateAppointmentAtSlot = React.useCallback(
-    (date: Date, resourceId: string, time: string) => {
+    (date: Date, resourceId: string | undefined, time: string) => {
       const startsAt = studioDateTimeToIso(toISODateString(date), time);
       if (new Date(startsAt).getTime() <= Date.now()) {
         showToast('Esse horário já passou.', 'error');
@@ -177,6 +177,7 @@ export default function CalendarPage() {
             selectedDate={selectedDate}
             onEditAppointment={handleEditAppointment}
             onDeleteAppointment={handleCancelAppointment}
+            onCreateAppointment={handleCreateAppointmentAtSlot}
           />
         ) : (
           <DayView

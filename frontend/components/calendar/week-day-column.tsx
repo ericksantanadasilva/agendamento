@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { StudioResource, CalendarAppointment } from "@/types/calendar";
-import { WeekCalendarEvent } from "./week-calendar-event";
-import { CurrentTimeIndicator } from "./current-time-indicator";
+import * as React from 'react';
+import { StudioResource, CalendarAppointment } from '@/types/calendar';
+import { WeekCalendarEvent } from './week-calendar-event';
+import { CurrentTimeIndicator } from './current-time-indicator';
 import {
   HOUR_HEIGHT,
   DEFAULT_START_HOUR,
   DEFAULT_END_HOUR,
   getCalendarHeight,
+  getSlotTimeFromClick,
   toISODateString,
   computeOverlappingLayout,
-} from "./utils";
-import { cn } from "@/lib/utils";
+} from './utils';
+import { cn } from '@/lib/utils';
 
 export interface WeekDayColumnProps {
   date: Date;
@@ -23,6 +24,7 @@ export interface WeekDayColumnProps {
   resources: StudioResource[];
   appointments: CalendarAppointment[];
   onEventClick?: (appointment: CalendarAppointment) => void;
+  onSlotClick?: (date: Date, time: string) => void;
   className?: string;
 }
 
@@ -35,6 +37,7 @@ export function WeekDayColumn({
   resources,
   appointments,
   onEventClick,
+  onSlotClick,
   className,
 }: WeekDayColumnProps) {
   const dateStr = React.useMemo(() => toISODateString(date), [date]);
@@ -44,7 +47,10 @@ export function WeekDayColumn({
     return appointments.filter((apt) => apt.date === dateStr);
   }, [appointments, dateStr]);
 
-  const resourceIds = React.useMemo(() => resources.map((r) => r.id), [resources]);
+  const resourceIds = React.useMemo(
+    () => resources.map((r) => r.id),
+    [resources],
+  );
 
   // Computa layout e larguras de sobreposição garantindo ordem E1 -> E2 -> E3
   const layoutPositions = React.useMemo(() => {
@@ -54,17 +60,27 @@ export function WeekDayColumn({
   const totalHours = Math.max(endHour - startHour, 1);
   const columnHeight = getCalendarHeight(startHour, endHour);
 
+  function handleSlotClick(event: React.MouseEvent<HTMLDivElement>) {
+    // Cliques em reservas têm o próprio tratamento; aqui só vale a área vazia.
+    if (!onSlotClick || event.target !== event.currentTarget) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    onSlotClick(date, getSlotTimeFromClick(event.clientY, rect.top, startHour));
+  }
+
   return (
     <div
       className={cn(
-        "flex-1 min-w-36 sm:min-w-40 md:min-w-44 relative select-none",
-        isToday ? "bg-muted/10" : "bg-card",
-        !isLast && "border-r border-border/20",
+        'flex-1 min-w-36 sm:min-w-40 md:min-w-44 relative select-none',
+        isToday ? 'bg-muted/10' : 'bg-card',
+        !isLast && 'border-r border-border/20',
+        onSlotClick && 'cursor-pointer',
         className,
       )}
       style={{ height: `${columnHeight}px` }}
+      onClick={handleSlotClick}
     >
-      {/* Linhas Horárias Guia (puramente informativas, sem clique para agendamento) */}
+      {/* Linhas Horárias Guia (não interceptam o clique da coluna) */}
       {Array.from({ length: totalHours }).map((_, index) => (
         <div
           key={index}
@@ -72,7 +88,7 @@ export function WeekDayColumn({
             top: `${index * HOUR_HEIGHT}px`,
             height: `${HOUR_HEIGHT}px`,
           }}
-          className="absolute inset-x-0 border-b border-border/15 pointer-events-none"
+          className='absolute inset-x-0 border-b border-border/15 pointer-events-none'
         />
       ))}
 

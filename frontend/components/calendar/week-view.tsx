@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { StudioResource, CalendarAppointment } from "@/types/calendar";
-import { TimeColumn } from "./time-column";
-import { WeekDayColumn } from "./week-day-column";
-import { StudioFilter } from "./studio-filter";
-import { EventDetailsDialog } from "./event-details-dialog";
+import * as React from 'react';
+import { StudioResource, CalendarAppointment } from '@/types/calendar';
+import { TimeColumn } from './time-column';
+import { WeekDayColumn } from './week-day-column';
+import { StudioFilter } from './studio-filter';
+import { EventDetailsDialog } from './event-details-dialog';
 import {
   HOUR_HEIGHT,
   DEFAULT_START_HOUR,
@@ -13,8 +13,8 @@ import {
   getWeekDates,
   isSameDay,
   formatWeekDayShort,
-} from "./utils";
-import { cn } from "@/lib/utils";
+} from './utils';
+import { cn } from '@/lib/utils';
 
 export interface WeekViewProps {
   resources: StudioResource[];
@@ -25,6 +25,11 @@ export interface WeekViewProps {
   initialFocusHour?: number;
   onEditAppointment?: (appointment: CalendarAppointment) => void;
   onDeleteAppointment?: (appointmentId: string) => void;
+  onCreateAppointment?: (
+    date: Date,
+    resourceId: string | undefined,
+    time: string,
+  ) => void;
 }
 
 export function WeekView({
@@ -36,16 +41,17 @@ export function WeekView({
   initialFocusHour = 8, // Por padrão, foca o início do expediente às 08:00
   onEditAppointment,
   onDeleteAppointment,
+  onCreateAppointment,
 }: WeekViewProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedAppointment, setSelectedAppointment] =
     React.useState<CalendarAppointment | null>(null);
   const [selectedResourceId, setSelectedResourceId] =
-    React.useState<string>("all");
+    React.useState<string>('all');
 
   // Filtra agendamentos caso um estúdio específico seja selecionado no filtro
   const filteredAppointments = React.useMemo(() => {
-    if (selectedResourceId === "all") return appointments;
+    if (selectedResourceId === 'all') return appointments;
     return appointments.filter((apt) => apt.resourceId === selectedResourceId);
   }, [appointments, selectedResourceId]);
 
@@ -64,7 +70,7 @@ export function WeekView({
     const scrollTargetY = offsetHours * HOUR_HEIGHT;
     scrollContainerRef.current.scrollTo({
       top: scrollTargetY,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   }, [initialFocusHour, calendarStartHour]);
 
@@ -74,9 +80,9 @@ export function WeekView({
   }, [resources, selectedAppointment]);
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 border border-border/50 rounded-[var(--radius)] bg-card overflow-hidden">
+    <div className='flex flex-col flex-1 min-w-0 border border-border/50 rounded-[var(--radius)] bg-card overflow-hidden'>
       {/* Barra Superior: Filtro Rápido de Estúdios (Todos ou estúdio individual) */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border/50 bg-muted/20">
+      <div className='flex items-center justify-between px-3 py-2 border-b border-border/50 bg-muted/20'>
         <StudioFilter
           resources={resources}
           selectedResourceId={selectedResourceId}
@@ -87,20 +93,20 @@ export function WeekView({
       {/* Grade com Scroll Vertical e Scroll Horizontal */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-x-auto overflow-y-auto max-h-[calc(100vh-14rem)] sm:max-h-[calc(100vh-16rem)] relative"
+        className='flex-1 overflow-x-auto overflow-y-auto max-h-[calc(100vh-14rem)] sm:max-h-[calc(100vh-16rem)] relative'
       >
-        <div className="flex flex-col min-w-full w-full relative">
+        <div className='flex flex-col min-w-full w-full relative'>
           {/* Cabeçalho Sticky dos Dias da Semana */}
-          <div className="sticky top-0 z-30 flex bg-card border-b border-border/50 w-full min-w-full">
+          <div className='sticky top-0 z-30 flex bg-card border-b border-border/50 w-full min-w-full'>
             {/* Célula GMT-3 (Sticky Top + Sticky Left) */}
-            <div className="sticky left-0 z-40 bg-card w-12 sm:w-16 shrink-0 border-r border-border/30 h-14 flex items-center justify-center">
-              <span className="font-mono text-4xs uppercase tracking-wider text-muted-foreground/50">
+            <div className='sticky left-0 z-40 bg-card w-12 sm:w-16 shrink-0 border-r border-border/30 h-14 flex items-center justify-center'>
+              <span className='font-mono text-4xs uppercase tracking-wider text-muted-foreground/50'>
                 GMT-3
               </span>
             </div>
 
             {/* Cabeçalho dos 7 Dias da Semana (Largura proporcional às colunas) */}
-            <div className="flex flex-1 w-full min-w-0">
+            <div className='flex flex-1 w-full min-w-0'>
               {weekDays.map((dayDate, index) => {
                 const isCurrentDay = isSameDay(dayDate, today);
                 const isSelected = isSameDay(dayDate, selectedDate);
@@ -111,22 +117,24 @@ export function WeekView({
                   <div
                     key={dayDate.toISOString()}
                     className={cn(
-                      "flex-1 min-w-36 sm:min-w-40 md:min-w-44 px-2 sm:px-3 py-2 flex flex-col items-center justify-center h-14 select-none",
-                      !isCurrentDay && index < weekDays.length - 1 && "border-r border-border/15",
-                      isCurrentDay && "bg-muted/15 border-r border-border/20",
+                      'flex-1 min-w-36 sm:min-w-40 md:min-w-44 px-2 sm:px-3 py-2 flex flex-col items-center justify-center h-14 select-none',
+                      !isCurrentDay &&
+                        index < weekDays.length - 1 &&
+                        'border-r border-border/15',
+                      isCurrentDay && 'bg-muted/15 border-r border-border/20',
                     )}
                   >
-                    <span className="font-mono text-4xs uppercase tracking-wider text-muted-foreground/70">
+                    <span className='font-mono text-4xs uppercase tracking-wider text-muted-foreground/70'>
                       {dayName}
                     </span>
                     <div
                       className={cn(
-                        "mt-0.5 w-6 h-6 flex items-center justify-center text-xs font-semibold rounded-full transition-colors",
+                        'mt-0.5 w-6 h-6 flex items-center justify-center text-xs font-semibold rounded-full transition-colors',
                         isCurrentDay
-                          ? "bg-primary text-primary-foreground font-bold"
+                          ? 'bg-primary text-primary-foreground font-bold'
                           : isSelected
-                            ? "bg-muted text-foreground"
-                            : "text-foreground",
+                            ? 'bg-muted text-foreground'
+                            : 'text-foreground',
                       )}
                     >
                       {dayNumber}
@@ -138,7 +146,7 @@ export function WeekView({
           </div>
 
           {/* Corpo da Grade Temporal */}
-          <div className="flex flex-1 w-full relative">
+          <div className='flex flex-1 w-full relative'>
             {/* Coluna Lateral de Horas (Sticky Left) */}
             <TimeColumn
               startHour={calendarStartHour}
@@ -146,7 +154,7 @@ export function WeekView({
             />
 
             {/* 7 Colunas Diárias */}
-            <div className="flex flex-1 w-full min-w-0 relative">
+            <div className='flex flex-1 w-full min-w-0 relative'>
               {weekDays.map((dayDate, index) => (
                 <WeekDayColumn
                   key={dayDate.toISOString()}
@@ -158,6 +166,18 @@ export function WeekView({
                   resources={resources}
                   appointments={filteredAppointments}
                   onEventClick={(apt) => setSelectedAppointment(apt)}
+                  onSlotClick={
+                    onCreateAppointment
+                      ? (date, time) =>
+                          onCreateAppointment(
+                            date,
+                            selectedResourceId === 'all'
+                              ? undefined
+                              : selectedResourceId,
+                            time,
+                          )
+                      : undefined
+                  }
                 />
               ))}
             </div>

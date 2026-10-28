@@ -8,7 +8,10 @@ export const TOTAL_DAY_HEIGHT = HOUR_HEIGHT * TOTAL_HOURS; // 1536px (default 24
 /**
  * Retorna a altura total do calendário com base na janela operacional configurada
  */
-export function getCalendarHeight(startHour = DEFAULT_START_HOUR, endHour = DEFAULT_END_HOUR): number {
+export function getCalendarHeight(
+  startHour = DEFAULT_START_HOUR,
+  endHour = DEFAULT_END_HOUR,
+): number {
   return Math.max(endHour - startHour, 1) * HOUR_HEIGHT;
 }
 
@@ -16,14 +19,17 @@ export function getCalendarHeight(startHour = DEFAULT_START_HOUR, endHour = DEFA
  * Converte "HH:mm" para minutos decorridos desde 00:00
  */
 export function timeToMinutes(timeStr: string): number {
-  const [hours, minutes] = timeStr.split(":").map(Number);
+  const [hours, minutes] = timeStr.split(':').map(Number);
   return (hours || 0) * 60 + (minutes || 0);
 }
 
 /**
  * Converte minutos para posição Y em pixels, considerando o offset do horário inicial
  */
-export function minutesToPixels(minutes: number, startHour = DEFAULT_START_HOUR): number {
+export function minutesToPixels(
+  minutes: number,
+  startHour = DEFAULT_START_HOUR,
+): number {
   const adjustedMinutes = minutes - startHour * 60;
   return (adjustedMinutes / 60) * HOUR_HEIGHT;
 }
@@ -31,7 +37,10 @@ export function minutesToPixels(minutes: number, startHour = DEFAULT_START_HOUR)
 /**
  * Retorna a posição vertical (top) em pixels para um horário "HH:mm", considerando o início operacional
  */
-export function timeToPixels(timeStr: string, startHour = DEFAULT_START_HOUR): number {
+export function timeToPixels(
+  timeStr: string,
+  startHour = DEFAULT_START_HOUR,
+): number {
   return minutesToPixels(timeToMinutes(timeStr), startHour);
 }
 
@@ -54,7 +63,7 @@ export function getDayHours(
     const actualHour = startHour + i;
     return {
       hour: actualHour,
-      label: `${String(actualHour).padStart(2, "0")}:00`,
+      label: `${String(actualHour).padStart(2, '0')}:00`,
     };
   });
 }
@@ -63,9 +72,13 @@ export function getDayHours(
  * Formata data para cabeçalho: "Quinta-feira, 24 de setembro"
  */
 export function formatHeaderDate(date: Date): string {
-  const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "long" }).format(date);
+  const weekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(
+    date,
+  );
   const day = date.getDate();
-  const month = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(date);
+  const month = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(
+    date,
+  );
 
   // Capitaliza o dia da semana
   const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
@@ -77,8 +90,8 @@ export function formatHeaderDate(date: Date): string {
  */
 export function toISODateString(date: Date): string {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
 
@@ -122,12 +135,12 @@ export function formatWeekRange(date: Date): string {
 
   const firstDay = first.getDate();
   const lastDay = last.getDate();
-  const firstMonth = new Intl.DateTimeFormat("pt-BR", { month: "short" })
+  const firstMonth = new Intl.DateTimeFormat('pt-BR', { month: 'short' })
     .format(first)
-    .replace(".", "");
-  const lastMonth = new Intl.DateTimeFormat("pt-BR", { month: "short" })
+    .replace('.', '');
+  const lastMonth = new Intl.DateTimeFormat('pt-BR', { month: 'short' })
     .format(last)
-    .replace(".", "");
+    .replace('.', '');
   const year = last.getFullYear();
 
   if (first.getMonth() === last.getMonth()) {
@@ -140,9 +153,9 @@ export function formatWeekRange(date: Date): string {
  * Retorna a sigla abreviada do dia da semana (ex: SEG, TER, QUA)
  */
 export function formatWeekDayShort(date: Date): string {
-  const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "short" })
+  const weekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
     .format(date)
-    .replace(".", "")
+    .replace('.', '')
     .toUpperCase();
   return weekday;
 }
@@ -161,10 +174,16 @@ export interface EventLayoutPosition {
  * - Garante a ordem visual estrita dos estúdios: E1 (esquerda) -> E2 (meio) -> E3 (direita).
  */
 export function computeOverlappingLayout<
-  T extends { startTime: string; endTime: string; durationMinutes: number; id: string; resourceId?: string }
+  T extends {
+    startTime: string;
+    endTime: string;
+    durationMinutes: number;
+    id: string;
+    resourceId?: string;
+  },
 >(
   appointments: T[],
-  resourceOrder: string[] = ["studio-1", "studio-2", "studio-3"],
+  resourceOrder: string[] = ['studio-1', 'studio-2', 'studio-3'],
 ): Map<string, EventLayoutPosition> {
   const result = new Map<string, EventLayoutPosition>();
   if (appointments.length === 0) return result;
@@ -220,7 +239,9 @@ export function computeOverlappingLayout<
     }
 
     const totalCols = Math.max(activeResources.length, 1);
-    const colIndex = apt.resourceId ? Math.max(activeResources.indexOf(apt.resourceId), 0) : 0;
+    const colIndex = apt.resourceId
+      ? Math.max(activeResources.indexOf(apt.resourceId), 0)
+      : 0;
 
     const widthPercent = 100 / totalCols;
     const leftPercent = colIndex * widthPercent;
@@ -307,9 +328,27 @@ export function getMonthCalendarDays(date: Date): MonthDayInfo[] {
  * Formata o mês e ano para exibição na toolbar/header: "Setembro de 2026"
  */
 export function formatMonthRange(date: Date): string {
-  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(date);
-  const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(
+    date,
+  );
+  const capitalizedMonth =
+    monthName.charAt(0).toUpperCase() + monthName.slice(1);
   return `${capitalizedMonth} de ${date.getFullYear()}`;
 }
 
-
+/**
+ * Converte a posição vertical de um clique numa coluna em "HH:mm",
+ * arredondando para baixo em intervalos de 15 minutos.
+ */
+export function getSlotTimeFromClick(
+  clientY: number,
+  columnTop: number,
+  startHour = DEFAULT_START_HOUR,
+): string {
+  const rawMinutes =
+    startHour * 60 + ((clientY - columnTop) / HOUR_HEIGHT) * 60;
+  const snapped = Math.max(Math.floor(rawMinutes / 15) * 15, 0);
+  const hours = String(Math.floor(snapped / 60)).padStart(2, '0');
+  const minutes = String(snapped % 60).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}

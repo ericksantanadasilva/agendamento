@@ -36,6 +36,6 @@ export interface CalendarAppointment {
 }
 
 export interface AppointmentSlot {
-  resourceId: string;
+  resourceId?: string;
   time: string; // HH:mm
 }
