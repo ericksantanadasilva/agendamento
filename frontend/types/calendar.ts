@@ -1,12 +1,12 @@
-export type CalendarViewMode = "day" | "week" | "month";
+export type CalendarViewMode = 'day' | 'week' | 'month';
 
 export type AppointmentStatus =
-  | "SCHEDULED"
-  | "CONFIRMED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "BLOCKED";
+  | 'SCHEDULED'
+  | 'CONFIRMED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'BLOCKED';
 
 export interface StudioResource {
   id: string;
@@ -33,4 +33,9 @@ export interface CalendarAppointment {
   durationId?: string;
   createdAt?: string;
   startAt?: string; //ISO UTC
+}
+
+export interface AppointmentSlot {
+  resourceId: string;
+  time: string; // HH:mm
 }

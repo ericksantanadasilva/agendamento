@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { StudioResource, CalendarAppointment } from "@/types/calendar";
-import { CalendarEvent } from "./calendar-event";
+import * as React from 'react';
+import { StudioResource, CalendarAppointment } from '@/types/calendar';
+import { CalendarEvent } from './calendar-event';
 import {
   HOUR_HEIGHT,
   DEFAULT_START_HOUR,
   DEFAULT_END_HOUR,
   getCalendarHeight,
   toISODateString,
-} from "./utils";
-import { cn } from "@/lib/utils";
+} from './utils';
+import { cn } from '@/lib/utils';
 
 export interface ResourceColumnProps {
   resource: StudioResource;
@@ -20,6 +20,7 @@ export interface ResourceColumnProps {
   appointments: CalendarAppointment[];
   date?: Date | string;
   onEventClick?: (appointment: CalendarAppointment) => void;
+  onSlotClick?: (resourceId: string, time: string) => void;
   className?: string;
 }
 
@@ -31,11 +32,12 @@ export function ResourceColumn({
   appointments,
   date,
   onEventClick,
+  onSlotClick,
   className,
 }: ResourceColumnProps) {
   const dateStr = React.useMemo(() => {
     if (!date) return null;
-    return typeof date === "string" ? date : toISODateString(date);
+    return typeof date === 'string' ? date : toISODateString(date);
   }, [date]);
 
   // Filtra agendamentos deste recurso específico (e data se informada)
@@ -50,14 +52,28 @@ export function ResourceColumn({
   const totalHours = Math.max(endHour - startHour, 1);
   const columnHeight = getCalendarHeight(startHour, endHour);
 
+  function handleSlotClick(event: React.MouseEvent<HTMLDivElement>) {
+    // Cliques em reservas têm o próprio tratamento; aqui só vale área vazia.
+    if (!onSlotClick || event.target !== event.currentTarget) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const rawMinutes =
+      startHour * 60 + ((event.clientY - rect.top) / HOUR_HEIGHT) * 60;
+    const snapped = Math.floor(rawMinutes / 15) * 15;
+    const hours = String(Math.floor(snapped / 60)).padStart(2, '0');
+    const minutes = String(snapped % 60).padStart(2, '0');
+    onSlotClick(resource.id, `${hours}:${minutes}`);
+  }
+
   return (
     <div
       className={cn(
-        "flex-1 min-w-56 sm:min-w-64 lg:min-w-72 relative select-none",
-        !isLast && "border-r border-border/20",
+        'flex-1 min-w-56 sm:min-w-64 lg:min-w-72 relative select-none',
+        !isLast && 'border-r border-border/20',
         className,
       )}
       style={{ height: `${columnHeight}px` }}
+      onClick={handleSlotClick}
     >
       {/* Linhas Horárias sutis como guias de leitura temporal (não linhas duras de planilha) */}
       {Array.from({ length: totalHours }).map((_, index) => (
@@ -67,7 +83,7 @@ export function ResourceColumn({
             top: `${index * HOUR_HEIGHT}px`,
             height: `${HOUR_HEIGHT}px`,
           }}
-          className="absolute inset-x-0 border-b border-border/15 pointer-events-none"
+          className='absolute inset-x-0 border-b border-border/15 pointer-events-none'
         />
       ))}
 
