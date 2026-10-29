@@ -1,117 +1,196 @@
 # Agendamento
 
-Plataforma full-stack para gerenciamento de agendamentos, serviços, clientes, profissionais e recursos físicos (como estúdios).
+**Sistema de reserva de estúdios.** Aplicação web full-stack para uma equipe reservar estúdios sem conflitos de horário, com calendário, controle de acesso por papel e painel de administração.
 
-O projeto é estruturado em um monorepo simples e direto, mantendo o frontend e backend desacoplados em runtime.
+<!--
+Prints: coloque as imagens em docs/img/ e descomente as linhas abaixo.
+![Calendário](docs/img/calendario.png)
+![Painel de administração](docs/img/admin.png)
+-->
+
+> Projeto de portfólio. A interface está em português e os horários seguem o fuso de São Paulo.
 
 ---
 
-## 1. Estrutura do Repositório
+## O problema
+
+Reservas de estúdio costumam viver em planilhas e mensagens: dois pedidos para o mesmo horário, ninguém sabe quem pode alterar o quê, e bloqueios como manutenção e feriados são esquecidos. O Agendamento concentra isso num só lugar: o sistema recusa conflitos, respeita o horário de funcionamento de cada estúdio e controla quem pode reservar, alterar e cancelar.
+
+## Funcionalidades
+
+### Calendário e reservas
+
+- Calendário nas visões de **dia**, **semana** e **mês**, com um estúdio por coluna no dia e cores estáveis por estúdio.
+- Clicar num horário livre abre a reserva já preenchida com o estúdio, a data e a hora.
+- **Criar, editar e cancelar** reservas. O fim é calculado no servidor a partir da duração escolhida.
+- **Operadores e administradores** reservam em nome de outra pessoa.
+- Cada reserva tem um **serviço** em texto livre (por exemplo, "Gravação da aula 12").
+
+### Bloqueios
+
+- Operadores e administradores bloqueiam um estúdio por um período (manutenção, feriado, evento).
+- Se o bloqueio cai sobre reservas existentes, o sistema **lista quem seria afetado** e só cancela tudo, em uma única transação, depois da confirmação.
+
+### Administração
+
+- **Estúdios**, **durações** e **horários de funcionamento** por dia da semana (sem períodos sobrepostos).
+- **Usuários**: criar, editar nome e papel, ativar e desativar, e redefinir a senha de outra pessoa.
+- **Bloqueios**: listar por estúdio e desativar.
+
+### Conta
+
+- **Meu perfil**: cada pessoa troca o próprio nome e a própria senha.
+- Três papéis: **ADMIN**, **OPERATOR** e **USER**, com as permissões conferidas no backend.
+
+## Regras de negócio
+
+- Uma reserva precisa caber inteira num período de funcionamento do estúdio. Períodos que se encostam (08:00–12:00 e 12:00–18:00) contam como um só, e um fim às 00:00 vale como 24:00.
+- Não pode haver sobreposição com outra reserva agendada nem com um bloqueio ativo no mesmo estúdio.
+- O usuário comum só altera ou cancela a **própria** reserva nos **5 primeiros minutos** depois de criá-la. Operador e administrador alteram qualquer uma. Ninguém altera uma reserva que já começou.
+- Na agenda, o usuário comum vê **quais horários estão ocupados**, sem ver quem reservou nem o motivo dos bloqueios. O dono da reserva e a equipe veem os detalhes.
+- **Nada é apagado.** Estúdios, durações, horários, usuários e bloqueios são desativados, e as reservas viram "canceladas" com o motivo, o que preserva o histórico.
+- Os horários ficam em UTC no banco e são exibidos no fuso `America/Sao_Paulo`.
+- A consulta da agenda é limitada a 42 dias por vez.
+
+## Stack
+
+| Camada | Tecnologias |
+| --- | --- |
+| Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Lucide |
+| Backend | NestJS 11, TypeScript, Prisma 6 |
+| Banco | PostgreSQL 16 |
+| Segurança | JWT, bcrypt, class-validator, Helmet, Throttler |
+| Testes | Jest |
+| Infra | Docker, proxy reverso (Nginx Proxy Manager) |
+
+Os componentes da interface (botão, campo, diálogo, seletor, seletor de data e de hora) são próprios, em `frontend/components/ui`, no estilo do shadcn/ui, sem biblioteca de componentes pronta.
+
+## Arquitetura
+
+```text
+Navegador ──► Next.js (frontend) ──► API NestJS ──► Prisma ──► PostgreSQL
+```
+
+O frontend nunca acessa o banco: toda regra de negócio e de permissão vive na API. O front apenas reflete essas regras (por exemplo, esconde o botão de editar quando a API recusaria).
+
+## Estrutura do repositório
 
 ```text
 agendamento/
-│
-├── frontend/                 # Next.js (App Router), React, TypeScript, Tailwind CSS
-│   ├── app/                  # Rotas e layout
-│   ├── components/           # Componentes organizados
-│   │   ├── ui/               # Primitivos visuais (Button, Input, Card) com tokens
-│   │   ├── layout/           # Sidebar (Desktop), FloatingBottomNav (Mobile), PageHeader
-│   │   └── calendar/         # Estrutura base para a engine de calendário
-│   ├── hooks/                # Hooks utilitários
-│   ├── lib/                  # Utilitários (cn) e API Client
-│   ├── Dockerfile            # Container de produção do frontend
-│   └── package.json
-│
-├── backend/                  # NestJS, TypeScript, Prisma ORM
-│   ├── src/
-│   │   ├── common/           # Utilitários e filtros compartilhados
-│   │   ├── health/           # Checagem de integridade (/api/health)
-│   │   ├── prisma/           # PrismaService e PrismaModule
-│   │   └── [domínios]/       # Módulos futuros (users, appointments, studios, etc.)
-│   ├── prisma/
-│   │   └── schema.prisma     # Schema do banco PostgreSQL
-│   ├── Dockerfile            # Container de produção do backend
-│   └── package.json
-│
-├── docker-compose.yml        # Orquestração de containers (frontend, backend, postgres)
-├── AGENTS.md                 # Diretrizes e regras fundamentais de desenvolvimento
-├── DESIGN_SYSTEM.md          # Especificação de design tokens e padrões visuais
-├── PRODUCT.md                # Visão de produto, regras e requisitos
-└── README.md
+├── backend/
+│   ├── prisma/               # schema, migrations e seed do primeiro ADMIN
+│   └── src/
+│       ├── auth/             # login, refresh token, guards e papéis
+│       ├── users/            # usuários, perfil e redefinição de senha
+│       ├── studios/          # estúdios
+│       ├── durations/        # durações de reserva
+│       ├── availabilities/   # horários de funcionamento
+│       ├── blocks/           # bloqueios
+│       ├── appointments/     # reservas e regras de conflito
+│       ├── agenda/           # leitura da agenda com visibilidade por papel
+│       └── health/           # /api/health
+├── frontend/
+│   ├── app/                  # páginas (calendário, estúdios, durações, horários, usuários, bloqueios, perfil)
+│   ├── components/           # ui, calendar, layout, admin e formulários
+│   ├── hooks/                # carregamento de dados
+│   └── lib/                  # cliente da API, autenticação, fuso horário
+├── docs/                     # documentos do planejamento original
+├── docker-compose.yml        # produção (sem portas publicadas)
+└── .env.example              # variáveis do compose
 ```
 
----
+## Decisões de projeto
 
-## 2. Tecnologias Utilizadas
+- **Reservas validadas no servidor.** A API recalcula o fim, confere o horário de funcionamento e os conflitos. O front só ajuda a preencher.
+- **Autenticação em duas camadas.** O token de acesso dura 15 minutos e fica só na memória do navegador. Um refresh token de 7 dias fica num cookie `httpOnly`, é guardado no banco apenas como hash e **gira a cada uso**: reutilizar um token já trocado revoga toda a sequência de renovações daquele login. Assim, desativar um usuário ou mudar o papel dele vale em até 15 minutos.
+- **Desativar em vez de apagar**, para manter o histórico e evitar reservas órfãs.
+- **Fuso fixo.** O sistema é de uma única operação, em São Paulo. Todas as conversões passam por um único tradutor no front, e o servidor trabalha em UTC.
+- **Single-tenant.** Sem multiempresa por enquanto, o que simplifica o modelo e as permissões.
+- **Cores dos estúdios automáticas.** Seguem a ordem de criação, sem configuração, e se repetem só a partir do nono estúdio.
 
-- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS v4, Lucide React, clsx, tailwind-merge.
-- **Backend**: NestJS 11, TypeScript, Prisma ORM 6.
-- **Banco de Dados**: PostgreSQL 16.
-- **Infraestrutura**: Docker & Docker Compose.
-- **Sem Supabase**: A autenticação, autorização e persistência são controladas pelo backend NestJS e PostgreSQL.
+## Como rodar localmente
 
----
+### Requisitos
 
-## 3. Como Executar o Projeto
+- Node.js 22
+- PostgreSQL 16, com dois bancos: um para a aplicação e outro "sombra" (usado só pelo `prisma migrate dev`)
 
-### Opção A: Execução Completa via Docker Compose (Recomendada)
-
-1. Certifique-se de que o Docker está em execução.
-2. Na raiz do projeto, suba os serviços:
-
-```bash
-docker compose up -d --build
-```
-
-3. Acesse:
-   - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend API (Health)**: [http://localhost:3001/api/health](http://localhost:3001/api/health)
-   - **PostgreSQL**: `localhost:5432`
-
-Para parar os serviços:
-```bash
-docker compose down
-```
-
----
-
-### Opção B: Execução Local para Desenvolvimento
-
-#### 1. Iniciar o Banco de Dados (PostgreSQL)
-
-Você pode subir apenas o container do banco:
-
-```bash
-docker compose up -d postgres
-```
-
-#### 2. Configurar e Iniciar o Backend
+### Backend
 
 ```bash
 cd backend
+cp .env.example .env   # preencha DATABASE_URL, SHADOW_DATABASE_URL e JWT_SECRET
 npm install
 npx prisma generate
+npx prisma migrate deploy
+```
+
+Crie o primeiro administrador com o script `prisma/seed.ts`, que lê as variáveis `SEED_ADMIN_*` (veja o próprio arquivo). Depois:
+
+```bash
 npm run start:dev
 ```
 
-A API estará disponível em [http://localhost:3001/api](http://localhost:3001/api).
+A API fica em `http://localhost:3001/api`, e o `GET /api/health` confirma que ela está de pé.
 
-#### 3. Iniciar o Frontend
-
-Em outro terminal:
+### Frontend
 
 ```bash
 cd frontend
+echo "NEXT_PUBLIC_API_URL=http://localhost:3001/api" > .env.local
 npm install
 npm run dev
 ```
 
-A aplicação estará disponível em [http://localhost:3000](http://localhost:3000).
+A aplicação fica em `http://localhost:3000`. Entre com o administrador criado no seed e cadastre, nesta ordem: um **estúdio**, uma **duração** e os **horários de funcionamento**. Sem eles, ninguém consegue reservar.
 
----
+### Variáveis do backend
 
-## 4. Documentação de Referência
+| Variável | Para que serve |
+| --- | --- |
+| `DATABASE_URL` | Conexão com o banco da aplicação |
+| `SHADOW_DATABASE_URL` | Banco sombra, só para criar migrations em desenvolvimento |
+| `JWT_SECRET` | Segredo que assina os tokens de acesso (use um valor longo e aleatório) |
+| `FRONTEND_URL` | Origem permitida no CORS, sem barra no final |
+| `PORT` | Porta da API (padrão 3001) |
+| `TRUST_PROXY` | Número de proxies confiáveis na frente da API (use `1` atrás de um proxy reverso) |
 
-- [`AGENTS.md`](./AGENTS.md): Regras de ouro para agentes de IA e desenvolvedores.
-- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md): Especificação dos tokens semânticos, paleta dark-first, botões, inputs, cards e navegação responsiva.
-- [`PRODUCT.md`](./PRODUCT.md): Visão de negócio, ciclo de vida de agendamentos e arquitetura de domínios.
+O front e a API precisam ficar no **mesmo site** (por exemplo, `app.exemplo.com` e `api.exemplo.com`), porque o cookie do refresh token só viaja entre origens do mesmo domínio.
+
+## Qualidade e testes
+
+```bash
+# backend
+npm test                     # testes da regra de cobertura de horários
+npm run build
+
+# frontend
+npm run format:check
+npx tsc --noEmit
+npx eslint .
+npm run build
+```
+
+Hoje existem testes automáticos para a função que decide se uma reserva cabe nos horários de funcionamento. As demais regras (conflitos, janela de 5 minutos, permissões) foram validadas manualmente via API e interface, e cobri-las com testes é um dos próximos passos.
+
+## Docker e deploy
+
+O repositório traz Dockerfiles para a API e para o frontend (com saída `standalone`) e um `docker-compose.yml` de produção, pensado para rodar atrás de um proxy reverso **sem publicar portas**. Ele espera um PostgreSQL acessível pela rede Docker e as variáveis descritas no `.env.example` da raiz. O deploy ainda está em preparação.
+
+## Fora do escopo (por enquanto)
+
+- Notificações por e-mail ou chat (hoje quem cancela uma reserva por bloqueio avisa as pessoas por fora).
+- Reservas recorrentes.
+- Lista de serviços pré-definidos e editáveis pelo administrador.
+- "Mostrar desativados" nas telas de configuração.
+- Troca obrigatória de senha no primeiro login.
+- Testes automáticos das demais regras de reserva.
+
+## Documentação adicional
+
+- [`docs/PRODUCT.md`](./docs/PRODUCT.md): planejamento original do produto (mais amplo que o que foi implementado).
+- [`docs/DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md): referência visual (cores, tipografia e comportamento do calendário).
+
+## Autor
+
+Desenvolvido por Erick Sant'Ana.
