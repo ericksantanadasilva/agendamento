@@ -1,2 +1,6 @@
 # Segredos do compose de produção (existem só na VPS)
 .env
+# Arquivos de apoio a assistentes de IA (não fazem parte do projeto)
+AGENTS.md
+backend/.agents/
+backend/skills-lock.json
