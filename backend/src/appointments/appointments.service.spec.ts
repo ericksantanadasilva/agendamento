@@ -1,4 +1,12 @@
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
+import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
@@ -27,19 +35,20 @@ const END_AFTER_60_MIN = '2026-10-30T14:00:00.000Z';
 const admin = { sub: 'admin-1', role: Role.ADMIN } as JwtPayload;
 const operator = { sub: 'operator-1', role: Role.OPERATOR } as JwtPayload;
 const user = { sub: 'user-1', role: Role.USER } as JwtPayload;
+const asyncMock = () => jest.fn<(...args: unknown[]) => Promise<unknown>>();
 
 function createPrismaMock() {
   return {
-    studio: { findUnique: jest.fn() },
-    duration: { findUnique: jest.fn() },
-    user: { findUnique: jest.fn() },
-    block: { findFirst: jest.fn() },
-    availability: { findMany: jest.fn() },
+    studio: { findUnique: asyncMock() },
+    duration: { findUnique: asyncMock() },
+    user: { findUnique: asyncMock() },
+    block: { findFirst: asyncMock() },
+    availability: { findMany: asyncMock() },
     appointment: {
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
+      findUnique: asyncMock(),
+      findFirst: asyncMock(),
+      create: asyncMock(),
+      update: asyncMock(),
     },
   };
 }
