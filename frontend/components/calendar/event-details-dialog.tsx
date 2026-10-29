@@ -1,17 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { CalendarAppointment, AppointmentStatus } from '@/types/calendar';
+import { Calendar, CalendarX, MapPin, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { X, Calendar, CalendarX, MapPin, Pencil } from 'lucide-react';
-import { formatHeaderDate } from './utils';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/auth-context';
+import { Dialog } from '@/components/ui/dialog';
 import { useNow } from '@/hooks/use-now';
 import {
   getAppointmentPermission,
   type AppointmentPermission,
 } from '@/lib/appointment-permissions';
+import { useAuth } from '@/lib/auth-context';
+import { cn } from '@/lib/utils';
+import type { AppointmentStatus, CalendarAppointment } from '@/types/calendar';
+import { formatHeaderDate } from './utils';
 
 const STATUS_CONFIG: Record<
   AppointmentStatus,
@@ -58,6 +59,7 @@ export function EventDetailsDialog({
     setPreviousAppointment(appointment);
     setIsConfirmingDelete(false);
   }
+
   const { user } = useAuth();
   const now = useNow();
   if (!appointment) return null;
@@ -68,110 +70,21 @@ export function EventDetailsDialog({
 
   const [year, month, day] = appointment.date.split('-').map(Number);
   const dateLabel = formatHeaderDate(new Date(year, month - 1, day));
-
   const statusInfo = STATUS_CONFIG[appointment.status];
 
   return (
-    <div
-      onClick={onClose}
-      className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer'
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className='w-full max-w-md bg-card border border-border rounded-[var(--radius)] shadow-xl shadow-black/40 overflow-hidden cursor-default'
-        role='dialog'
-        aria-modal='true'
-        aria-labelledby='dialog-title'
-      >
-        {/* Cabeçalho do Dialog */}
-        <div className='flex items-center justify-between p-4 border-b border-border bg-muted/30'>
-          <div className='space-y-0.5'>
-            <span className='font-mono text-3xs uppercase text-muted-foreground tracking-wider'>
-              Detalhes da Reserva
-            </span>
-            <h3
-              id='dialog-title'
-              className='text-sm font-semibold text-foreground truncate'
-            >
-              {appointment.clientName}
-            </h3>
-          </div>
-          <button
-            type='button'
-            onClick={onClose}
-            className='p-1.5 rounded-[var(--radius)] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer'
-            aria-label='Fechar modal'
-          >
-            <X className='w-4 h-4' />
-          </button>
-        </div>
-
-        {/* Conteúdo com Informações Estruturadas */}
-        <div className='p-5 space-y-4 text-xs'>
-          {/* Serviço e Status */}
-          <div className='flex items-center justify-between gap-2 pb-3 border-b border-border/50'>
-            <div>
-              <p className='text-muted-foreground text-2xs'>Serviço</p>
-              <p className='font-medium text-foreground text-sm mt-0.5'>
-                {appointment.serviceName}
-              </p>
-            </div>
-            <div className='text-right'>
-              <span className='inline-flex items-center gap-1.5 text-2xs px-2.5 py-0.5 rounded bg-muted/60 border border-border/60 text-foreground'>
-                <span
-                  className={cn(
-                    'w-1.5 h-1.5 rounded-full shrink-0',
-                    statusInfo.dotClass,
-                  )}
-                />
-                <span className='font-medium'>{statusInfo.label}</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Horário & Duração */}
-          <div className='grid grid-cols-2 gap-3'>
-            <div className='p-2.5 rounded bg-muted/40 border border-border/60'>
-              <span className='flex items-center gap-1.5 text-muted-foreground text-3xs'>
-                <Calendar className='w-3 h-3' />
-                Quando
-              </span>
-              <p className='font-medium text-foreground mt-1 truncate'>
-                {dateLabel}
-              </p>
-              <p className='text-3xs font-mono text-muted-foreground mt-0.5'>
-                {appointment.startTime} → {appointment.endTime} ·{' '}
-                {appointment.durationName ??
-                  `${appointment.durationMinutes} min`}
-              </p>
-            </div>
-
-            <div className='p-2.5 rounded bg-muted/40 border border-border/60'>
-              <span className='flex items-center gap-1.5 text-muted-foreground text-3xs'>
-                <MapPin className='w-3 h-3' />
-                Local
-              </span>
-              <p className='font-medium text-foreground mt-1 truncate'>
-                {resourceName || 'Estúdio'}
-              </p>
-            </div>
-          </div>
-
-          {permission.canModify && permission.editableUntil && (
-            <p className='text-2xs text-muted-foreground'>
-              Você pode alterar esta reserva até{' '}
-              {formatClock(permission.editableUntil)}.
-            </p>
-          )}
-        </div>
-
-        {/* Rodapé de Ações */}
-        <div className='flex items-center justify-between gap-2.5 p-3.5 border-t border-border bg-muted/20'>
+    <Dialog
+      eyebrow='Detalhes da reserva'
+      title={appointment.clientName}
+      onClose={onClose}
+      footer={
+        <div className='flex w-full items-center justify-between gap-2.5'>
           <div>
             {onDelete && permission.canModify && (
               <Button
                 variant='destructive'
                 size='sm'
+                className='gap-1.5'
                 onClick={() => {
                   if (!isConfirmingDelete) {
                     setIsConfirmingDelete(true);
@@ -180,9 +93,8 @@ export function EventDetailsDialog({
                   onDelete(appointment.id);
                   onClose();
                 }}
-                className='gap-1.5'
               >
-                <CalendarX className='w-3.5 h-3.5' />
+                <CalendarX className='h-3.5 w-3.5' />
                 {isConfirmingDelete
                   ? 'Confirmar cancelamento?'
                   : 'Cancelar reserva'}
@@ -198,19 +110,74 @@ export function EventDetailsDialog({
               <Button
                 variant='outline'
                 size='sm'
+                className='gap-1.5'
                 onClick={() => {
                   onEdit(appointment);
                   onClose();
                 }}
-                className='gap-1.5'
               >
-                <Pencil className='w-3.5 h-3.5' />
+                <Pencil className='h-3.5 w-3.5' />
                 Editar
               </Button>
             )}
           </div>
         </div>
+      }
+    >
+      <div className='space-y-4 p-5 text-xs'>
+        {/* Serviço e status */}
+        <div className='flex items-center justify-between gap-2 border-b border-border/50 pb-3'>
+          <div>
+            <p className='text-2xs text-muted-foreground'>Serviço</p>
+            <p className='mt-0.5 text-sm font-medium text-foreground'>
+              {appointment.serviceName}
+            </p>
+          </div>
+          <span className='inline-flex items-center gap-1.5 rounded border border-border/60 bg-muted/60 px-2.5 py-0.5 text-2xs text-foreground'>
+            <span
+              className={cn(
+                'h-1.5 w-1.5 shrink-0 rounded-full',
+                statusInfo.dotClass,
+              )}
+            />
+            <span className='font-medium'>{statusInfo.label}</span>
+          </span>
+        </div>
+
+        {/* Quando e onde */}
+        <div className='grid grid-cols-2 gap-3'>
+          <div className='rounded border border-border/60 bg-muted/40 p-2.5'>
+            <span className='flex items-center gap-1.5 text-3xs text-muted-foreground'>
+              <Calendar className='h-3 w-3' />
+              Quando
+            </span>
+            <p className='mt-1 truncate font-medium text-foreground'>
+              {dateLabel}
+            </p>
+            <p className='mt-0.5 font-mono text-3xs text-muted-foreground'>
+              {appointment.startTime} → {appointment.endTime} ·{' '}
+              {appointment.durationName ?? `${appointment.durationMinutes} min`}
+            </p>
+          </div>
+
+          <div className='rounded border border-border/60 bg-muted/40 p-2.5'>
+            <span className='flex items-center gap-1.5 text-3xs text-muted-foreground'>
+              <MapPin className='h-3 w-3' />
+              Local
+            </span>
+            <p className='mt-1 truncate font-medium text-foreground'>
+              {resourceName || 'Estúdio'}
+            </p>
+          </div>
+        </div>
+
+        {permission.canModify && permission.editableUntil && (
+          <p className='text-2xs text-muted-foreground'>
+            Você pode alterar esta reserva até{' '}
+            {formatClock(permission.editableUntil)}.
+          </p>
+        )}
       </div>
-    </div>
+    </Dialog>
   );
 }
