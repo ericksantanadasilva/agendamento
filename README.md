@@ -54,14 +54,14 @@ Reservas de estúdio costumam viver em planilhas e mensagens: dois pedidos para 
 
 ## Stack
 
-| Camada | Tecnologias |
-| --- | --- |
-| Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Lucide |
-| Backend | NestJS 11, TypeScript, Prisma 6 |
-| Banco | PostgreSQL 16 |
-| Segurança | JWT, bcrypt, class-validator, Helmet, Throttler |
-| Testes | Jest |
-| Infra | Docker, proxy reverso (Nginx Proxy Manager) |
+| Camada    | Tecnologias                                                           |
+| --------- | --------------------------------------------------------------------- |
+| Frontend  | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Lucide |
+| Backend   | NestJS 11, TypeScript, Prisma 6                                       |
+| Banco     | PostgreSQL 16                                                         |
+| Segurança | JWT, bcrypt, class-validator, Helmet, Throttler                       |
+| Testes    | Jest                                                                  |
+| Infra     | Docker, proxy reverso (Nginx Proxy Manager)                           |
 
 Os componentes da interface (botão, campo, diálogo, seletor, seletor de data e de hora) são próprios, em `frontend/components/ui`, no estilo do shadcn/ui, sem biblioteca de componentes pronta.
 
@@ -146,14 +146,14 @@ A aplicação fica em `http://localhost:3000`. Entre com o administrador criado 
 
 ### Variáveis do backend
 
-| Variável | Para que serve |
-| --- | --- |
-| `DATABASE_URL` | Conexão com o banco da aplicação |
-| `SHADOW_DATABASE_URL` | Banco sombra, só para criar migrations em desenvolvimento |
-| `JWT_SECRET` | Segredo que assina os tokens de acesso (use um valor longo e aleatório) |
-| `FRONTEND_URL` | Origem permitida no CORS, sem barra no final |
-| `PORT` | Porta da API (padrão 3001) |
-| `TRUST_PROXY` | Número de proxies confiáveis na frente da API (use `1` atrás de um proxy reverso) |
+| Variável              | Para que serve                                                                    |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Conexão com o banco da aplicação                                                  |
+| `SHADOW_DATABASE_URL` | Banco sombra, só para criar migrations em desenvolvimento                         |
+| `JWT_SECRET`          | Segredo que assina os tokens de acesso (use um valor longo e aleatório)           |
+| `FRONTEND_URL`        | Origem permitida no CORS, sem barra no final                                      |
+| `PORT`                | Porta da API (padrão 3001)                                                        |
+| `TRUST_PROXY`         | Número de proxies confiáveis na frente da API (use `1` atrás de um proxy reverso) |
 
 O front e a API precisam ficar no **mesmo site** (por exemplo, `app.exemplo.com` e `api.exemplo.com`), porque o cookie do refresh token só viaja entre origens do mesmo domínio.
 
@@ -171,7 +171,7 @@ npx eslint .
 npm run build
 ```
 
-Hoje existem testes automáticos para a função que decide se uma reserva cabe nos horários de funcionamento. As demais regras (conflitos, janela de 5 minutos, permissões) foram validadas manualmente via API e interface, e cobri-las com testes é um dos próximos passos.
+Existem testes automáticos para a função que decide se uma reserva cabe nos horários de funcionamento e para o `AppointmentsService` (criação, edição e cancelamento: permissões, janela de 5 minutos, conflitos e horário de funcionamento). As regras dos demais módulos foram validadas manualmente via API e interface, e cobri-las com testes é um dos próximos passos.
 
 ## Docker e deploy
 
