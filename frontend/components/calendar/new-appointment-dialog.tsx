@@ -1,23 +1,26 @@
 'use client';
 
 import * as React from 'react';
-import { Check, Clock, X } from 'lucide-react';
+import { Check, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { apiClient } from '@/lib/api';
+import { TimePicker } from '@/components/ui/time-picker';
+import { useAppointmentFormOptions } from '@/hooks/use-appointment-form-options';
 import { DEFAULT_SERVICE_LABEL, studioDateTimeToIso } from '@/lib/agenda';
+import { apiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import { useAppointmentFormOptions } from '@/hooks/use-appointment-form-options';
 import type {
   AppointmentSlot,
   CalendarAppointment,
   StudioResource,
 } from '@/types/calendar';
 import { timeToMinutes } from './utils';
-import { DatePicker } from '@/components/ui/date-picker';
-import { TimePicker } from '@/components/ui/time-picker';
+
+const FORM_ID = 'appointment-form';
 
 export interface NewAppointmentDialogProps {
   isOpen: boolean;
@@ -127,14 +130,6 @@ function AppointmentForm({
     (isEditing ? '' : (durations?.[0]?.id ?? ''));
   const selectedDuration = durationOptions?.find((d) => d.id === durationId);
 
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
   function clearError(key: keyof FormErrors) {
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   }
@@ -211,182 +206,154 @@ function AppointmentForm({
   }
 
   return (
-    <div
-      onClick={onClose}
-      className='fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-background/80 p-4 backdrop-blur-xs animate-in fade-in duration-150'
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className='flex max-h-[90vh] w-full max-w-lg cursor-default flex-col overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-xl shadow-black/40'
-        role='dialog'
-        aria-modal='true'
-        aria-labelledby='new-appointment-title'
-      >
-        <div className='flex items-center justify-between border-b border-border bg-muted/30 p-4'>
-          <div className='space-y-0.5'>
-            <span className='font-mono text-3xs uppercase tracking-wider text-muted-foreground'>
-              {isEditing ? 'Gestão de reserva' : 'Reserva de estúdio'}
-            </span>
-            <h2
-              id='new-appointment-title'
-              className='text-sm font-semibold text-foreground sm:text-base'
-            >
-              {isEditing ? 'Editar reserva' : 'Nova reserva'}
-            </h2>
-          </div>
-          <Button
-            type='button'
-            variant='icon'
-            size='icon'
-            onClick={onClose}
-            aria-label='Fechar'
-          >
-            <X className='h-4 w-4' />
+    <Dialog
+      eyebrow={isEditing ? 'Gestão de reserva' : 'Reserva de estúdio'}
+      title={isEditing ? 'Editar reserva' : 'Nova reserva'}
+      onClose={onClose}
+      className='max-w-lg'
+      footer={
+        <>
+          <Button type='button' variant='outline' size='sm' onClick={onClose}>
+            Fechar
           </Button>
+          <Button
+            type='submit'
+            form={FORM_ID}
+            variant='primary'
+            size='sm'
+            className='gap-1.5'
+            disabled={submitting || durations === null}
+          >
+            <Check className='h-3.5 w-3.5' />
+            {submitting
+              ? 'Salvando...'
+              : isEditing
+                ? 'Salvar alterações'
+                : 'Reservar'}
+          </Button>
+        </>
+      }
+    >
+      <form
+        id={FORM_ID}
+        onSubmit={handleSubmit}
+        className='space-y-4 p-5 text-xs'
+      >
+        {isStaff && !isEditing && (
+          <Select
+            id='appointment-owner'
+            label='Reservar para'
+            value={ownerId}
+            onValueChange={setOwnerId}
+          >
+            <option value=''>Eu mesmo</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name} · {u.email}
+              </option>
+            ))}
+          </Select>
+        )}
+
+        <Select
+          id='appointment-studio'
+          label='Estúdio'
+          value={resourceId}
+          onValueChange={(value) => {
+            setResourceId(value);
+            clearError('resourceId');
+          }}
+          error={errors.resourceId}
+        >
+          {resources.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name}
+              {r.subtitle ? ` · ${r.subtitle}` : ''}
+            </option>
+          ))}
+        </Select>
+
+        <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
+          <DatePicker
+            id='appointment-date'
+            label='Data'
+            value={dateStr}
+            onValueChange={(value) => {
+              setDateStr(value);
+              clearError('dateStr');
+            }}
+            error={errors.dateStr}
+          />
+          <TimePicker
+            id='appointment-start'
+            label='Início'
+            value={startTime}
+            onValueChange={(value) => {
+              setStartTime(value);
+              clearError('startTime');
+            }}
+            error={errors.startTime}
+          />
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className='flex flex-1 flex-col overflow-y-auto'
+        <Select
+          id='appointment-duration'
+          label='Duração'
+          value={durationId}
+          onValueChange={(value) => {
+            setChosenDurationId(value);
+            clearError('duration');
+          }}
+          disabled={durations === null}
+          error={errors.duration}
         >
-          <div className='space-y-4 p-5 text-xs'>
-            {isStaff && !isEditing && (
-              <Select
-                id='appointment-owner'
-                label='Reservar para'
-                value={ownerId}
-                onValueChange={setOwnerId}
-              >
-                <option value=''>Eu mesmo</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} · {u.email}
-                  </option>
-                ))}
-              </Select>
-            )}
-
-            <Select
-              id='appointment-studio'
-              label='Estúdio'
-              value={resourceId}
-              onValueChange={(value) => {
-                setResourceId(value);
-                clearError('resourceId');
-              }}
-              error={errors.resourceId}
-            >
-              {resources.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                  {r.subtitle ? ` · ${r.subtitle}` : ''}
+          {durationOptions === null ? (
+            <option value=''>Carregando...</option>
+          ) : (
+            <>
+              <option value='' disabled>
+                Selecione...
+              </option>
+              {durationOptions.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name} · {d.minutes} min
                 </option>
               ))}
-            </Select>
+            </>
+          )}
+        </Select>
 
-            <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
-              <DatePicker
-                id='appointment-date'
-                label='Data'
-                value={dateStr}
-                onValueChange={(value) => {
-                  setDateStr(value);
-                  clearError('dateStr');
-                }}
-                error={errors.dateStr}
-              />
-              <TimePicker
-                id='appointment-start'
-                label='Início'
-                value={startTime}
-                onValueChange={(value) => {
-                  setStartTime(value);
-                  clearError('startTime');
-                }}
-                error={errors.startTime}
-              />
-            </div>
-
-            <Select
-              id='appointment-duration'
-              label='Duração'
-              value={durationId}
-              onValueChange={(value) => {
-                setChosenDurationId(value);
-                clearError('duration');
-              }}
-              disabled={durations === null}
-              error={errors.duration}
-            >
-              {durationOptions === null ? (
-                <option value=''>Carregando...</option>
-              ) : (
-                <>
-                  <option value='' disabled>
-                    Selecione...
-                  </option>
-                  {durationOptions.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name} · {d.minutes} min
-                    </option>
-                  ))}
-                </>
-              )}
-            </Select>
-
-            {selectedDuration && startTime && (
-              <div className='flex items-center gap-1.5 text-2xs text-muted-foreground'>
-                <Clock className='h-3 w-3 shrink-0 text-primary/70' />
-                <span>
-                  Termina às{' '}
-                  <strong className='font-mono text-foreground'>
-                    {formatEndTime(startTime, selectedDuration.minutes)}
-                  </strong>
-                </span>
-              </div>
-            )}
-
-            <Input
-              id='appointment-service'
-              label='Serviço'
-              placeholder='Ex: Gravação da aula 12, Transmissão ao vivo...'
-              maxLength={120}
-              value={service}
-              onChange={(e) => {
-                setService(e.target.value);
-                clearError('service');
-              }}
-              error={errors.service}
-            />
-
-            {optionsError && (
-              <p role='alert' className='text-2xs font-medium text-destructive'>
-                {optionsError}
-              </p>
-            )}
+        {selectedDuration && startTime && (
+          <div className='flex items-center gap-1.5 text-2xs text-muted-foreground'>
+            <Clock className='h-3 w-3 shrink-0 text-primary/70' />
+            <span>
+              Termina às{' '}
+              <strong className='font-mono text-foreground'>
+                {formatEndTime(startTime, selectedDuration.minutes)}
+              </strong>
+            </span>
           </div>
+        )}
 
-          <div className='mt-auto flex items-center justify-end gap-2 border-t border-border bg-muted/20 p-4'>
-            <Button type='button' variant='outline' size='sm' onClick={onClose}>
-              Fechar
-            </Button>
-            <Button
-              type='submit'
-              variant='primary'
-              size='sm'
-              className='gap-1.5'
-              disabled={submitting || durations === null}
-            >
-              <Check className='h-3.5 w-3.5' />
-              {submitting
-                ? 'Salvando...'
-                : isEditing
-                  ? 'Salvar alterações'
-                  : 'Reservar'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <Input
+          id='appointment-service'
+          label='Serviço'
+          placeholder='Ex: Gravação da aula 12, Transmissão ao vivo...'
+          maxLength={120}
+          value={service}
+          onChange={(e) => {
+            setService(e.target.value);
+            clearError('service');
+          }}
+          error={errors.service}
+        />
+
+        {optionsError && (
+          <p role='alert' className='text-2xs font-medium text-destructive'>
+            {optionsError}
+          </p>
+        )}
+      </form>
+    </Dialog>
   );
 }
