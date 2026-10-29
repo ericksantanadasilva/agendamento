@@ -1,17 +1,21 @@
+> **Referência visual.** Os princípios, as cores, a tipografia e o comportamento do calendário valem para a implementação atual. Os exemplos que mencionam Cliente, Serviço, Dashboard ou Profissional vêm do planejamento original e não existem no sistema; veja o [README](../README.md) para o escopo real.
+
+---
+
 # Agendamento Design System
 
 Este documento define a linguagem visual e os padrões de interface do Agendamento.
 
 O objetivo é criar uma interface:
 
-* moderna;
-* minimalista;
-* técnica;
-* elegante;
-* funcional;
-* consistente;
-* responsiva;
-* visualmente memorável sem ser chamativa.
+- moderna;
+- minimalista;
+- técnica;
+- elegante;
+- funcional;
+- consistente;
+- responsiva;
+- visualmente memorável sem ser chamativa.
 
 A interface deve transmitir organização, precisão e qualidade sem parecer excessivamente corporativa, genérica ou baseada em um template SaaS.
 
@@ -27,15 +31,15 @@ Minimalismo não significa simplesmente utilizar fundo escuro, poucos elementos 
 
 A personalidade deve surgir através de:
 
-* composição;
-* tipografia;
-* contraste;
-* espaçamento;
-* proporção;
-* ritmo visual;
-* detalhes técnicos;
-* uso controlado da cor;
-* pequenas decisões de interface.
+- composição;
+- tipografia;
+- contraste;
+- espaçamento;
+- proporção;
+- ritmo visual;
+- detalhes técnicos;
+- uso controlado da cor;
+- pequenas decisões de interface.
 
 A interface deve ser interessante mesmo quando não possui elementos decorativos.
 
@@ -275,15 +279,15 @@ Ele deve funcionar como uma espécie de sinal visual.
 
 Usos apropriados:
 
-* ação principal;
-* item ativo;
-* foco;
-* seleção;
-* disponibilidade;
-* confirmação;
-* indicadores importantes;
-* elementos interativos relevantes;
-* pequenos detalhes de identidade.
+- ação principal;
+- item ativo;
+- foco;
+- seleção;
+- disponibilidade;
+- confirmação;
+- indicadores importantes;
+- elementos interativos relevantes;
+- pequenos detalhes de identidade.
 
 Evitar:
 
@@ -308,18 +312,18 @@ Azul NÃO é a cor principal da identidade do Agendamento.
 
 Azul pode ser utilizado quando possuir significado semântico, por exemplo:
 
-* informação;
-* links;
-* estados informativos;
-* elementos que precisem de diferenciação semântica.
+- informação;
+- links;
+- estados informativos;
+- elementos que precisem de diferenciação semântica.
 
 Não utilizar azul como:
 
-* cor padrão dos botões;
-* cor padrão dos links internos quando isso conflitar com a identidade;
-* cor dominante do dashboard;
-* fundo de superfícies;
-* identidade visual geral.
+- cor padrão dos botões;
+- cor padrão dos links internos quando isso conflitar com a identidade;
+- cor dominante do dashboard;
+- fundo de superfícies;
+- identidade visual geral.
 
 Outras cores devem possuir função semântica.
 
@@ -364,12 +368,12 @@ Elementos técnicos podem utilizar uma fonte monoespaçada de maneira pontual.
 
 Exemplos:
 
-* horários;
-* IDs;
-* códigos;
-* pequenos indicadores;
-* dados técnicos;
-* valores específicos.
+- horários;
+- IDs;
+- códigos;
+- pequenos indicadores;
+- dados técnicos;
+- valores específicos.
 
 Não transformar toda a interface em uma tela de terminal.
 
@@ -381,13 +385,13 @@ Espaço vazio é parte ativa do design.
 
 Não preencher automaticamente áreas vazias com:
 
-* cards;
-* gráficos;
-* textos;
-* ícones;
-* indicadores;
-* métricas;
-* decoração.
+- cards;
+- gráficos;
+- textos;
+- ícones;
+- indicadores;
+- métricas;
+- decoração.
 
 Uma página pode possuir uma área vazia intencionalmente.
 
@@ -463,11 +467,11 @@ Elementos pequenos devem possuir radius menor.
 
 Pills são reservadas principalmente para:
 
-* badges;
-* status;
-* filtros;
-* pequenas categorias;
-* controles específicos.
+- badges;
+- status;
+- filtros;
+- pequenas categorias;
+- controles específicos.
 
 Não utilizar radius exagerado como recurso para deixar a interface "bonita".
 
@@ -477,20 +481,20 @@ Não utilizar radius exagerado como recurso para deixar a interface "bonita".
 
 A interface deve depender principalmente de:
 
-* contraste;
-* superfície;
-* borda;
-* espaçamento.
+- contraste;
+- superfície;
+- borda;
+- espaçamento.
 
 Sombras devem ser discretas.
 
 Utilizar elevação maior somente quando um elemento realmente estiver acima da interface:
 
-* modal;
-* dropdown;
-* popover;
-* menu;
-* elemento flutuante.
+- modal;
+- dropdown;
+- popover;
+- menu;
+- elemento flutuante.
 
 Evitar:
 
@@ -604,12 +608,12 @@ Evitar gradientes, glow e efeitos decorativos.
 
 Inputs devem possuir:
 
-* label;
-* estado normal;
-* foco;
-* erro;
-* disabled;
-* placeholder quando necessário.
+- label;
+- estado normal;
+- foco;
+- erro;
+- disabled;
+- placeholder quando necessário.
 
 O foco deve possuir uma indicação clara e consistente com a identidade visual.
 
@@ -623,19 +627,19 @@ Não depender somente de mudança de cor para comunicar erro.
 
 Dialogs devem ser utilizados para:
 
-* criação;
-* edição;
-* confirmação;
-* informações contextuais.
+- criação;
+- edição;
+- confirmação;
+- informações contextuais.
 
 Não utilizar dialogs para fluxos enormes quando uma página dedicada for mais adequada.
 
 Dialogs devem possuir:
 
-* hierarquia clara;
-* espaço interno adequado;
-* contraste suficiente;
-* ações facilmente identificáveis.
+- hierarquia clara;
+- espaço interno adequado;
+- contraste suficiente;
+- ações facilmente identificáveis.
 
 ---
 
@@ -700,11 +704,11 @@ Estado recolhido:
 
 Quando recolhida:
 
-* utilizar apenas ícones;
-* manter indicação clara do item ativo;
-* utilizar tooltip quando necessário;
-* manter áreas de toque confortáveis;
-* preservar a mesma linguagem visual da versão expandida.
+- utilizar apenas ícones;
+- manter indicação clara do item ativo;
+- utilizar tooltip quando necessário;
+- manter áreas de toque confortáveis;
+- preservar a mesma linguagem visual da versão expandida.
 
 A Sidebar não deve parecer um painel separado da aplicação.
 
@@ -726,14 +730,14 @@ Visual:
 
 Características:
 
-* não tocar diretamente nas bordas;
-* possuir margem lateral;
-* possuir margem inferior;
-* possuir radius elevado;
-* possuir elevação sutil;
-* possuir área de toque confortável;
-* item ativo claramente identificável;
-* respeitar safe area.
+- não tocar diretamente nas bordas;
+- possuir margem lateral;
+- possuir margem inferior;
+- possuir radius elevado;
+- possuir elevação sutil;
+- possuir área de toque confortável;
+- item ativo claramente identificável;
+- respeitar safe area.
 
 A navegação deve parecer realmente flutuante.
 
@@ -865,11 +869,11 @@ A aparência dos componentes deve seguir os tokens do sistema.
 
 A visualização mensal deve priorizar:
 
-* visão geral;
-* quantidade de compromissos;
-* dias;
-* eventos resumidos;
-* navegação temporal.
+- visão geral;
+- quantidade de compromissos;
+- dias;
+- eventos resumidos;
+- navegação temporal.
 
 Eventos devem ser resumidos para evitar poluição visual.
 
@@ -911,12 +915,12 @@ A interface deve priorizar legibilidade e percepção espacial.
 
 Eventos devem representar visualmente:
 
-* horário;
-* duração;
-* título;
-* informação principal;
-* status;
-* recurso.
+- horário;
+- duração;
+- título;
+- informação principal;
+- status;
+- recurso.
 
 Quanto menor o evento, menos informação deve ser mostrada.
 
@@ -961,11 +965,11 @@ Não depender somente de cor.
 
 Quando possível, combinar:
 
-* cor;
-* texto;
-* ícone;
-* padrão visual;
-* intensidade da superfície.
+- cor;
+- texto;
+- ícone;
+- padrão visual;
+- intensidade da superfície.
 
 A cor deve reforçar o significado, não ser o único significado.
 
@@ -993,11 +997,11 @@ Não deve dominar visualmente a agenda.
 
 Quando apropriado:
 
-* clique em horário → iniciar criação;
-* clique em evento → abrir detalhes;
-* navegação → mudar período;
-* arrastar → somente se houver necessidade real;
-* redimensionar → somente se a regra de negócio permitir.
+- clique em horário → iniciar criação;
+- clique em evento → abrir detalhes;
+- navegação → mudar período;
+- arrastar → somente se houver necessidade real;
+- redimensionar → somente se a regra de negócio permitir.
 
 Não adicionar drag-and-drop apenas porque é visualmente interessante.
 
@@ -1031,9 +1035,9 @@ Utilizar uma biblioteca de ícones consistente.
 
 Ícones devem:
 
-* reforçar significado;
-* possuir tamanho consistente;
-* possuir área de toque adequada quando interativos.
+- reforçar significado;
+- possuir tamanho consistente;
+- possuir área de toque adequada quando interativos.
 
 Não usar ícones apenas para preencher espaço.
 
@@ -1045,24 +1049,24 @@ Não adicionar ícone quando um texto já comunica claramente a ação e o ícon
 
 Utilizar pequenas transições para:
 
-* hover;
-* focus;
-* abertura;
-* fechamento;
-* mudança de estado;
-* navegação.
+- hover;
+- focus;
+- abertura;
+- fechamento;
+- mudança de estado;
+- navegação.
 
 As microinterações devem reforçar a sensação de qualidade.
 
 Evitar:
 
-* animações constantes;
-* elementos pulando;
-* efeitos exagerados;
-* transições longas;
-* glow;
-* partículas;
-* efeitos decorativos.
+- animações constantes;
+- elementos pulando;
+- efeitos exagerados;
+- transições longas;
+- glow;
+- partículas;
+- efeitos decorativos.
 
 ---
 
@@ -1086,14 +1090,14 @@ Usuários que solicitarem redução de movimento não devem receber animações 
 
 Todos os componentes interativos devem considerar:
 
-* foco;
-* teclado;
-* aria-label quando necessário;
-* contraste;
-* tamanho de toque;
-* mensagens de erro;
-* estados disabled;
-* semântica HTML.
+- foco;
+- teclado;
+- aria-label quando necessário;
+- contraste;
+- tamanho de toque;
+- mensagens de erro;
+- estados disabled;
+- semântica HTML.
 
 Não utilizar somente cor para comunicar estado.
 
@@ -1121,9 +1125,9 @@ Significa que cada componente deve possuir uma estratégia clara para telas pequ
 
 Componentes devem ser reutilizados quando possuem:
 
-* mesma função;
-* mesma semântica;
-* mesmo padrão visual.
+- mesma função;
+- mesma semântica;
+- mesmo padrão visual.
 
 Exemplo:
 
@@ -1152,20 +1156,20 @@ O projeto não deve parecer um template SaaS comprado.
 
 Evitar especialmente:
 
-* dashboards cheios de métricas sem necessidade;
-* cards para absolutamente tudo;
-* gráficos decorativos;
-* gradientes aleatórios;
-* glassmorphism excessivo;
-* sombras fortes;
-* glow;
-* neon;
-* excesso de badges;
-* excesso de ícones;
-* excesso de bordas;
-* excesso de radius;
-* textos genéricos;
-* azul como identidade dominante.
+- dashboards cheios de métricas sem necessidade;
+- cards para absolutamente tudo;
+- gráficos decorativos;
+- gradientes aleatórios;
+- glassmorphism excessivo;
+- sombras fortes;
+- glow;
+- neon;
+- excesso de badges;
+- excesso de ícones;
+- excesso de bordas;
+- excesso de radius;
+- textos genéricos;
+- azul como identidade dominante.
 
 Também evitar a estética conhecida como:
 
@@ -1268,24 +1272,24 @@ Abstração deve resolver repetição real.
 
 Ao gerar ou modificar interfaces:
 
-* consultar este documento;
-* consultar `AGENTS.md`;
-* consultar `PRODUCT.md` quando a decisão envolver produto;
-* reutilizar tokens;
-* reutilizar componentes;
-* investigar componentes existentes antes de criar novos;
-* manter espaçamento consistente;
-* manter hierarquia visual;
-* não inventar cores;
-* não inventar estilos isolados;
-* não adicionar efeitos gratuitamente;
-* não transformar elementos em cards sem necessidade;
-* não utilizar azul como identidade principal;
-* utilizar o verde de identidade com moderação;
-* preservar espaço negativo;
-* manter a linguagem visual existente;
-* considerar mobile;
-* considerar acessibilidade.
+- consultar este documento;
+- consultar `AGENTS.md`;
+- consultar `PRODUCT.md` quando a decisão envolver produto;
+- reutilizar tokens;
+- reutilizar componentes;
+- investigar componentes existentes antes de criar novos;
+- manter espaçamento consistente;
+- manter hierarquia visual;
+- não inventar cores;
+- não inventar estilos isolados;
+- não adicionar efeitos gratuitamente;
+- não transformar elementos em cards sem necessidade;
+- não utilizar azul como identidade principal;
+- utilizar o verde de identidade com moderação;
+- preservar espaço negativo;
+- manter a linguagem visual existente;
+- considerar mobile;
+- considerar acessibilidade.
 
 Se houver dúvida entre criar algo novo e reutilizar algo existente, investigar o projeto primeiro.
 
@@ -1343,29 +1347,29 @@ Se alguma resposta for negativa, revisar antes de adicionar mais elementos.
 
 Antes de considerar uma interface concluída:
 
-* [ ] A hierarquia está clara?
-* [ ] O componente segue os tokens?
-* [ ] Existe algum componente reutilizável?
-* [ ] O espaçamento está consistente?
-* [ ] A tipografia está consistente?
-* [ ] As ações principais estão claras?
-* [ ] Loading foi considerado?
-* [ ] Empty state foi considerado?
-* [ ] Error state foi considerado?
-* [ ] Mobile foi considerado?
-* [ ] Teclado/foco foram considerados?
-* [ ] As animações são necessárias?
-* [ ] Existe algum elemento decorativo sem função?
-* [ ] Existe excesso de cards?
-* [ ] Existe excesso de bordas?
-* [ ] Existe excesso de radius?
-* [ ] Existe excesso de ícones?
-* [ ] Existe excesso de verde?
-* [ ] O azul está sendo usado apenas quando possui função?
-* [ ] A composição funciona sem efeitos?
-* [ ] A interface possui espaço negativo suficiente?
-* [ ] A página parece pertencer ao mesmo produto?
-* [ ] A página evita a estética genérica de SaaS?
+- [ ] A hierarquia está clara?
+- [ ] O componente segue os tokens?
+- [ ] Existe algum componente reutilizável?
+- [ ] O espaçamento está consistente?
+- [ ] A tipografia está consistente?
+- [ ] As ações principais estão claras?
+- [ ] Loading foi considerado?
+- [ ] Empty state foi considerado?
+- [ ] Error state foi considerado?
+- [ ] Mobile foi considerado?
+- [ ] Teclado/foco foram considerados?
+- [ ] As animações são necessárias?
+- [ ] Existe algum elemento decorativo sem função?
+- [ ] Existe excesso de cards?
+- [ ] Existe excesso de bordas?
+- [ ] Existe excesso de radius?
+- [ ] Existe excesso de ícones?
+- [ ] Existe excesso de verde?
+- [ ] O azul está sendo usado apenas quando possui função?
+- [ ] A composição funciona sem efeitos?
+- [ ] A interface possui espaço negativo suficiente?
+- [ ] A página parece pertencer ao mesmo produto?
+- [ ] A página evita a estética genérica de SaaS?
 
 ---
 

@@ -1,3 +1,7 @@
+> **Planejamento original.** Este documento descreve a visão inicial do produto, que previa clientes, profissionais, serviços, dashboard, histórico e notificações. A versão implementada é mais enxuta: o sistema é single-tenant, tem os papéis ADMIN, OPERATOR e USER, e o "serviço" é só um texto livre na reserva. O que existe de fato está descrito no [README](../README.md); em caso de divergência, vale o README.
+
+---
+
 # PRODUCT.md
 
 # Agendamento
@@ -16,25 +20,25 @@ O sistema deve permitir que uma organização acompanhe sua agenda, disponibilid
 
 Operações baseadas em agendamento normalmente precisam controlar simultaneamente:
 
-* clientes;
-* profissionais;
-* serviços;
-* horários;
-* disponibilidade;
-* recursos físicos;
-* conflitos;
-* cancelamentos;
-* alterações;
-* histórico.
+- clientes;
+- profissionais;
+- serviços;
+- horários;
+- disponibilidade;
+- recursos físicos;
+- conflitos;
+- cancelamentos;
+- alterações;
+- histórico.
 
 Quando essas informações ficam espalhadas, surgem problemas como:
 
-* horários duplicados;
-* conflitos de agenda;
-* dificuldade para visualizar a ocupação dos recursos;
-* alterações difíceis de acompanhar;
-* dependência de controles manuais;
-* pouca visibilidade da operação.
+- horários duplicados;
+- conflitos de agenda;
+- dificuldade para visualizar a ocupação dos recursos;
+- alterações difíceis de acompanhar;
+- dependência de controles manuais;
+- pouca visibilidade da operação.
 
 O Agendamento deve transformar essas informações em uma agenda visual e centralizada.
 
@@ -71,13 +75,13 @@ Responsável pela configuração e gerenciamento geral.
 
 Pode possuir acesso a:
 
-* usuários;
-* serviços;
-* recursos;
-* configurações;
-* agenda;
-* clientes;
-* relatórios.
+- usuários;
+- serviços;
+- recursos;
+- configurações;
+- agenda;
+- clientes;
+- relatórios.
 
 ### Operador
 
@@ -85,12 +89,12 @@ Responsável pela operação cotidiana.
 
 Pode possuir acesso a:
 
-* agenda;
-* criação de agendamentos;
-* clientes;
-* reagendamento;
-* cancelamento;
-* disponibilidade.
+- agenda;
+- criação de agendamentos;
+- clientes;
+- reagendamento;
+- cancelamento;
+- disponibilidade.
 
 ### Profissional/Técnico
 
@@ -100,10 +104,10 @@ Visualiza e gerencia os compromissos relacionados à sua atuação.
 
 Pode futuramente utilizar uma interface própria para:
 
-* consultar disponibilidade;
-* realizar agendamentos;
-* consultar seus compromissos;
-* cancelar ou reagendar quando permitido.
+- consultar disponibilidade;
+- realizar agendamentos;
+- consultar seus compromissos;
+- cancelar ou reagendar quando permitido.
 
 Os papéis e permissões devem ser definidos de forma explícita antes da implementação de cada área.
 
@@ -141,12 +145,12 @@ Atividade que pode ser agendada.
 
 Um serviço pode possuir:
 
-* nome;
-* descrição;
-* duração;
-* preço, quando aplicável;
-* profissionais habilitados;
-* recursos necessários.
+- nome;
+- descrição;
+- duração;
+- preço, quando aplicável;
+- profissionais habilitados;
+- recursos necessários.
 
 ---
 
@@ -156,10 +160,10 @@ Espaço ou recurso físico utilizado durante um agendamento.
 
 Exemplos:
 
-* Estúdio 1;
-* Estúdio 2;
-* Sala A;
-* Sala B.
+- Estúdio 1;
+- Estúdio 2;
+- Sala A;
+- Sala B.
 
 Um recurso pode possuir disponibilidade própria.
 
@@ -171,14 +175,14 @@ Representa uma reserva de determinado período.
 
 Um agendamento pode estar relacionado a:
 
-* cliente;
-* serviço;
-* profissional;
-* recurso;
-* data;
-* horário inicial;
-* horário final;
-* status.
+- cliente;
+- serviço;
+- profissional;
+- recurso;
+- data;
+- horário inicial;
+- horário final;
+- status.
 
 ---
 
@@ -194,11 +198,11 @@ Representa um período no qual determinado horário não pode receber agendament
 
 Exemplos:
 
-* manutenção;
-* reunião;
-* feriado;
-* indisponibilidade;
-* reserva interna.
+- manutenção;
+- reunião;
+- feriado;
+- indisponibilidade;
+- reserva interna.
 
 ---
 
@@ -268,10 +272,10 @@ O sistema não deve permitir conflitos incompatíveis.
 
 Exemplos:
 
-* dois agendamentos utilizando o mesmo recurso no mesmo horário;
-* dois agendamentos utilizando o mesmo profissional no mesmo horário;
-* agendamento fora da disponibilidade;
-* agendamento durante um bloqueio.
+- dois agendamentos utilizando o mesmo recurso no mesmo horário;
+- dois agendamentos utilizando o mesmo profissional no mesmo horário;
+- agendamento fora da disponibilidade;
+- agendamento durante um bloqueio.
 
 As regras devem ser verificadas no backend.
 
@@ -289,10 +293,10 @@ O sistema deve possuir diferentes visualizações.
 
 Foco:
 
-* visão geral;
-* navegação entre períodos;
-* quantidade de eventos;
-* identificação rápida de dias ocupados.
+- visão geral;
+- navegação entre períodos;
+- quantidade de eventos;
+- identificação rápida de dias ocupados.
 
 ---
 
@@ -300,9 +304,9 @@ Foco:
 
 Foco:
 
-* comparação de compromissos ao longo da semana;
-* distribuição dos horários;
-* visualização dos recursos.
+- comparação de compromissos ao longo da semana;
+- distribuição dos horários;
+- visualização dos recursos.
 
 A utilidade da visualização semanal deve ser validada durante o desenvolvimento.
 
@@ -340,11 +344,11 @@ A duração dos eventos deve ser visualmente representada sempre que possível.
 
 O usuário deve conseguir:
 
-* voltar;
-* avançar;
-* retornar ao dia atual;
-* selecionar uma data;
-* mudar a visualização.
+- voltar;
+- avançar;
+- retornar ao dia atual;
+- selecionar uma data;
+- mudar a visualização.
 
 A navegação deve ser rápida e previsível.
 
@@ -384,12 +388,12 @@ O sistema deve permitir definir quando determinado recurso ou profissional pode 
 
 Possíveis regras:
 
-* dias da semana;
-* horário inicial;
-* horário final;
-* intervalos;
-* exceções;
-* bloqueios.
+- dias da semana;
+- horário inicial;
+- horário final;
+- intervalos;
+- exceções;
+- bloqueios.
 
 A disponibilidade deve ser tratada como regra de negócio.
 
@@ -401,13 +405,13 @@ O sistema deve permitir bloquear períodos.
 
 Um bloqueio pode possuir:
 
-* recurso;
-* profissional;
-* data;
-* horário inicial;
-* horário final;
-* motivo;
-* observação.
+- recurso;
+- profissional;
+- data;
+- horário inicial;
+- horário final;
+- motivo;
+- observação.
 
 Exemplo:
 
@@ -427,11 +431,11 @@ O sistema deve permitir administrar clientes.
 
 Funcionalidades possíveis:
 
-* criar;
-* editar;
-* visualizar;
-* pesquisar;
-* histórico de agendamentos.
+- criar;
+- editar;
+- visualizar;
+- pesquisar;
+- histórico de agendamentos.
 
 O cadastro deve evoluir conforme as necessidades reais do produto.
 
@@ -445,13 +449,13 @@ O sistema deve permitir administrar os serviços oferecidos.
 
 Um serviço pode possuir:
 
-* nome;
-* descrição;
-* duração;
-* preço;
-* status;
-* profissionais associados;
-* recursos compatíveis.
+- nome;
+- descrição;
+- duração;
+- preço;
+- status;
+- profissionais associados;
+- recursos compatíveis.
 
 ---
 
@@ -461,12 +465,12 @@ O sistema deve permitir administrar os recursos utilizados pela operação.
 
 Cada recurso pode possuir:
 
-* nome;
-* descrição;
-* status;
-* disponibilidade;
-* capacidade;
-* características específicas.
+- nome;
+- descrição;
+- status;
+- disponibilidade;
+- capacidade;
+- características específicas.
 
 A estrutura deve permitir que "estúdio" seja apenas um tipo de recurso, caso o produto futuramente precise trabalhar com outros recursos.
 
@@ -478,13 +482,13 @@ As telas operacionais devem permitir encontrar informações rapidamente.
 
 Possíveis filtros:
 
-* data;
-* período;
-* cliente;
-* profissional;
-* serviço;
-* recurso;
-* status.
+- data;
+- período;
+- cliente;
+- profissional;
+- serviço;
+- recurso;
+- status.
 
 Filtros devem aparecer quando realmente ajudam a operação.
 
@@ -500,12 +504,12 @@ Ele não deve existir apenas para preencher a página inicial com gráficos.
 
 Possíveis informações:
 
-* agendamentos do dia;
-* próximos agendamentos;
-* ocupação;
-* cancelamentos;
-* recursos ocupados;
-* pendências.
+- agendamentos do dia;
+- próximos agendamentos;
+- ocupação;
+- cancelamentos;
+- recursos ocupados;
+- pendências.
 
 As métricas definitivas devem ser definidas depois que o fluxo principal estiver funcionando.
 
@@ -519,11 +523,11 @@ Operações importantes podem precisar de histórico.
 
 Possíveis eventos:
 
-* criação;
-* alteração;
-* cancelamento;
-* reagendamento;
-* alteração de status.
+- criação;
+- alteração;
+- cancelamento;
+- reagendamento;
+- alteração de status.
 
 O nível de auditoria deve ser definido conforme a necessidade do produto.
 
@@ -535,18 +539,18 @@ O produto poderá futuramente possuir notificações.
 
 Possibilidades:
 
-* confirmação;
-* lembrete;
-* cancelamento;
-* alteração;
-* aviso de indisponibilidade.
+- confirmação;
+- lembrete;
+- cancelamento;
+- alteração;
+- aviso de indisponibilidade.
 
 O canal pode ser definido posteriormente:
 
-* e-mail;
-* WhatsApp;
-* notificações internas;
-* outros.
+- e-mail;
+- WhatsApp;
+- notificações internas;
+- outros.
 
 Não implementar notificações externas antes de definir o fluxo real.
 
@@ -556,18 +560,18 @@ Não implementar notificações externas antes de definir o fluxo real.
 
 O sistema deve funcionar em:
 
-* desktop;
-* tablet;
-* mobile.
+- desktop;
+- tablet;
+- mobile.
 
 Desktop deve priorizar produtividade.
 
 Mobile deve priorizar:
 
-* consulta;
-* criação rápida;
-* navegação;
-* visualização dos compromissos.
+- consulta;
+- criação rápida;
+- navegação;
+- visualização dos compromissos.
 
 A experiência mobile não precisa ser uma cópia reduzida da experiência desktop.
 
@@ -593,11 +597,11 @@ Ações devem produzir resultados esperados.
 
 O usuário deve saber quando algo:
 
-* foi salvo;
-* falhou;
-* está carregando;
-* foi cancelado;
-* precisa de atenção.
+- foi salvo;
+- falhou;
+- está carregando;
+- foi cancelado;
+- precisa de atenção.
 
 ### Recuperação
 
@@ -626,11 +630,11 @@ Prioridade inicial:
 
 Funcionalidades como:
 
-* notificações externas;
-* relatórios avançados;
-* integrações;
-* automações;
-* dashboards complexos;
+- notificações externas;
+- relatórios avançados;
+- integrações;
+- automações;
+- dashboards complexos;
 
 podem ser adicionadas posteriormente.
 
@@ -640,14 +644,14 @@ podem ser adicionadas posteriormente.
 
 Não implementar automaticamente:
 
-* pagamentos;
-* marketplace;
-* chat;
-* CRM completo;
-* campanhas;
-* automações complexas;
-* integrações externas;
-* relatórios avançados.
+- pagamentos;
+- marketplace;
+- chat;
+- CRM completo;
+- campanhas;
+- automações complexas;
+- integrações externas;
+- relatórios avançados.
 
 Essas funcionalidades podem existir futuramente, mas não fazem parte do núcleo inicial.
 
@@ -671,14 +675,14 @@ Se não, a funcionalidade precisa de uma justificativa melhor.
 
 O produto deve permitir que uma operação consiga responder rapidamente:
 
-* O que está agendado hoje?
-* Qual recurso está ocupado?
-* Qual horário está disponível?
-* Quem é o cliente?
-* Qual serviço será realizado?
-* Quem é o responsável?
-* O que foi cancelado?
-* Existe algum conflito?
+- O que está agendado hoje?
+- Qual recurso está ocupado?
+- Qual horário está disponível?
+- Quem é o cliente?
+- Qual serviço será realizado?
+- Quem é o responsável?
+- O que foi cancelado?
+- Existe algum conflito?
 
 Se o usuário precisa procurar em várias telas para responder perguntas básicas da operação, a experiência precisa ser revisada.
 
