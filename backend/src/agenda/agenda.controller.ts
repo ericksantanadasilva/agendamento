@@ -11,10 +11,10 @@ import { RolesGuard } from 'src/auth/roles.guard';
 @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
 @Controller('agenda')
 export class AgendaController {
-    constructor(private readonly agendaService: AgendaService) {}
+  constructor(private readonly agendaService: AgendaService) {}
 
-    @Get()
-    find(@Req() req: AuthenticatedRequest, @Query() query: AgendaQueryDto) {
-        return this.agendaService.find(req.user, query);
-    }
+  @Get()
+  find(@Req() req: AuthenticatedRequest, @Query() query: AgendaQueryDto) {
+    return this.agendaService.find(req.user, query);
+  }
 }

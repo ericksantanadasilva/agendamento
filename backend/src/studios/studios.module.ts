@@ -4,6 +4,6 @@ import { StudiosController } from './studios.controller';
 
 @Module({
   providers: [StudiosService],
-  controllers: [StudiosController]
+  controllers: [StudiosController],
 })
 export class StudiosModule {}

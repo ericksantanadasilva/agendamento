@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import type { AuthenticatedRequest } from 'src/auth/auth.guard';
@@ -12,27 +21,27 @@ import { RolesGuard } from 'src/auth/roles.guard';
 @Roles(Role.ADMIN)
 @Controller('studios')
 export class StudiosController {
-    constructor(private readonly studiosService: StudiosService) { }
+  constructor(private readonly studiosService: StudiosService) {}
 
-    @Post()
-    create(@Body() dto: CreateStudioDto) {
-        return this.studiosService.create(dto);
-    }
+  @Post()
+  create(@Body() dto: CreateStudioDto) {
+    return this.studiosService.create(dto);
+  }
 
-    @Get()
-    @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
-    findAll(@Req() req: AuthenticatedRequest) {
-        return this.studiosService.findAll(req.user.role !== Role.ADMIN);
-    }
+  @Get()
+  @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.studiosService.findAll(req.user.role !== Role.ADMIN);
+  }
 
-    @Get(':id')
-    @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
-    findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
-        return this.studiosService.findOne(id, req.user.role !== Role.ADMIN);
-    }
+  @Get(':id')
+  @Roles(Role.ADMIN, Role.OPERATOR, Role.USER)
+  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.studiosService.findOne(id, req.user.role !== Role.ADMIN);
+  }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() dto: UpdateStudioDto) {
-        return this.studiosService.update(id, dto)
-    }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateStudioDto) {
+    return this.studiosService.update(id, dto);
+  }
 }

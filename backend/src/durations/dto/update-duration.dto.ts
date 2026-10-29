@@ -1,17 +1,24 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional,IsString, Min } from "class-validator";
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class UpdateDurationDto {
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    name?: string;
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
 
-    @IsOptional()
-    @IsInt()
-    @Min(1)
-    minutes?: number;
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  minutes?: number;
 
-    @IsOptional()
-    @IsBoolean()
-    active?: boolean;
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
 }

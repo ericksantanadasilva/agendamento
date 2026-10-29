@@ -6,4 +6,4 @@ import { AvailabilitiesService } from './availabilities.service';
   controllers: [AvailabilitiesController],
   providers: [AvailabilitiesService],
 })
-export class AvailabilitiesModule { }
+export class AvailabilitiesModule {}

@@ -1,11 +1,11 @@
-import { IsInt, IsNotEmpty, IsString, Min } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class CreateDurationDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsInt()
-    @Min(1)
-    minutes: number;
+  @IsInt()
+  @Min(1)
+  minutes: number;
 }

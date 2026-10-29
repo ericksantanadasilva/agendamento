@@ -29,7 +29,7 @@ export class UpdateAppointmentDto {
   startAt?: string;
 
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => 
+  @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? value.trim() : value,
   )
   @IsString()
