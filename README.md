@@ -12,6 +12,22 @@ Prints: coloque as imagens em docs/img/ e descomente as linhas abaixo.
 
 ---
 
+## Demonstração
+
+Ambiente no ar: **https://agenda.ericksantana.dev.br**
+
+| Papel    | E-mail                 | Senha         |
+| -------- | ---------------------- | ------------- |
+| Operador | `operador@exemplo.com` | `senha12345`  |
+| Usuário  | `user@exemplo.com`     | `senha122345` |
+
+O que vale experimentar:
+
+- Como **operador**: crie um bloqueio sobre uma reserva existente e veja a confirmação de cancelamento.
+- Como **usuário**: crie uma reserva e altere-a nos primeiros 5 minutos. Depois disso, o sistema recusa. O calendário mostra os horários ocupados sem revelar de quem são.
+
+Os dados são fictícios, e o ambiente pode ser reiniciado a qualquer momento. O login de administrador não é divulgado.
+
 ## O problema
 
 Reservas de estúdio costumam viver em planilhas e mensagens: dois pedidos para o mesmo horário, ninguém sabe quem pode alterar o quê, e bloqueios como manutenção e feriados são esquecidos. O Agendamento concentra isso num só lugar: o sistema recusa conflitos, respeita o horário de funcionamento de cada estúdio e controla quem pode reservar, alterar e cancelar.
@@ -181,7 +197,22 @@ Existem testes automáticos para a função que decide se uma reserva cabe nos h
 
 ## Docker e deploy
 
-O repositório traz Dockerfiles para a API e para o frontend (com saída `standalone`) e um `docker-compose.yml` de produção, pensado para rodar atrás de um proxy reverso **sem publicar portas**. Ele espera um PostgreSQL acessível pela rede Docker e as variáveis descritas no `.env.example` da raiz. O deploy ainda está em preparação.
+O repositório traz Dockerfiles para a API e para o frontend (com saída `standalone`) e um `docker-compose.yml` de produção. A demonstração roda assim, numa VPS, atrás de um proxy reverso (Nginx Proxy Manager, com HTTPS), **sem publicar portas**. O compose espera um PostgreSQL acessível pela rede Docker (`DB_HOST`) e as variáveis do `.env.example` da raiz.
+
+```bash
+cp .env.example .env   # preencha DB_HOST, DB_PASSWORD, JWT_SECRET, FRONTEND_URL e NEXT_PUBLIC_API_URL
+docker compose build
+docker compose run --rm agendamento-migrate
+docker compose up -d
+```
+
+Crie o primeiro administrador depois das migrations, com `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` definidos no terminal:
+
+```bash
+docker compose run --rm -e SEED_ADMIN_EMAIL -e SEED_ADMIN_PASSWORD agendamento-migrate npx ts-node prisma/seed.ts
+```
+
+A `NEXT_PUBLIC_API_URL` é gravada no frontend durante o build: se ela mudar, é preciso reconstruir a imagem.
 
 ## Fora do escopo (por enquanto)
 
