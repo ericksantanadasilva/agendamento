@@ -125,11 +125,17 @@ npx prisma generate
 npx prisma migrate deploy
 ```
 
-Crie o primeiro administrador com o script `prisma/seed.ts`, que lê as variáveis `SEED_ADMIN_*` (veja o próprio arquivo). Depois:
+Crie o primeiro administrador (o script só cria, e recusa um e-mail que já exista):
 
 ```bash
-npm run start:dev
+read -p 'E-mail do administrador: ' SEED_ADMIN_EMAIL
+read -s -p 'Senha (mínimo de 8 caracteres): ' SEED_ADMIN_PASSWORD; echo
+export SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD
+npm run seed
+unset SEED_ADMIN_PASSWORD
 ```
+
+O nome é opcional (`SEED_ADMIN_NAME`, padrão "Administrador"). Depois:
 
 A API fica em `http://localhost:3001/api`, e o `GET /api/health` confirma que ela está de pé.
 
@@ -161,7 +167,7 @@ O front e a API precisam ficar no **mesmo site** (por exemplo, `app.exemplo.com`
 
 ```bash
 # backend
-npm test                     # testes da regra de cobertura de horários
+npm test                     # testes da regra de horários e do serviço de reservas
 npm run build
 
 # frontend
@@ -184,7 +190,7 @@ O repositório traz Dockerfiles para a API e para o frontend (com saída `standa
 - Lista de serviços pré-definidos e editáveis pelo administrador.
 - "Mostrar desativados" nas telas de configuração.
 - Troca obrigatória de senha no primeiro login.
-- Testes automáticos das demais regras de reserva.
+- Testes automáticos dos demais módulos (usuários, bloqueios, autenticação e agenda).
 
 ## Documentação adicional
 
